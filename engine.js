@@ -88,8 +88,31 @@ function comboName(c1, c2) {
   return A + B + (suitOf(a) === suitOf(b) ? 's' : 'o');
 }
 
+// ---------- Leitura de faixas depois do flop ----------
+// Nível da mão num board parcial: 1 = ás/overcards, 1.5 = gutshot, 2 = par médio ou projeto forte,
+// 2.5 = top pair/overpair, 3 = dois pares ou melhor (usando carta própria)
+function handLevel(a, b, board, boardCat) {
+  const cat = catOf(evalHand([a, b, ...board]));
+  const top = Math.max(...board.map(rankOf)), ra = rankOf(a), rb = rankOf(b);
+  let s = 0;
+  if (cat > boardCat) {
+    if (cat >= 2) s = 3;
+    else {
+      const pr = ra === rb ? ra : board.some(c => rankOf(c) === ra) ? ra : rb;
+      s = pr >= top ? 2.5 : 2;
+    }
+  }
+  if (s < 2 && board.length < 5) {
+    const d = drawsOf([a, b], board);
+    if (d.some(x => x.outs >= 8)) s = Math.max(s, 2); else if (d.length) s = Math.max(s, 1.5);
+  }
+  if (s < 1 && (ra === 12 || rb === 12 || (ra > top && rb > top))) s = 1;
+  return s;
+}
+const BLUFF_ALLOW = 0.15; // fração das mãos que podem ser blefe/jogada fora da faixa
+
 // ---------- Equity por Monte Carlo ----------
-// opps: [{minChen}] — faixa mínima estimada pela ação pré-flop de cada rival
+// opps: [{minChen, reads}] — faixa estimada pela ação pré-flop e pelas apostas/calls depois do flop
 function equity(hole, board, opps, iters = 1000, rng = Math.random) {
   const used = new Set([...hole, ...board]);
   const pool = [];
@@ -97,16 +120,23 @@ function equity(hole, board, opps, iters = 1000, rng = Math.random) {
   const arr = pool.slice();
   let total = 0;
   const need = 5 - board.length;
+  const cons = opps.map(o => (o.reads || []).filter(r => r.n <= board.length).map(r => {
+    const bp = board.slice(0, r.n);
+    return { bp, lv: r.lv, bc: catOf(evalHand(bp)) };
+  }));
   for (let it = 0; it < iters; it++) {
     let end = arr.length;
     const draw = () => { const i = Math.floor(rng() * end); const c = arr[i]; arr[i] = arr[end - 1]; arr[end - 1] = c; end--; return c; };
     const oh = [];
-    for (const o of opps) {
+    for (let k = 0; k < opps.length; k++) {
+      const o = opps[k], cs = cons[k];
       let a, b, tries = 0;
       for (;;) {
         a = draw(); b = draw();
-        if (!o.minChen || chen(a, b) >= o.minChen || tries++ > 25) break;
-        end += 2;
+        if (tries++ > 30) break;
+        if (o.minChen && chen(a, b) < o.minChen) { end += 2; continue; }
+        if (cs.length && rng() >= BLUFF_ALLOW && cs.some(r => handLevel(a, b, r.bp, r.bc) < r.lv)) { end += 2; continue; }
+        break;
       }
       oh.push([a, b]);
     }
@@ -140,7 +170,12 @@ class Game {
   }
   posOf(seat) { return POS_NAMES[(seat - this.button + this.n) % this.n]; }
   next(seat) { return (seat + 1) % this.n; }
-  emit(text, kind = 'act') { this.log.push({ hand: this.handNo, text, kind }); }
+  emit(text, kind = 'act', seat = -1) {
+    this.log.push({ hand: this.handNo, text, kind });
+    // fotografia da mesa a cada evento, para o replay
+    if (this.snaps) this.snaps.push({ t: text, k: kind, seat, st: this.street, b: (this.board || []).slice(), pot: this.potCollected(),
+      p: this.players.map(p => [p.stack, p.bet, p.folded ? 1 : 0, p.allIn ? 1 : 0, p.lastAction]) });
+  }
 
   startHand() {
     this.handNo++;
@@ -148,7 +183,8 @@ class Game {
     this.board = []; this.street = 'preflop'; this.handOver = false; this.result = null;
     this.currentBet = 0; this.minRaise = this.bb; this.raises = 0;
     this.deck = shuffle([...Array(52).keys()], this.rng);
-    for (const p of this.players) Object.assign(p, { hole: [], bet: 0, committed: 0, folded: false, allIn: false, hasActed: false, actedSinceFull: false, minChen: 0, lastAction: '' });
+    for (const p of this.players) Object.assign(p, { hole: [], bet: 0, committed: 0, folded: false, allIn: false, hasActed: false, actedSinceFull: false, minChen: 0, reads: [], lastAction: '' });
+    this.snaps = [];
     this.emit(`Mão #${this.handNo}`, 'hand');
     for (let k = 0; k < 2; k++) for (let i = 1; i <= this.n; i++) this.players[(this.button + i) % this.n].hole.push(this.deck.pop());
     const sbS = this.next(this.button), bbS = this.next(sbS);
@@ -160,7 +196,7 @@ class Game {
   post(seat, amt) {
     const p = this.players[seat]; const a = Math.min(amt, p.stack);
     p.stack -= a; p.bet += a; p.committed += a; if (p.stack === 0) p.allIn = true;
-    this.emit(`${p.name} posta ${a}`, 'blind');
+    this.emit(`${p.name} posta ${a}`, 'blind', seat);
   }
   needs(p) { return !p.folded && !p.allIn && (!p.hasActed || p.bet < this.currentBet); }
   findNext(from) {
@@ -189,15 +225,18 @@ class Game {
     if (type === 'check' && !L.canCheck) type = 'call';
     if (type === 'call' && L.toCall === 0) type = 'check';
     if (type === 'raise' && !L.canRaise) type = L.canCheck ? 'check' : 'call';
-    const prevBet = this.currentBet;
-    if (type === 'fold') { p.folded = true; p.lastAction = 'Desiste'; this.emit(`${p.name} desiste`); }
-    else if (type === 'check') { p.lastAction = 'Passa'; this.emit(`${p.name} passa`); }
+    const prevBet = this.currentBet, potBefore = this.pot(), post = this.street !== 'preflop';
+    if (type === 'fold') { p.folded = true; p.lastAction = 'Desiste'; this.emit(`${p.name} desiste`, 'act', seat); }
+    else if (type === 'check') { p.lastAction = 'Passa'; this.emit(`${p.name} passa`, 'act', seat); }
     else if (type === 'call') {
+      if (post) p.reads.push({ n: this.board.length, lv: 1, st: this.street });
       this.put(p, L.toCall); p.lastAction = p.allIn ? 'All-in' : `Paga ${L.toCall}`;
-      this.emit(`${p.name} paga ${L.toCall}${p.allIn ? ' (all-in)' : ''}`);
+      this.emit(`${p.name} paga ${L.toCall}${p.allIn ? ' (all-in)' : ''}`, 'act', seat);
       if (this.street === 'preflop' && prevBet > this.bb) p.minChen = Math.max(p.minChen, this.raises >= 2 ? 9 : 5);
     } else {
       let to = Math.round(Math.max(L.minTo, Math.min(a.to || L.minTo, L.maxTo)));
+      // aposta grande (perto do pote) ou aumento sobre aposta estreitam mais a faixa
+      if (post) p.reads.push({ n: this.board.length, lv: prevBet > 0 || to >= potBefore * 0.9 ? 2.5 : 2, st: this.street, raise: prevBet > 0 });
       this.put(p, to - p.bet);
       const size = to - this.currentBet;
       if (size >= this.minRaise) { this.minRaise = size; for (const q of this.players) if (q !== p) q.actedSinceFull = false; }
@@ -206,7 +245,7 @@ class Game {
       this.raises++;
       const verb = prevBet === 0 ? 'aposta' : 'aumenta para';
       p.lastAction = p.allIn ? 'All-in' : (prevBet === 0 ? `Aposta ${to}` : `Aumenta ${to}`);
-      this.emit(`${p.name} ${verb} ${to}${p.allIn ? ' (all-in)' : ''}`);
+      this.emit(`${p.name} ${verb} ${to}${p.allIn ? ' (all-in)' : ''}`, 'act', seat);
     }
     p.hasActed = true; p.actedSinceFull = true;
     this.advance(seat);
@@ -252,7 +291,7 @@ class Game {
     const pot = this.pot();
     for (const p of this.players) p.bet = 0;
     w.stack += pot;
-    this.emit(`${w.name} leva ${pot} (todos desistiram)`, 'win');
+    this.emit(`${w.name} leva ${pot} (todos desistiram)`, 'win', w.seat);
     this.handOver = true; this.toAct = -1;
     this.result = { showdown: false, pot, winners: [{ seat: w.seat, amount: pot }], net: this.netMap({ [w.seat]: pot }) };
   }
@@ -279,8 +318,8 @@ class Game {
       const share = Math.floor(amt / ws.length); let rem = amt - share * ws.length;
       for (const s of ws) { const g = share + (rem > 0 ? 1 : 0); if (rem > 0) rem--; won[s] = (won[s] || 0) + g; this.players[s].stack += g; }
     }
-    for (const p of live) this.emit(`${p.name} mostra ${p.hole.map(cardStr).join(' ')}: ${handName(sc[p.seat])}`, 'show');
-    for (const s in won) this.emit(`${this.players[s].name} ganha ${won[s]} com ${handName(sc[s])}`, 'win');
+    for (const p of live) this.emit(`${p.name} mostra ${p.hole.map(cardStr).join(' ')}: ${handName(sc[p.seat])}`, 'show', p.seat);
+    for (const s in won) this.emit(`${this.players[s].name} ganha ${won[s]} com ${handName(sc[s])}`, 'win', +s);
     this.handOver = true; this.toAct = -1;
     this.result = { showdown: true, pot: this.pot(), scores: sc, winners: Object.keys(won).map(s => ({ seat: +s, amount: won[s], hand: handName(sc[s]) })), net: this.netMap(won) };
   }
@@ -297,7 +336,7 @@ const PROFILES = {
 };
 const POS_BONUS = { UTG: -1, MP: -0.5, CO: 0.5, BTN: 1.5, SB: 0, BB: 0.5 };
 
-function oppRanges(g, p) { return g.players.filter(q => q !== p && !q.folded).map(q => ({ minChen: q.minChen })); }
+function oppRanges(g, p) { return g.players.filter(q => q !== p && !q.folded).map(q => ({ minChen: q.minChen, reads: q.reads })); }
 // Força "equivalente a mano a mano": equity contra n rivais ≈ eqHU^n
 function strengthOf(eq, nOpp) { return Math.pow(Math.max(eq, 1e-6), 1 / Math.max(1, nOpp)); }
 
@@ -347,25 +386,96 @@ function botDecide(g, seat, rng = Math.random) {
 
 // ---------- Coach ----------
 const OPEN_T = { UTG: 9, MP: 8, CO: 7, BTN: 6, SB: 7, BB: 9 };
+// Regra pré-flop única, usada pelo coach e pela grade de faixas
+function preflopRule(s, pos, raises, canCheck) {
+  let rec, t;
+  if (raises === 0) { t = OPEN_T[pos]; rec = s >= t ? 'raise' : canCheck ? 'check' : 'fold'; }
+  else if (raises === 1) { t = pos === 'BB' ? 7 : (pos === 'BTN' || pos === 'CO') ? 9 : 10; rec = s >= 12 ? 'raise' : s >= t ? 'call' : 'fold'; }
+  else { t = 12; rec = s >= 14 ? 'raise' : s >= 12 ? 'call' : 'fold'; }
+  return { rec, t };
+}
 function preflopAdvice(g, seat) {
   const p = g.players[seat], pos = g.posOf(seat), L = g.legal(seat);
   const s = chen(p.hole[0], p.hole[1]);
   const combo = comboName(p.hole[0], p.hole[1]);
-  let rec, why, t;
+  const { rec, t } = preflopRule(s, pos, g.raises, L.canCheck);
+  let why;
   if (g.raises === 0) {
-    t = OPEN_T[pos];
-    if (L.canCheck) { rec = s >= t ? 'raise' : 'check'; why = s >= t ? `${combo} (força ${s}) é forte o bastante para aumentar do Big blind.` : `${combo} (força ${s}): passe de graça e veja o flop.`; }
-    else { rec = s >= t ? 'raise' : 'fold'; why = `No ${POS_LABEL[pos]}, o padrão é abrir com força ${t} ou mais. ${combo} tem força ${s}.`; }
+    if (L.canCheck) why = s >= t ? `${combo} (força ${s}) é forte o bastante para aumentar do Big blind.` : `${combo} (força ${s}): passe de graça e veja o flop.`;
+    else why = `No ${POS_LABEL[pos]}, o padrão é abrir com força ${t} ou mais. ${combo} tem força ${s}.`;
   } else if (g.raises === 1) {
-    t = pos === 'BB' ? 7 : (pos === 'BTN' || pos === 'CO') ? 9 : 10;
-    rec = s >= 12 ? 'raise' : s >= t ? 'call' : 'fold';
     why = s >= 12 ? `${combo} (força ${s}) é premium: volte a aumentar (3-bet).` : `Contra um aumento, pague com força ${t}+ nesta posição e re-aumente com 12+. ${combo} tem ${s}.`;
   } else {
-    t = 12;
-    rec = s >= 14 ? 'raise' : s >= 12 ? 'call' : 'fold';
     why = `Contra re-aumentos, continue só com mãos muito fortes (12+; re-aumente com 14+). ${combo} tem ${s}.`;
   }
   return { rec, why, s, t, combo, pos };
+}
+
+// O que a ação de cada rival diz sobre a mão dele (texto para o coach)
+const LV_TXT = { 1: 'algo no board, ás ou cartas altas', 1.5: 'pelo menos um projeto', 2: 'um par ou projeto forte', 2.5: 'top pair ou melhor (ou blefe)' };
+const ST_PT = { flop: 'no flop', turn: 'no turn', river: 'no river' };
+function readNote(q) {
+  const parts = [];
+  if (q.minChen >= 12) parts.push('re-aumentou antes do flop');
+  else if (q.minChen >= 10) parts.push('fez 3-bet antes do flop');
+  else if (q.minChen >= 9) parts.push('pagou um re-aumento');
+  else if (q.minChen >= 7) parts.push('aumentou antes do flop');
+  else if (q.minChen >= 5) parts.push('pagou um aumento');
+  for (const r of q.reads || []) parts.push(`${r.lv === 1 ? 'pagou' : r.raise ? 'aumentou' : r.lv >= 2.5 ? 'apostou forte' : 'apostou'} ${ST_PT[r.st]}`);
+  if (!parts.length) return null;
+  const top = Math.max(0, ...(q.reads || []).map(r => r.lv));
+  const range = top ? LV_TXT[top] : q.minChen >= 10 ? 'mãos premium' : q.minChen >= 7 ? 'mãos boas' : 'mãos jogáveis';
+  return { name: q.name, text: parts.join(', '), range };
+}
+
+// ---------- Tamanho da aposta ----------
+function boardWet(board) {
+  if (board.length < 3 || board.length >= 5) return false;
+  const sc = [0, 0, 0, 0];
+  for (const c of board) sc[suitOf(c)]++;
+  if (Math.max(...sc) >= 2) return true;
+  const rs = [...new Set(board.map(rankOf))].sort((a, b) => a - b);
+  for (let i = 0; i + 2 < rs.length; i++) if (rs[i + 2] - rs[i] <= 4) return true;
+  return false;
+}
+// c: {street, raises, to, currentBet, pot, toCall, isBet, bb, limpers, maxTo, st, draws, board}
+function gradeSizing(c) {
+  const P = x => Math.round(x * 100) + '%';
+  if (c.street === 'preflop') {
+    if (c.raises === 0) {
+      const x = c.to / c.bb, std = 3 + c.limpers;
+      if (c.to >= c.maxTo && x > 25) return { grade: 'ok', text: `All-in de ${Math.round(x)} BB para roubar 15 fichas: arrisca muito para ganhar pouco. O padrão é ${std} BB.` };
+      if (x < 2.2) return { grade: 'ok', text: `Aumento mínimo dá ótimas odds para todos pagarem. O padrão é ${std} BB${c.limpers ? ` (3 BB + 1 por limper)` : ''}.` };
+      if (x > std + 2.5) return { grade: 'ok', text: `${Math.round(x)} BB é grande demais: só mãos fortes continuam. O padrão é ${std} BB.` };
+      return { grade: 'good', text: `${(Math.round(x * 2) / 2).toString().replace('.', ',')} BB é um tamanho padrão de abertura.` };
+    }
+    const x = c.to / c.currentBet;
+    if (x < 2.2) return { grade: 'ok', text: `Re-aumento pequeno (${x.toFixed(1).replace('.', ',')}×) dá odds boas para pagar. Use cerca de 3×.` };
+    if (x > 4.5 && c.to < c.maxTo) return { grade: 'ok', text: `Re-aumento de ${x.toFixed(1).replace('.', ',')}× é grande demais: só mãos melhores continuam. Use cerca de 3×.` };
+    return { grade: 'good', text: `Re-aumento de ${x.toFixed(1).replace('.', ',')}×, tamanho padrão.` };
+  }
+  const frac = c.isBet ? c.to / c.pot : (c.to - c.currentBet) / (c.pot + c.toCall);
+  const F = P(frac) + (c.isBet ? ' do pote' : ' do pote no aumento');
+  const wet = boardWet(c.board);
+  const semi = c.st < 0.6 && c.draws && c.draws.some(d => d.outs >= 8);
+  if (c.st >= 0.6) {
+    if (frac < 0.33) return { grade: 'ok', text: `Aposta de ${F} é pequena para mão forte: mãos piores pagariam mais.${wet ? ' E projetos pagam barato para tentar te passar.' : ''}` };
+    if (wet && frac < 0.5) return { grade: 'ok', text: `Aposta de ${F} protege pouco: o board tem projetos possíveis. Aposte pelo menos meio pote para cobrar caro deles.` };
+    if (frac > 1.3 && c.st < 0.85) return { grade: 'ok', text: `Aposta de ${F} é grande demais para esta mão: só mãos melhores pagam.` };
+    return { grade: 'good', text: `Aposta de ${F}: bom tamanho para valor${wet ? ' e proteção' : ''}.` };
+  }
+  if (semi) {
+    if (frac < 0.4) return { grade: 'ok', text: `Semi-blefe de ${F} é barato de pagar. Apostando mais, você ganha mais vezes na hora e ainda tem outs.` };
+    if (frac > 1.2) return { grade: 'ok', text: `Semi-blefe de ${F} arrisca muito; 50–80% do pote costuma bastar.` };
+    return { grade: 'good', text: `Semi-blefe de ${F}: bom tamanho. Você ganha se eles desistirem ou se completar o projeto.` };
+  }
+  if (c.st < 0.35) {
+    if (frac > 1.1) return { grade: 'ok', text: `Blefe de ${F} é caro: se der errado, perde muito. 40–75% do pote costuma bastar.` };
+    if (frac < 0.3) return { grade: 'ok', text: `Blefe de ${F} é barato demais: fica fácil pagar.` };
+    return { grade: 'good', text: `Tamanho razoável para blefe (${F}).` };
+  }
+  if (frac > 0.9) return { grade: 'ok', text: `Aposta de ${F} com mão média: só mãos melhores continuam. Prefira 33–60% do pote.` };
+  return { grade: 'good', text: `Aposta de ${F}: tamanho moderado, adequado para mão média.` };
 }
 const ACT_PT = { fold: 'desistir', check: 'passar', call: 'pagar', raise: 'aumentar' };
 
@@ -417,7 +527,7 @@ function postflopInfo(g, seat, iters = 1500) {
   const eq = equity(p.hole, g.board, opps, iters);
   const pot = g.pot();
   const need = L.toCall > 0 ? L.toCall / (pot + L.toCall) : 0;
-  return { eq, need, st: strengthOf(eq, opps.length), nOpp: opps.length, made: handName(evalHand([...p.hole, ...g.board])), draws: drawsOf(p.hole, g.board), cardsLeft: 5 - g.board.length, toCall: L.toCall, pot };
+  return { eq, need, st: strengthOf(eq, opps.length), nOpp: opps.length, made: handName(evalHand([...p.hole, ...g.board])), notes: g.players.filter(q => q !== p && !q.folded).map(readNote).filter(Boolean), draws: drawsOf(p.hole, g.board), cardsLeft: 5 - g.board.length, toCall: L.toCall, pot };
 }
 function postflopRec(info) {
   if (info.toCall === 0) return info.st >= 0.62 ? 'raise' : 'check';
@@ -451,5 +561,5 @@ function gradePostflop(info, action, L, street) {
   return { grade: 'ok', title: 'Aumento como blefe', text: `Só ${E} de equity (precisava de ${N} para pagar). Blefe-aumento é arriscado; guarde para quando os rivais mostram fraqueza.` };
 }
 
-const Poker = { drawsOf, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
+const Poker = { drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
 if (typeof module !== 'undefined') module.exports = Poker;

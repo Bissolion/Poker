@@ -135,3 +135,51 @@ assert.strictEqual(D('Ah 2h', 'Kh 7h 9c'), 'Projeto de flush:9');
 assert.strictEqual(D('9h 8h', '7h 6h 2c'), 'Projeto de flush:9,Sequência aberta:8');
 assert.strictEqual(D('Ac Kd', '5h 6h 7h 8c'), '', 'sequência só do board não conta');
 console.log('projetos ok');
+
+// Leitura pós-flop: rival que aposta forte no river tem faixa mais forte
+{
+  const hole = H('Kc Qd'), board = H('Kh 8s 4d 2c 9h'); // top pair, kicker Q
+  const vsAny = P.equity(hole, board, [{ minChen: 0, reads: [] }], 3000);
+  const vsBet = P.equity(hole, board, [{ minChen: 0, reads: [{ n: 5, lv: 2.5 }] }], 3000);
+  const vsCall = P.equity(hole, board, [{ minChen: 0, reads: [{ n: 3, lv: 1 }] }], 3000);
+  console.log('top pair: vs aleatória', vsAny.toFixed(2), 'vs pagou flop', vsCall.toFixed(2), 'vs aposta forte river', vsBet.toFixed(2));
+  assert(vsAny > 0.85, 'top pair vence mão aleatória');
+  assert(vsBet < vsAny - 0.2, 'aposta forte reduz bastante a equity');
+  assert(vsCall < vsAny && vsCall > vsBet, 'call no flop reduz menos');
+  assert.strictEqual(P.handLevel(c('Ah'), c('Kd'), H('Ks 7c 2d'), 0), 2.5, 'top pair');
+  assert.strictEqual(P.handLevel(c('7h'), c('7d'), H('Ks Tc 2d'), 0), 2, 'par médio');
+  assert.strictEqual(P.handLevel(c('Ah'), c('5h'), H('Kh 7h 2d'), 0), 2, 'projeto de flush');
+  assert.strictEqual(P.handLevel(c('Kh'), c('7d'), H('Ks 7c 2d'), 0), 3, 'dois pares');
+  assert.strictEqual(P.handLevel(c('4h'), c('3d'), H('Ks Tc 9d'), 0), 0, 'nada');
+}
+console.log('leitura pós-flop ok');
+
+// Regra pré-flop
+assert.strictEqual(P.preflopRule(6, 'BTN', 0, false).rec, 'raise');
+assert.strictEqual(P.preflopRule(6, 'UTG', 0, false).rec, 'fold');
+assert.strictEqual(P.preflopRule(5, 'BB', 0, true).rec, 'check');
+assert.strictEqual(P.preflopRule(12, 'MP', 1, false).rec, 'raise');
+assert.strictEqual(P.preflopRule(9, 'CO', 1, false).rec, 'call');
+
+// Tamanho de aposta
+const base = { street: 'flop', raises: 0, currentBet: 0, pot: 100, toCall: 0, isBet: true, bb: 10, limpers: 0, maxTo: 1000, draws: [], board: H('Kh 7h 2d') };
+assert.strictEqual(P.gradeSizing({ ...base, to: 25, st: 0.8 }).grade, 'ok', 'valor pequeno');
+assert.strictEqual(P.gradeSizing({ ...base, to: 40, st: 0.8 }).grade, 'ok', 'proteção em board molhado');
+assert.strictEqual(P.gradeSizing({ ...base, to: 66, st: 0.8 }).grade, 'good');
+assert.strictEqual(P.gradeSizing({ ...base, to: 150, st: 0.2 }).grade, 'ok', 'blefe caro');
+assert.strictEqual(P.gradeSizing({ ...base, street: 'preflop', to: 30, st: 0 }).grade, 'good');
+assert.strictEqual(P.gradeSizing({ ...base, street: 'preflop', to: 80, st: 0 }).grade, 'ok');
+assert.strictEqual(P.gradeSizing({ ...base, street: 'preflop', raises: 1, currentBet: 30, to: 90, st: 0 }).grade, 'good');
+console.log('sizing ok');
+
+// Gravação para replay
+{
+  const g2 = new P.Game([0, 1, 2].map(i => ({ name: 'R' + i, profile: P.PROFILES.bal })));
+  g2.startHand();
+  while (!g2.handOver) g2.act(g2.toAct, P.botDecide(g2, g2.toAct));
+  assert(g2.snaps.length >= 4, 'snapshots gravados');
+  assert.strictEqual(g2.snaps[0].k, 'hand');
+  assert(g2.snaps.filter(s => s.k === 'act').every(s => s.seat >= 0), 'cada ação tem autor');
+  assert.strictEqual(g2.snaps.at(-1).k, 'win');
+}
+console.log('replay ok');
