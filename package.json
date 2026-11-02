@@ -1,0 +1,11 @@
+{
+  "name": "mesa-de-treino",
+  "version": "0.1.0",
+  "description": "Texas Hold'em No-Limit contra bots, com coach que ensina equity, pot odds e posição.",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "test": "node test.js"
+  },
+  "license": "MIT"
+}
