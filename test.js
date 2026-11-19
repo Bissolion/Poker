@@ -183,3 +183,101 @@ console.log('sizing ok');
   assert.strictEqual(g2.snaps.at(-1).k, 'win');
 }
 console.log('replay ok');
+
+// ---- Heads-up: botão posta o small blind e age primeiro pré-flop, por último depois ----
+{
+  const g = new P.Game([{ name: 'A', profile: P.PROFILES.bal }, { name: 'B', profile: P.PROFILES.bal }]);
+  g.button = 1; g.startHand(); // botão vai para 0
+  assert.strictEqual(g.button, 0);
+  assert.strictEqual(g.posOf(0), 'BTN'); assert.strictEqual(g.posOf(1), 'BB');
+  assert.strictEqual(g.players[0].bet, 5, 'botão posta SB'); assert.strictEqual(g.players[1].bet, 10);
+  assert.strictEqual(g.toAct, 0, 'botão age primeiro pré-flop');
+  g.act(0, { type: 'call' }); g.act(1, { type: 'check' });
+  assert.strictEqual(g.street, 'flop'); assert.strictEqual(g.toAct, 1, 'BB age primeiro no flop');
+}
+// Posições com jogadores eliminados
+{
+  const g = new P.Game([0, 1, 2, 3, 4, 5].map(i => ({ name: 'P' + i, profile: P.PROFILES.bal })));
+  g.players[2].out = true; g.players[4].out = true;
+  g.button = 5; g.startHand();
+  assert.strictEqual(g.button, 0);
+  assert.deepStrictEqual([0, 1, 3, 5].map(s => g.posOf(s)), ['BTN', 'SB', 'BB', 'CO']);
+  assert.strictEqual(g.players[2].hole.length, 0, 'eliminado não recebe cartas');
+  assert(g.players[2].folded && g.posOf(2) === '');
+  assert.strictEqual(g.toAct, 5, 'CO age depois do BB');
+}
+console.log('heads-up e posições ok');
+
+// ---- Torneio completo: blinds sobem, eliminados saem, campeão fica com tudo ----
+for (const n of [6, 2]) {
+  const g = new P.Game([...Array(n)].map((_, i) => ({ name: 'T' + i, profile: P.PROFILES[['tag', 'lag', 'station', 'nit', 'bal', 'tag'][i]] })), { stack: 1500, skill: 'normal' });
+  let hands = 0, places = [];
+  while (g.activeCount() > 1) {
+    const lv = P.BLIND_LEVELS[P.blindLevel(hands, 5)]; g.sb = lv[0]; g.bb = lv[1];
+    g.startHand();
+    let guard = 0;
+    while (!g.handOver) { g.act(g.toAct, P.botDecide(g, g.toAct)); if (++guard > 300) throw new Error('loop'); }
+    assert.strictEqual(g.players.reduce((a, p) => a + p.stack, 0), 1500 * n, 'fichas conservadas');
+    places.push(...g.eliminateBusted().map(p => p.place));
+    hands++;
+    if (hands > 2000) throw new Error('torneio não termina');
+  }
+  places.sort((a, b) => a - b);
+  assert.deepStrictEqual(places, [...Array(n - 1)].map((_, i) => i + 2), 'colocações 2..n sem repetir');
+  console.log(`torneio ${n} jogadores ok: ${hands} mãos`);
+}
+
+// ---- Dificuldade: bots difíceis ganham dos iniciantes ----
+{
+  let seed = 12345; const rng = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const g = new P.Game([0, 1, 2, 3, 4, 5].map(i => ({ name: 'D' + i, profile: P.PROFILES.bal, skill: i % 2 ? 'hard' : 'easy' })), { rng });
+  const net = { hard: 0, easy: 0 };
+  for (let h = 0; h < 2500; h++) {
+    for (const p of g.players) if (p.stack < 400) p.stack = 1000;
+    g.startHand();
+    while (!g.handOver) g.act(g.toAct, P.botDecide(g, g.toAct, rng));
+    g.players.forEach((p, i) => net[p.skill] += g.result.net[i]);
+  }
+  console.log('difícil x iniciante (bb/100):', (net.hard / 3 / 10 / 25).toFixed(1), 'x', (net.easy / 3 / 10 / 25).toFixed(1));
+  assert(net.hard > 0 && net.hard > net.easy, 'difícil deve ganhar do iniciante');
+}
+
+// ---- Coach com stack curto: all-in ou desistir ----
+{
+  const g = rig([80, 1000, 1000], ['As Kd', '7c 2d', '8h 3s'], '2s 3h 8d 9c Js');
+  const adv = P.preflopAdvice(g, 0);
+  assert(adv.push, 'stack de 8 BB entra no modo push/fold');
+  assert.strictEqual(adv.rec, 'raise');
+  const weak = rig([80, 1000, 1000], ['7c 2d', 'As Kd', '8h 3s'], '2s 3h 8d 9c Js');
+  assert.strictEqual(P.preflopAdvice(weak, 0).rec, 'fold');
+  assert.strictEqual(P.gradeSizing({ street: 'preflop', raises: 0, to: 30, currentBet: 10, pot: 15, toCall: 10, isBet: false, bb: 10, limpers: 0, maxTo: 80, stackBB: 8 }).grade, 'ok', 'aumento pequeno com 8 BB');
+}
+console.log('push/fold ok');
+
+// ---- Equity com cartas conhecidas ----
+{
+  const e = P.equityKnown([H('As Ah'), H('Ks Kh')], [], 4000);
+  assert(e[0] > 0.78 && e[0] < 0.85, 'AA x KK ~82%: ' + e[0]);
+  const f = P.equityKnown([H('Ah Kh'), H('Qs Qd')], H('2h 7h Tc'));
+  assert(Math.abs(f[0] + f[1] - 1) < 1e-9);
+  const r = P.equityKnown([H('As Ks'), H('2c 3d')], H('Qs Js Ts 4h 5h'));
+  assert.deepStrictEqual(r, [1, 0]);
+}
+console.log('equity conhecida ok');
+
+// ---- Quiz ----
+for (let i = 0; i < 300; i++) {
+  for (const q of [P.quizPotOdds(), P.quizOuts(), P.quizWinner()]) {
+    assert(q.options.length >= 2 && q.answer >= 0 && q.answer < q.options.length, 'resposta válida ' + q.type);
+    assert.strictEqual(new Set(q.options).size, q.options.length, 'opções distintas');
+    if (q.type === 'outs') assert.strictEqual(+q.options[q.answer], P.outsSets(q.hole, q.board).all.length);
+    if (q.type === 'win') {
+      const a = P.evalHand([...q.hands[0], ...q.board]), b = P.evalHand([...q.hands[1], ...q.board]);
+      assert.strictEqual(q.answer, a > b ? 0 : b > a ? 1 : 2);
+      assert.strictEqual(P.evalHand(q.best[0]), a, 'melhores 5 cartas corretas');
+    }
+  }
+}
+assert.strictEqual(P.outsSets(H('9h 8h'), H('7h 6c 2h')).all.length, 15, 'flush + sequência aberta = 15');
+assert.strictEqual(P.outsSets(H('Ah 2h'), H('Kh 7h 9c')).all.length, 9);
+console.log('quiz ok');
