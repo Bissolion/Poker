@@ -422,3 +422,38 @@ console.log('vazamentos ok');
   }
 }
 console.log('treinos e quiz novos ok');
+
+// ---- ICM ----
+{
+  const v = P.icm([5000, 3000, 2000], [0.5, 0.3, 0.2]);
+  assert(Math.abs(v[0] - 0.3839) < 0.001 && Math.abs(v[2] - 0.2886) < 0.001, 'ICM confere com o exemplo publicado');
+  assert(P.icm([1000, 1000, 1000], [0.5, 0.3, 0.2]).every(x => Math.abs(x - 1 / 3) < 1e-9), 'stacks iguais valem 1/3');
+  // Bolha: 4 jogadores, 3 premiados. O líder empurra; você no BB com stack médio e dois stacks curtos na mesa.
+  let found = null;
+  for (const hand of ['Ac 9d', 'Kc Jd', 'Ac Td', '9c 9d', 'Ac Jd', 'Kc Qd', '8c 8d', 'Ac 8d']) {
+    const g = new P.Game([0, 1, 2, 3].map(i => ({ name: 'B' + i, profile: P.PROFILES.bal })), { stack: 1000, sb: 50, bb: 100 });
+    g.payouts = P.PAYOUTS['50/30/20'];
+    g.players[0].stack = 2000; g.players[1].stack = 5000; g.players[2].stack = 600; g.players[3].stack = 600;
+    g.button = 0; g.startHand(); // botão = 1 (líder), SB = 2, BB = 3 → coloca você no BB
+    // reorganiza: você = lugar 3 (BB); usa o lugar 3 com stack médio
+    g.players[3].stack += g.players[0].stack - 600; g.players[0].stack = 600 - 0;
+    g.players[3].hole = H(hand);
+    while (g.toAct !== 3) { const s = g.toAct; g.act(s, s === 1 ? { type: 'raise', to: g.players[1].stack + g.players[1].bet } : { type: 'fold' }); }
+    const sp = P.icmCallSpot(g, 3, g.payouts);
+    if (sp.eq >= sp.needChip && sp.eq < sp.needIcm) { found = { hand, sp, adv: P.preflopAdvice(g, 3) }; break; }
+  }
+  assert(found, 'existe call lucrativo em fichas que o ICM manda largar na bolha');
+  assert.strictEqual(found.adv.rec, 'fold', 'coach recomenda desistir na bolha');
+  console.log(`bolha: ${found.hand} tem ${Math.round(found.sp.eq * 100)}%; fichas pedem ${Math.round(found.sp.needChip * 100)}%, ICM pede ${Math.round(found.sp.needIcm * 100)}%`);
+  // Torneio com prêmios termina e conserva fichas
+  const g = new P.Game([0, 1, 2, 3, 4, 5].map(i => ({ name: 'T' + i, profile: P.PROFILES[['tag', 'lag', 'station', 'nit', 'bal', 'tag'][i]] })), { stack: 1500 });
+  g.payouts = P.PAYOUTS['65/35'];
+  let hands = 0;
+  while (g.activeCount() > 1 && hands < 2000) {
+    const lv = P.BLIND_LEVELS[P.blindLevel(hands, 5)]; g.sb = lv[0]; g.bb = lv[1]; g.startHand();
+    while (!g.handOver) g.act(g.toAct, P.botDecide(g, g.toAct));
+    assert.strictEqual(g.players.reduce((a, p) => a + p.stack, 0), 9000); g.eliminateBusted(); hands++;
+  }
+  assert(g.activeCount() === 1, 'torneio com ICM termina');
+}
+console.log('ICM ok');

@@ -28,11 +28,13 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 .ghost { flex: none; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 14px; }
 .ghost:hover { border-color: var(--brass); }
 .link { background: none; border: 0; padding: 0; color: var(--brass); font-weight: 600; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
-.statusbar { display: flex; align-items: flex-start; gap: 8px; min-height: 22px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.statusbar .sb-main { flex: 1; min-width: 0; text-wrap: pretty; }
+.statusbar { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 2px 8px; min-height: 22px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.statusbar .sb-main { flex: 1 1 220px; min-width: 0; text-wrap: pretty; }
 .statusbar .sb-main b { color: var(--ink); font-weight: 600; }
 .statusbar .sb-side { flex: none; white-space: nowrap; }
 .statusbar .sb-side b { color: var(--brass); }
+.statusbar .bubble { color: var(--bad); letter-spacing: .08em; }
+.statusbar .sb-side { text-align: right; }
 .flash { animation: flash 1.6s ease-out 2; border-radius: 6px; }
 @keyframes flash { 0% { background: rgba(217,173,85,.35); } 100% { background: transparent; } }
 

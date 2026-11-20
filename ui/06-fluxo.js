@@ -107,7 +107,7 @@ function onHandOver() {
     lastOut = g.eliminateBusted().map(p => ({ seat: p.seat, name: p.name, place: p.place }));
     if (g.players[0].out) { tour.over = true; tour.place = g.players[0].place; }
     else if (g.activeCount() === 1) { tour.over = true; tour.place = 1; }
-    if (tour.over) { stats.tourneys.unshift({ place: tour.place, n: tour.n, hands: tour.hands, skill: cfg.skill, hu: cfg.table === 'hu' }); stats.tourneys = stats.tourneys.slice(0, 30); }
+    if (tour.over) { stats.tourneys.unshift({ place: tour.place, n: tour.n, hands: tour.hands, skill: cfg.skill, hu: cfg.table === 'hu', pts: tour.payouts && tour.payouts.length > 1 ? Math.round((tour.payouts[tour.place - 1] || 0) * 100) : null }); stats.tourneys = stats.tourneys.slice(0, 30); }
   }
   counted = true;
   save();

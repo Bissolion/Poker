@@ -34,11 +34,13 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 .ghost { flex: none; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 14px; }
 .ghost:hover { border-color: var(--brass); }
 .link { background: none; border: 0; padding: 0; color: var(--brass); font-weight: 600; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
-.statusbar { display: flex; align-items: flex-start; gap: 8px; min-height: 22px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.statusbar .sb-main { flex: 1; min-width: 0; text-wrap: pretty; }
+.statusbar { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 2px 8px; min-height: 22px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.statusbar .sb-main { flex: 1 1 220px; min-width: 0; text-wrap: pretty; }
 .statusbar .sb-main b { color: var(--ink); font-weight: 600; }
 .statusbar .sb-side { flex: none; white-space: nowrap; }
 .statusbar .sb-side b { color: var(--brass); }
+.statusbar .bubble { color: var(--bad); letter-spacing: .08em; }
+.statusbar .sb-side { text-align: right; }
 .flash { animation: flash 1.6s ease-out 2; border-radius: 6px; }
 @keyframes flash { 0% { background: rgba(217,173,85,.35); } 100% { background: transparent; } }
 
@@ -917,6 +919,14 @@ function botDecide(g, seat, rng = Math.random) {
     const cls = classOf(p.hole[0], p.hole[1]), dv = pr.dev || {}, depth = effBB(g, seat);
     // erro de iniciante: às vezes paga ou desiste no automático
     if (rng() < sk.mistake) return L.toCall > 0 ? (rng() < 0.6 ? { type: 'call' } : passive()) : { type: 'check' };
+    if (g.payouts && g.raises >= 1 && g.players.some(q => q.seat !== seat && !q.folded && q.allIn && q.bet === g.currentBet)) {
+      const sp = icmCallSpot(g, seat, g.payouts, rng);
+      if (sp) return sp.eq + (rng() - 0.5) * 0.06 * sk.noise + (dv.callPush ? 0.04 : 0) >= sp.needIcm ? { type: 'call' } : passive();
+    }
+    if (g.payouts && depth <= PUSH_DEPTH && g.raises === 0) {
+      const sp = icmPushSpot(g, seat, g.payouts, rng);
+      if (sp) return sp.push || (rng() < 0.08 * sk.noise) ? shove() : passive();
+    }
     if (depth <= PUSH_DEPTH) {
       const noise = (rng() - 0.5) * 2 * sk.noise;
       if (g.raises === 0) { const r = pushFoldAdvice(cls, depth, behindOf(g, seat)); return r.max + (dv.push || 0) + noise >= depth ? shove() : passive(); }
@@ -1018,6 +1028,23 @@ function preflopAdvice(g, seat) {
   const combo = comboName(p.hole[0], p.hole[1]), cls = classOf(p.hole[0], p.hole[1]);
   const depth = effBB(g, seat);
   const D = Math.round(depth * 10) / 10, Ds = D.toString().replace('.', ',');
+  const shoveFacing = g.raises >= 1 && g.players.some(q => q.seat !== seat && !q.folded && q.allIn && q.bet === g.currentBet);
+  if (g.payouts && shoveFacing) {
+    const sp = icmCallSpot(g, seat, g.payouts);
+    if (sp) {
+      const rec = sp.eq >= sp.needIcm ? 'call' : 'fold', P = x => Math.round(x * 100) + '%';
+      const why = `Contra o all-in de ${sp.shover}, sua mão tem cerca de ${P(sp.eq)} de equity. Em fichas, bastaria ${P(sp.needChip)}; com os prêmios (ICM), você precisa de ${P(sp.needIcm)}${sp.premium > 0.01 ? `: ${P(sp.premium)} a mais, o prêmio de risco de cair do torneio` : ''}.${isBubble(g, g.payouts) ? ' Na bolha esse prêmio de risco é o maior do torneio.' : ''}`;
+      return { rec, why, s, combo, cls, pos, push: true, depth: D, max: null, icm: sp, freq: null };
+    }
+  }
+  if (g.payouts && depth <= PUSH_DEPTH && g.raises === 0) {
+    const sp = icmPushSpot(g, seat, g.payouts);
+    if (sp) {
+      const rec = sp.push ? 'raise' : L.canCheck ? 'check' : 'fold', chip = pushFoldAdvice(cls, depth, behindOf(g, seat));
+      const why = `Com ${Ds} BB e prêmios em jogo, o coach compara o valor em prêmio de ir all-in e de desistir (ICM). ${combo}: all-in ${sp.push ? 'vale mais' : 'vale menos'} que desistir.${chip.ok !== sp.push ? ` Só em fichas, a resposta seria ${chip.ok ? 'all-in' : 'desistir'}: os prêmios mudam a decisão.` : ''}`;
+      return { rec, why, s, combo, cls, pos, push: true, depth: D, max: chip.max, icm: sp, freq: null };
+    }
+  }
   if (depth <= PUSH_DEPTH) {
     // Stack curto: all-in ou desistir, pelas tabelas geradas
     let rec, why, r;
@@ -1984,7 +2011,116 @@ function quizMDF(rng = Math.random) {
     explain: `Defesa mínima = pote ÷ (pote + aposta) = 1 ÷ (1 + ${String(Math.round(fr[0] * 100) / 100).replace('.', ',')}) ≈ ${mdf}%. Quanto maior a aposta, menos você precisa defender.` };
 }
 
-const Poker = { quizOpen, quizTexture, quizNuts, quizCombos, quizMDF, DRILLS, makeDrill, gradeDrill, LEAK_DRILL, leakStats, findLeaks, leakHands, decisionRecord, handRecord, STAT_DEF, postflopTips, rangeBreakdown, sampleRange, parseRange, rangePct, classOf, rangeScenario, rangeFreq, pushFoldAdvice, HAND_RANK, HAND_POS, PUSH_MAX, CALL_MAX, RFI, VS_OPEN, VS_3BET, shortName, madeHand, heroDraws, boardRead, chenBreakdown, SKILLS, effBB, pushThreshold, callShoveThreshold, PUSH_DEPTH, BLIND_LEVELS, blindLevel, equityKnown, POS_BY_N, quizPotOdds, quizOuts, quizWinner, outsSets, best5, CAT_PT, drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
+// ---------- Torneio com prêmios: ICM (Independent Chip Model, Malmuth-Harville) ----------
+// Prêmios em frações do total (pontos fictícios, sem dinheiro real)
+const PAYOUTS = { '65/35': [0.65, 0.35], '50/30/20': [0.5, 0.3, 0.2], vencedor: [1] };
+// Valor em prêmio de cada stack (fração do total de prêmios). Exato por recursão; rápido até 6 jogadores.
+function icm(stacks, payouts) {
+  const n = stacks.length, memo = new Map(), total = stacks.reduce((a, b) => a + b, 0);
+  if (!total) return stacks.map(() => 0);
+  // prob[i] de terminar em cada posição a partir de um conjunto de jogadores ainda "na disputa"
+  const rec = (mask, place) => {
+    if (place >= payouts.length || !mask) return null;
+    const key = mask * 8 + place;
+    if (memo.has(key)) return memo.get(key);
+    let sum = 0; for (let i = 0; i < n; i++) if (mask & (1 << i)) sum += stacks[i];
+    const ev = Array(n).fill(0);
+    if (sum > 0) for (let i = 0; i < n; i++) {
+      if (!(mask & (1 << i)) || !stacks[i]) continue;
+      const p = stacks[i] / sum;
+      ev[i] += p * payouts[place];
+      const sub = rec(mask & ~(1 << i), place + 1);
+      if (sub) for (let j = 0; j < n; j++) ev[j] += p * sub[j];
+    }
+    memo.set(key, ev);
+    return ev;
+  };
+  let mask = 0; stacks.forEach((s, i) => { if (s > 0) mask |= 1 << i; });
+  return rec(mask, 0) || stacks.map(() => 0);
+}
+// Equity de uma mão contra uma faixa de classes (sorteio de combinações sem repetir cartas)
+function equityVsClasses(hole, classes, iters = 1200, rng = Math.random) {
+  const list = Object.keys(classes).filter(c => classes[c]);
+  if (!list.length) return 0.5;
+  const weights = list.map(c => CLASS_W(c) * classes[c]), tw = weights.reduce((a, b) => a + b, 0);
+  const combosOf = cls => { const out = []; const a = rv(cls[0]), b = rv(cls[1]); for (let s1 = 0; s1 < 4; s1++) for (let s2 = 0; s2 < 4; s2++) { if (cls.length === 2) { if (s2 > s1) out.push([a * 4 + s1, b * 4 + s2]); } else if (cls[2] === 's') { if (s1 === s2) out.push([a * 4 + s1, b * 4 + s2]); } else if (s1 !== s2) out.push([a * 4 + s1, b * 4 + s2]); } return out; };
+  const cache = {};
+  let win = 0, n = 0;
+  for (let it = 0; it < iters * 3 && n < iters; it++) {
+    let x = rng() * tw, k = 0; while (x > weights[k]) { x -= weights[k]; k++; }
+    const cs = cache[list[k]] || (cache[list[k]] = combosOf(list[k]));
+    const v = cs[Math.floor(rng() * cs.length)];
+    if (v.some(c => hole.includes(c))) continue;
+    const used = new Set([...hole, ...v]), board = [];
+    while (board.length < 5) { const c = Math.floor(rng() * 52); if (!used.has(c)) { used.add(c); board.push(c); } }
+    const a = evalHand([...hole, ...board]), b = evalHand([...v, ...board]);
+    win += a > b ? 1 : a === b ? 0.5 : 0; n++;
+  }
+  return n ? win / n : 0.5;
+}
+// Faixa de all-in de quem empurrou, pelas tabelas, no stack dele
+function shoveRange(depth, k) {
+  const t = PUSH_MAX[Math.min(5, Math.max(1, k))] || {}, out = {};
+  for (const c in t) if (t[c] >= Math.max(1, Math.round(depth))) out[c] = 1;
+  return out;
+}
+// Pagar um all-in com ICM: quanto de equity precisa, em fichas e em prêmio
+function icmCallSpot(g, seat, payouts, rng = Math.random) {
+  const p = g.players[seat], L = g.legal(seat);
+  const shover = g.players.find(q => q.seat !== seat && !q.folded && q.bet === g.currentBet);
+  if (!shover) return null;
+  const alive = g.players.filter(q => !q.out);
+  const stacksNow = () => alive.map(q => q.stack + q.bet); // fichas de cada um com o que já pôs nesta rua
+  const potOthers = g.pot() - p.committed - shover.committed; // fichas mortas de quem já desistiu (blinds)
+  const risk = Math.min(p.stack + p.bet, shover.stack + shover.bet); // o que está em jogo entre os dois
+  const idx = q => alive.indexOf(q);
+  const base = stacksNow().map((s, i) => s - (alive[i] === p || alive[i] === shover ? 0 : 0));
+  // desistir: o rival leva o que está no meio
+  const fold = base.slice(); fold[idx(p)] = p.stack; fold[idx(shover)] = shover.stack + shover.bet + p.bet + Math.max(0, potOthers);
+  // pagar e ganhar / perder
+  const win = base.slice(); win[idx(p)] = p.stack + p.bet + risk + Math.max(0, potOthers); win[idx(shover)] = shover.stack + shover.bet - risk;
+  const lose = base.slice(); lose[idx(p)] = p.stack + p.bet - risk; lose[idx(shover)] = shover.stack + shover.bet + risk + Math.max(0, potOthers);
+  // jogadores que ainda vão agir ou já desistiram ficam como estão
+  const I = s => icm(s, payouts)[idx(p)];
+  const evF = I(fold), evW = I(win), evL = I(lose);
+  const needIcm = (evF - evL) / ((evW - evL) || 1e-9);
+  const needChip = L.toCall / (g.pot() + L.toCall);
+  const depth = (shover.stack + shover.bet) / g.bb;
+  const eq = equityVsClasses(p.hole, shoveRange(depth, behindOf(g, shover.seat)), 1200, rng);
+  return { eq, needIcm: Math.max(0, Math.min(1, needIcm)), needChip, premium: Math.max(0, needIcm - needChip), evNow: icm(stacksNow(), payouts)[idx(p)], shover: shover.name };
+}
+// Valor atual em prêmio de cada jogador vivo
+function icmNow(g, payouts) {
+  const alive = g.players.filter(q => !q.out), v = icm(alive.map(q => q.stack + q.committed), payouts);
+  const out = {}; alive.forEach((q, i) => { out[q.seat] = v[i]; });
+  return out;
+}
+const isBubble = (g, payouts) => g.activeCount() === payouts.length + 1;
+// Ir all-in com ICM: compara o valor em prêmio de empurrar e de desistir, contra quem paga pela tabela
+function icmPushSpot(g, seat, payouts, rng = Math.random) {
+  const p = g.players[seat], alive = g.players.filter(q => !q.out), idx = q => alive.indexOf(q);
+  const others = g.players.filter(q => q !== p && !q.folded);
+  if (!others.length) return null;
+  const k = behindOf(g, seat), depth = (p.stack + p.bet) / g.bb;
+  // quem paga: o maior stack ainda por agir (o mais perigoso), com a faixa de call contra quem empurra com k atrás
+  const caller = others.reduce((a, b) => (b.stack + b.bet > a.stack + a.bet ? b : a));
+  const cDepth = Math.min(depth, (caller.stack + caller.bet) / g.bb);
+  const callT = CALL_MAX[Math.min(5, k)] || {}, callRange = {};
+  for (const c in callT) if (callT[c] >= Math.max(1, Math.round(cDepth))) callRange[c] = 1;
+  const pc = Math.min(0.95, 1 - Math.pow(1 - rangePct(callRange), others.length));
+  const dead = g.pot() - p.committed;
+  const S = alive.map(q => q.stack + q.bet), risk = Math.min(p.stack + p.bet, caller.stack + caller.bet);
+  const fold = S.slice();
+  const steal = S.slice(); steal[idx(p)] += dead; others.forEach(q => { steal[idx(q)] -= q.bet; });
+  const win = S.slice(); win[idx(p)] += risk + dead - caller.bet; others.forEach(q => { if (q !== caller) win[idx(q)] -= q.bet; }); win[idx(caller)] -= risk;
+  const lose = S.slice(); lose[idx(p)] -= risk; lose[idx(caller)] += risk + dead - caller.bet; others.forEach(q => { if (q !== caller) lose[idx(q)] -= q.bet; });
+  const I = s => icm(s, payouts)[idx(p)];
+  const eq = equityVsClasses(p.hole, callRange, 1000, rng);
+  const evPush = (1 - pc) * I(steal) + pc * (eq * I(win) + (1 - eq) * I(lose)), evFold = I(fold);
+  return { push: evPush > evFold, evPush, evFold, eq, pc };
+}
+
+const Poker = { PAYOUTS, icm, icmCallSpot, icmPushSpot, icmNow, isBubble, equityVsClasses, quizOpen, quizTexture, quizNuts, quizCombos, quizMDF, DRILLS, makeDrill, gradeDrill, LEAK_DRILL, leakStats, findLeaks, leakHands, decisionRecord, handRecord, STAT_DEF, postflopTips, rangeBreakdown, sampleRange, parseRange, rangePct, classOf, rangeScenario, rangeFreq, pushFoldAdvice, HAND_RANK, HAND_POS, PUSH_MAX, CALL_MAX, RFI, VS_OPEN, VS_3BET, shortName, madeHand, heroDraws, boardRead, chenBreakdown, SKILLS, effBB, pushThreshold, callShoveThreshold, PUSH_DEPTH, BLIND_LEVELS, blindLevel, equityKnown, POS_BY_N, quizPotOdds, quizOuts, quizWinner, outsSets, best5, CAT_PT, drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
 if (typeof module !== 'undefined') module.exports = Poker;
 </script>
 <script>
@@ -2002,7 +2138,7 @@ const PAGES_URL = 'bissolion.github.io/poker';
 // ---- estado salvo ----
 const KEY = 'mesa-treino-v1', KEY_H = 'mesa-treino-maos-v1', KEY_CFG = 'mesa-treino-cfg-v1', MAX_HANDS = 25;
 const blank = () => ({ hands: 0, net: 0, vpip: 0, pfr: 0, good: 0, ok: 0, bad: 0, rebuys: 0, recent: [], tourneys: [], quiz: { pot: [0, 0], outs: [0, 0], win: [0, 0], open: [0, 0], tex: [0, 0], nuts: [0, 0], combos: [0, 0], mdf: [0, 0], streak: 0, best: 0 }, drills: {} });
-const DEF_CFG = { format: 'cash', table: '6', rival: 'lag', skill: 'normal', per: 8 };
+const DEF_CFG = { format: 'cash', table: '6', rival: 'lag', skill: 'normal', per: 8, prize: '65/35' };
 const DEF_PREFS = { speed: 'normal', sound: false, showStrength: true };
 let stats = blank(), liveHelp = true, hands = [], cfg = { ...DEF_CFG }, prefs = { ...DEF_PREFS };
 const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? d : v; } catch (e) { return d; } };
@@ -2082,7 +2218,9 @@ function newGame(c) {
   const tourney = c.format === 'tourney';
   game = new E.Game([{ name: 'Você', isHuman: true }, ...roster.map(b => ({ name: b.name, profile: E.PROFILES[b.k] }))],
     { stack: tourney ? 1500 : 1000, skill: c.skill, sb: tourney ? E.BLIND_LEVELS[0][0] : 5, bb: tourney ? E.BLIND_LEVELS[0][1] : 10 });
-  tour = tourney ? { per: c.per, hands: 0, level: 0, over: false, place: null, n: game.n, flash: false } : null;
+  const payouts = tourney ? E.PAYOUTS[c.table === 'hu' ? 'vencedor' : (c.prize || '65/35')] : null;
+  if (payouts) game.payouts = payouts;
+  tour = tourney ? { per: c.per, hands: 0, level: 0, over: false, place: null, n: game.n, flash: false, payouts } : null;
   replay = null; lastOut = []; rangeSt.hu = null;
   nextHand();
 }
@@ -2258,7 +2396,10 @@ function renderStatus() {
   if (tour) {
     const left = tour.per - (tour.hands % tour.per);
     const nextTxt = tour.level >= E.BLIND_LEVELS.length - 1 ? 'nível final' : left === 1 ? 'última mão do nível' : `sobe em ${left} mãos`;
-    el.innerHTML = `<span class="sb-main${tour.flash ? ' flash' : ''}">Torneio · Nível ${tour.level + 1} · <b>${g.sb}/${g.bb}</b> · ${nextTxt} · ${opp}</span><span class="sb-side">${heroBB}</span>`;
+    const pay = tour.payouts, bubble = pay && pay.length > 1 && E.isBubble(g, pay) && !me.out;
+    const ev = pay && !me.out ? E.icmNow(g, pay)[0] : null;
+    const evTxt = ev != null && pay.length > 1 ? ` · <b>${Math.round(ev * 100)} pts</b>` : '';
+    el.innerHTML = `<span class="sb-main${tour.flash ? ' flash' : ''}">Torneio · Nível ${tour.level + 1} · <b>${g.sb}/${g.bb}</b> · ${nextTxt} · ${opp}${bubble ? ' · <b class="bubble">BOLHA</b>' : ''}</span><span class="sb-side">${heroBB}${evTxt}</span>`;
     tour.flash = false;
   } else {
     el.innerHTML = `<span class="sb-main">Cash · ${opp} · ${skillLabel()} · <b>${g.sb}/${g.bb}</b></span><span class="sb-side">${heroBB}</span>`;
@@ -2304,6 +2445,8 @@ function renderActions() {
       cls = ' huge';
       big = tour.place === 1 ? 'Você venceu o torneio!' : `Você terminou em ${ordinal(tour.place)}`;
       sub = `${tour.place === 1 ? `Campeão entre ${tour.n} jogadores em ${plural(tour.hands, 'mão', 'mãos')}.` : `De ${tour.n} jogadores, depois de ${plural(tour.hands, 'mão', 'mãos')}.`} Na última mão: ${meWin ? 'você levou ' + meWin.amount : g.players[top.seat].name + ' levou ' + top.amount}.`;
+      const pts = tour.payouts && tour.payouts[tour.place - 1] ? Math.round(tour.payouts[tour.place - 1] * 100) : 0;
+      if (tour.payouts && tour.payouts.length > 1) sub += ` Prêmio: <b>${pts} pontos</b>${pts ? '' : ' (fora dos premiados)'}.`;
       nextLabel = 'Novo torneio';
     }
     el.innerHTML = `<div class="result">
@@ -2381,7 +2524,12 @@ function renderLive() {
   if (d.street === 'preflop') {
     const a = d.adv;
     let viz;
-    if (a.push) {
+    if (a.push && a.icm && a.icm.needIcm != null) {
+      const sp = a.icm, w = sp.eq * 100, mk = sp.needIcm * 100;
+      viz = `<div class="kv"><span>Contra o all-in de ${sp.shover}</span><b class="warn">ICM</b></div>
+      <div class="meter"><div class="fill ${sp.eq >= sp.needIcm ? '' : 'low'}" style="width:${w}%"></div><div class="mark ${mk > 85 ? 'edge-r' : mk < 12 ? 'edge-l' : ''}" style="left:${mk}%"><span>precisa ${pct(sp.needIcm)}</span></div></div>
+      <div class="scale"><span>sua equity ${pct(sp.eq)}</span><span>só em fichas: ${pct(sp.needChip)}</span></div>`;
+    } else if (a.push) {
       const m = Math.min(20, a.max || 0), w = m / 20 * 100, dp = Math.min(20, a.depth) / 20 * 100;
       viz = `<div class="kv"><span>Stack efetivo</span><b class="warn">${a.depth.toString().replace('.', ',')} BB · all-in ou desistir</b></div>
       <div class="meter"><div class="fill ${a.max >= a.depth ? '' : 'low'}" style="width:${w}%"></div><div class="mark ${dp < 12 ? 'edge-l' : dp > 85 ? 'edge-r' : ''}" style="left:${dp}%"><span>seu stack</span></div></div>
@@ -2544,7 +2692,7 @@ function onHandOver() {
     lastOut = g.eliminateBusted().map(p => ({ seat: p.seat, name: p.name, place: p.place }));
     if (g.players[0].out) { tour.over = true; tour.place = g.players[0].place; }
     else if (g.activeCount() === 1) { tour.over = true; tour.place = 1; }
-    if (tour.over) { stats.tourneys.unshift({ place: tour.place, n: tour.n, hands: tour.hands, skill: cfg.skill, hu: cfg.table === 'hu' }); stats.tourneys = stats.tourneys.slice(0, 30); }
+    if (tour.over) { stats.tourneys.unshift({ place: tour.place, n: tour.n, hands: tour.hands, skill: cfg.skill, hu: cfg.table === 'hu', pts: tour.payouts && tour.payouts.length > 1 ? Math.round((tour.payouts[tour.place - 1] || 0) * 100) : null }); stats.tourneys = stats.tourneys.slice(0, 30); }
   }
   counted = true;
   save();
@@ -2603,6 +2751,7 @@ function renderSetup() {
       <div class="field"><span class="field-label">Mesa</span>${segHTML('table', [['6', '6 jogadores'], ['hu', 'Heads-up']], d.table)}</div>
       ${d.table === 'hu' ? `<div class="field"><span class="field-label">Rival</span>${segHTML('rival', BOTS.map(b => [b.k, `${b.name} · ${E.PROFILES[b.k].label}`]), d.rival)}</div>` : ''}
       <div class="field"><span class="field-label">Dificuldade</span>${segHTML('skill', [['easy', 'Iniciante'], ['normal', 'Normal'], ['hard', 'Difícil']], d.skill)}<p class="field-hint">${SKILL_HINT[d.skill]}</p></div>
+      ${d.format === 'tourney' && d.table !== 'hu' ? `<div class="field"><span class="field-label">Prêmios (em pontos)</span>${segHTML('prize', [['65/35', '65/35 · 2 premiados'], ['50/30/20', '50/30/20 · 3 premiados']], d.prize || '65/35')}<p class="field-hint">Com prêmios, o coach usa o ICM: perto da bolha, sobreviver vale mais que ganhar fichas.</p></div>` : ''}
       ${d.format === 'tourney' ? `<div class="field"><span class="field-label">Blinds sobem a cada</span>${segHTML('per', [[5, '5 mãos'], [8, '8 mãos'], [12, '12 mãos']], d.per)}</div>` : ''}
       <button class="primary" id="btnStart" type="button">Começar</button>
       ${inHand ? '<p class="field-hint">A mão em andamento será abandonada.</p>' : ''}
@@ -2867,7 +3016,10 @@ function renderSession() {
       <div class="stat"><div class="v">${wins}</div><div class="l">Vitórias</div></div>
       <div class="stat"><div class="v">${avg}</div><div class="l">Colocação média</div></div>
     </div>
-    <div class="tlist">${T.slice(0, 8).map(t => `<div class="trow"><span class="place${t.place === 1 ? ' first' : ''}">${ordinal(t.place)}</span><span>de ${t.n}${t.hu ? ' (heads-up)' : ''} · ${(E.SKILLS[t.skill] || E.SKILLS.normal).label} · ${plural(t.hands, 'mão', 'mãos')}</span></div>`).join('')}</div>` : '<p class="muted">Nenhum torneio terminado ainda. Comece um em Jogo → Torneio.</p>'}
+    ${T.some(t => t.pts != null) ? `<p class="muted">Média de prêmio nos torneios com prêmios: <b style="color:var(--ink)">${Math.round(T.filter(t => t.pts != null).reduce((x, t) => x + t.pts, 0) / T.filter(t => t.pts != null).length)} pontos</b> por torneio (100 = vencer sempre).</p>` : ''}
+    <div hidden>
+    </div>
+    <div class="tlist">${T.slice(0, 8).map(t => `<div class="trow"><span class="place${t.place === 1 ? ' first' : ''}">${ordinal(t.place)}</span><span>de ${t.n}${t.hu ? ' (heads-up)' : ''} · ${(E.SKILLS[t.skill] || E.SKILLS.normal).label} · ${plural(t.hands, 'mão', 'mãos')}${t.pts != null ? ` · ${t.pts} pts` : ''}</span></div>`).join('')}</div>` : '<p class="muted">Nenhum torneio terminado ainda. Comece um em Jogo → Torneio.</p>'}
     <h3>Últimas decisões</h3>
     <div class="fb">${s.recent.length ? s.recent.map(r => `<div class="fb-item ${r.grade}"><span class="pill ${r.grade}">${GRADE_PT[r.grade]}</span><span class="fb-title">${r.title}</span><span class="fb-meta">Mão ${r.h} · ${r.street} · ${r.combo} · ${r.act}</span></div>`).join('') : '<p class="muted">Jogue algumas mãos para ver seu histórico aqui.</p>'}</div>
     <div><button class="danger" id="btnReset" type="button">Zerar estatísticas e mãos</button></div>`;

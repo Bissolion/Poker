@@ -54,6 +54,14 @@ function botDecide(g, seat, rng = Math.random) {
     const cls = classOf(p.hole[0], p.hole[1]), dv = pr.dev || {}, depth = effBB(g, seat);
     // erro de iniciante: às vezes paga ou desiste no automático
     if (rng() < sk.mistake) return L.toCall > 0 ? (rng() < 0.6 ? { type: 'call' } : passive()) : { type: 'check' };
+    if (g.payouts && g.raises >= 1 && g.players.some(q => q.seat !== seat && !q.folded && q.allIn && q.bet === g.currentBet)) {
+      const sp = icmCallSpot(g, seat, g.payouts, rng);
+      if (sp) return sp.eq + (rng() - 0.5) * 0.06 * sk.noise + (dv.callPush ? 0.04 : 0) >= sp.needIcm ? { type: 'call' } : passive();
+    }
+    if (g.payouts && depth <= PUSH_DEPTH && g.raises === 0) {
+      const sp = icmPushSpot(g, seat, g.payouts, rng);
+      if (sp) return sp.push || (rng() < 0.08 * sk.noise) ? shove() : passive();
+    }
     if (depth <= PUSH_DEPTH) {
       const noise = (rng() - 0.5) * 2 * sk.noise;
       if (g.raises === 0) { const r = pushFoldAdvice(cls, depth, behindOf(g, seat)); return r.max + (dv.push || 0) + noise >= depth ? shove() : passive(); }

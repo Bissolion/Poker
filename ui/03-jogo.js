@@ -14,7 +14,9 @@ function newGame(c) {
   const tourney = c.format === 'tourney';
   game = new E.Game([{ name: 'Você', isHuman: true }, ...roster.map(b => ({ name: b.name, profile: E.PROFILES[b.k] }))],
     { stack: tourney ? 1500 : 1000, skill: c.skill, sb: tourney ? E.BLIND_LEVELS[0][0] : 5, bb: tourney ? E.BLIND_LEVELS[0][1] : 10 });
-  tour = tourney ? { per: c.per, hands: 0, level: 0, over: false, place: null, n: game.n, flash: false } : null;
+  const payouts = tourney ? E.PAYOUTS[c.table === 'hu' ? 'vencedor' : (c.prize || '65/35')] : null;
+  if (payouts) game.payouts = payouts;
+  tour = tourney ? { per: c.per, hands: 0, level: 0, over: false, place: null, n: game.n, flash: false, payouts } : null;
   replay = null; lastOut = []; rangeSt.hu = null;
   nextHand();
 }

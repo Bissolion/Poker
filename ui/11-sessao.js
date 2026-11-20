@@ -23,7 +23,10 @@ function renderSession() {
       <div class="stat"><div class="v">${wins}</div><div class="l">Vitórias</div></div>
       <div class="stat"><div class="v">${avg}</div><div class="l">Colocação média</div></div>
     </div>
-    <div class="tlist">${T.slice(0, 8).map(t => `<div class="trow"><span class="place${t.place === 1 ? ' first' : ''}">${ordinal(t.place)}</span><span>de ${t.n}${t.hu ? ' (heads-up)' : ''} · ${(E.SKILLS[t.skill] || E.SKILLS.normal).label} · ${plural(t.hands, 'mão', 'mãos')}</span></div>`).join('')}</div>` : '<p class="muted">Nenhum torneio terminado ainda. Comece um em Jogo → Torneio.</p>'}
+    ${T.some(t => t.pts != null) ? `<p class="muted">Média de prêmio nos torneios com prêmios: <b style="color:var(--ink)">${Math.round(T.filter(t => t.pts != null).reduce((x, t) => x + t.pts, 0) / T.filter(t => t.pts != null).length)} pontos</b> por torneio (100 = vencer sempre).</p>` : ''}
+    <div hidden>
+    </div>
+    <div class="tlist">${T.slice(0, 8).map(t => `<div class="trow"><span class="place${t.place === 1 ? ' first' : ''}">${ordinal(t.place)}</span><span>de ${t.n}${t.hu ? ' (heads-up)' : ''} · ${(E.SKILLS[t.skill] || E.SKILLS.normal).label} · ${plural(t.hands, 'mão', 'mãos')}${t.pts != null ? ` · ${t.pts} pts` : ''}</span></div>`).join('')}</div>` : '<p class="muted">Nenhum torneio terminado ainda. Comece um em Jogo → Torneio.</p>'}
     <h3>Últimas decisões</h3>
     <div class="fb">${s.recent.length ? s.recent.map(r => `<div class="fb-item ${r.grade}"><span class="pill ${r.grade}">${GRADE_PT[r.grade]}</span><span class="fb-title">${r.title}</span><span class="fb-meta">Mão ${r.h} · ${r.street} · ${r.combo} · ${r.act}</span></div>`).join('') : '<p class="muted">Jogue algumas mãos para ver seu histórico aqui.</p>'}</div>
     <div><button class="danger" id="btnReset" type="button">Zerar estatísticas e mãos</button></div>`;

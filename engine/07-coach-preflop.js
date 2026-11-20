@@ -40,6 +40,23 @@ function preflopAdvice(g, seat) {
   const combo = comboName(p.hole[0], p.hole[1]), cls = classOf(p.hole[0], p.hole[1]);
   const depth = effBB(g, seat);
   const D = Math.round(depth * 10) / 10, Ds = D.toString().replace('.', ',');
+  const shoveFacing = g.raises >= 1 && g.players.some(q => q.seat !== seat && !q.folded && q.allIn && q.bet === g.currentBet);
+  if (g.payouts && shoveFacing) {
+    const sp = icmCallSpot(g, seat, g.payouts);
+    if (sp) {
+      const rec = sp.eq >= sp.needIcm ? 'call' : 'fold', P = x => Math.round(x * 100) + '%';
+      const why = `Contra o all-in de ${sp.shover}, sua mão tem cerca de ${P(sp.eq)} de equity. Em fichas, bastaria ${P(sp.needChip)}; com os prêmios (ICM), você precisa de ${P(sp.needIcm)}${sp.premium > 0.01 ? `: ${P(sp.premium)} a mais, o prêmio de risco de cair do torneio` : ''}.${isBubble(g, g.payouts) ? ' Na bolha esse prêmio de risco é o maior do torneio.' : ''}`;
+      return { rec, why, s, combo, cls, pos, push: true, depth: D, max: null, icm: sp, freq: null };
+    }
+  }
+  if (g.payouts && depth <= PUSH_DEPTH && g.raises === 0) {
+    const sp = icmPushSpot(g, seat, g.payouts);
+    if (sp) {
+      const rec = sp.push ? 'raise' : L.canCheck ? 'check' : 'fold', chip = pushFoldAdvice(cls, depth, behindOf(g, seat));
+      const why = `Com ${Ds} BB e prêmios em jogo, o coach compara o valor em prêmio de ir all-in e de desistir (ICM). ${combo}: all-in ${sp.push ? 'vale mais' : 'vale menos'} que desistir.${chip.ok !== sp.push ? ` Só em fichas, a resposta seria ${chip.ok ? 'all-in' : 'desistir'}: os prêmios mudam a decisão.` : ''}`;
+      return { rec, why, s, combo, cls, pos, push: true, depth: D, max: chip.max, icm: sp, freq: null };
+    }
+  }
   if (depth <= PUSH_DEPTH) {
     // Stack curto: all-in ou desistir, pelas tabelas geradas
     let rec, why, r;

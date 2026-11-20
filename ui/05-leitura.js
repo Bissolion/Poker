@@ -95,7 +95,10 @@ function renderStatus() {
   if (tour) {
     const left = tour.per - (tour.hands % tour.per);
     const nextTxt = tour.level >= E.BLIND_LEVELS.length - 1 ? 'nível final' : left === 1 ? 'última mão do nível' : `sobe em ${left} mãos`;
-    el.innerHTML = `<span class="sb-main${tour.flash ? ' flash' : ''}">Torneio · Nível ${tour.level + 1} · <b>${g.sb}/${g.bb}</b> · ${nextTxt} · ${opp}</span><span class="sb-side">${heroBB}</span>`;
+    const pay = tour.payouts, bubble = pay && pay.length > 1 && E.isBubble(g, pay) && !me.out;
+    const ev = pay && !me.out ? E.icmNow(g, pay)[0] : null;
+    const evTxt = ev != null && pay.length > 1 ? ` · <b>${Math.round(ev * 100)} pts</b>` : '';
+    el.innerHTML = `<span class="sb-main${tour.flash ? ' flash' : ''}">Torneio · Nível ${tour.level + 1} · <b>${g.sb}/${g.bb}</b> · ${nextTxt} · ${opp}${bubble ? ' · <b class="bubble">BOLHA</b>' : ''}</span><span class="sb-side">${heroBB}${evTxt}</span>`;
     tour.flash = false;
   } else {
     el.innerHTML = `<span class="sb-main">Cash · ${opp} · ${skillLabel()} · <b>${g.sb}/${g.bb}</b></span><span class="sb-side">${heroBB}</span>`;
@@ -141,6 +144,8 @@ function renderActions() {
       cls = ' huge';
       big = tour.place === 1 ? 'Você venceu o torneio!' : `Você terminou em ${ordinal(tour.place)}`;
       sub = `${tour.place === 1 ? `Campeão entre ${tour.n} jogadores em ${plural(tour.hands, 'mão', 'mãos')}.` : `De ${tour.n} jogadores, depois de ${plural(tour.hands, 'mão', 'mãos')}.`} Na última mão: ${meWin ? 'você levou ' + meWin.amount : g.players[top.seat].name + ' levou ' + top.amount}.`;
+      const pts = tour.payouts && tour.payouts[tour.place - 1] ? Math.round(tour.payouts[tour.place - 1] * 100) : 0;
+      if (tour.payouts && tour.payouts.length > 1) sub += ` Prêmio: <b>${pts} pontos</b>${pts ? '' : ' (fora dos premiados)'}.`;
       nextLabel = 'Novo torneio';
     }
     el.innerHTML = `<div class="result">
@@ -218,7 +223,12 @@ function renderLive() {
   if (d.street === 'preflop') {
     const a = d.adv;
     let viz;
-    if (a.push) {
+    if (a.push && a.icm && a.icm.needIcm != null) {
+      const sp = a.icm, w = sp.eq * 100, mk = sp.needIcm * 100;
+      viz = `<div class="kv"><span>Contra o all-in de ${sp.shover}</span><b class="warn">ICM</b></div>
+      <div class="meter"><div class="fill ${sp.eq >= sp.needIcm ? '' : 'low'}" style="width:${w}%"></div><div class="mark ${mk > 85 ? 'edge-r' : mk < 12 ? 'edge-l' : ''}" style="left:${mk}%"><span>precisa ${pct(sp.needIcm)}</span></div></div>
+      <div class="scale"><span>sua equity ${pct(sp.eq)}</span><span>só em fichas: ${pct(sp.needChip)}</span></div>`;
+    } else if (a.push) {
       const m = Math.min(20, a.max || 0), w = m / 20 * 100, dp = Math.min(20, a.depth) / 20 * 100;
       viz = `<div class="kv"><span>Stack efetivo</span><b class="warn">${a.depth.toString().replace('.', ',')} BB · all-in ou desistir</b></div>
       <div class="meter"><div class="fill ${a.max >= a.depth ? '' : 'low'}" style="width:${w}%"></div><div class="mark ${dp < 12 ? 'edge-l' : dp > 85 ? 'edge-r' : ''}" style="left:${dp}%"><span>seu stack</span></div></div>

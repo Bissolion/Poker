@@ -24,6 +24,7 @@ function renderSetup() {
       <div class="field"><span class="field-label">Mesa</span>${segHTML('table', [['6', '6 jogadores'], ['hu', 'Heads-up']], d.table)}</div>
       ${d.table === 'hu' ? `<div class="field"><span class="field-label">Rival</span>${segHTML('rival', BOTS.map(b => [b.k, `${b.name} · ${E.PROFILES[b.k].label}`]), d.rival)}</div>` : ''}
       <div class="field"><span class="field-label">Dificuldade</span>${segHTML('skill', [['easy', 'Iniciante'], ['normal', 'Normal'], ['hard', 'Difícil']], d.skill)}<p class="field-hint">${SKILL_HINT[d.skill]}</p></div>
+      ${d.format === 'tourney' && d.table !== 'hu' ? `<div class="field"><span class="field-label">Prêmios (em pontos)</span>${segHTML('prize', [['65/35', '65/35 · 2 premiados'], ['50/30/20', '50/30/20 · 3 premiados']], d.prize || '65/35')}<p class="field-hint">Com prêmios, o coach usa o ICM: perto da bolha, sobreviver vale mais que ganhar fichas.</p></div>` : ''}
       ${d.format === 'tourney' ? `<div class="field"><span class="field-label">Blinds sobem a cada</span>${segHTML('per', [[5, '5 mãos'], [8, '8 mãos'], [12, '12 mãos']], d.per)}</div>` : ''}
       <button class="primary" id="btnStart" type="button">Começar</button>
       ${inHand ? '<p class="field-hint">A mão em andamento será abandonada.</p>' : ''}
