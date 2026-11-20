@@ -281,3 +281,11 @@ for (let i = 0; i < 300; i++) {
 assert.strictEqual(P.outsSets(H('9h 8h'), H('7h 6c 2h')).all.length, 15, 'flush + sequência aberta = 15');
 assert.strictEqual(P.outsSets(H('Ah 2h'), H('Kh 7h 9c')).all.length, 9);
 console.log('quiz ok');
+
+// Força passo a passo bate com chen() em todas as 1.326 mãos
+for (let a = 0; a < 52; a++) for (let b = a + 1; b < 52; b++) {
+  const br = P.chenBreakdown(a, b);
+  assert.strictEqual(br.total, P.chen(a, b), `breakdown ${P.cardStr(a)} ${P.cardStr(b)}`);
+  assert(br.calc.replace(/−/g, '-').endsWith(String(br.total)) || br.calc.endsWith('mín. 5'), br.calc);
+}
+console.log('força passo a passo ok');

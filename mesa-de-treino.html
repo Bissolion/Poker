@@ -106,6 +106,24 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 .card.slot { background: transparent; box-shadow: none; border: 1px dashed rgba(238,240,232,.18); animation: none; }
 .card.hl { box-shadow: 0 0 0 2px var(--good), 0 2px 5px rgba(0,0,0,.35); }
 .card.dim { opacity: .45; }
+
+/* Força da mão, no canto superior esquerdo da mesa */
+.str { position: absolute; top: 0; left: 0; z-index: 4; max-width: 140px; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 3px 9px 5px; }
+.str:hover { border-color: var(--brass); }
+.str-top { display: flex; align-items: baseline; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); white-space: nowrap; }
+.str-n { font-family: var(--font-d); font-weight: 800; font-size: 22px; line-height: 1; letter-spacing: 0; color: var(--brass); font-variant-numeric: tabular-nums; }
+.str-combo { color: var(--ink); letter-spacing: .02em; }
+.str-calc { font-size: 11.5px; line-height: 1.25; color: var(--ink); font-variant-numeric: tabular-nums; }
+.str-pop { position: absolute; top: 0; left: 0; z-index: 6; width: min(330px, 100%); display: grid; gap: 9px; background: var(--surface); border: 1px solid var(--brass); border-radius: 12px; padding: 10px 12px 12px; box-shadow: 0 12px 30px rgba(0,0,0,.55); font-size: 13.5px; color: var(--muted); }
+.str-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.str-head .str-top { font-size: 12px; }
+.str-head .str-n { font-size: 26px; }
+.str-x { flex: none; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-2); font-size: 18px; line-height: 1; }
+.str-steps { margin: 0; padding-left: 20px; display: grid; gap: 3px; color: var(--ink); }
+.str-sum { padding: 6px 9px; border-radius: 8px; background: var(--surface-2); color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.str-rules { margin: 0; line-height: 1.45; }
+.str-rules b, .str-ref b { color: var(--ink); }
+.str-ref { border-top: 1px solid var(--line); padding-top: 8px; }
 .card.flip { animation: flip .45s ease-out; }
 @keyframes flip { 0% { transform: rotateY(90deg) scale(.9); } 100% { transform: none; } }
 
@@ -446,6 +464,32 @@ function chen(c1, c2) {
   s -= gap === 0 ? 0 : gap === 1 ? 1 : gap === 2 ? 2 : gap === 3 ? 4 : 5;
   if (gap <= 1 && hi < 10) s += 1;
   return Math.ceil(s);
+}
+// A mesma conta de chen(), passo a passo, para mostrar na tela
+function chenBreakdown(c1, c2) {
+  const r1 = rankOf(c1), r2 = rankOf(c2), hi = Math.max(r1, r2), lo = Math.min(r1, r2);
+  const RC = '23456789TJQKA';
+  const fmt = x => String(x).replace('.', ',').replace('-', '−');
+  const pts = r => r === 12 ? 10 : r === 11 ? 8 : r === 10 ? 7 : r === 9 ? 6 : (r + 2) / 2;
+  const base = pts(hi), H = RC[hi];
+  const steps = [`Carta mais alta: ${H} vale ${fmt(base)}`];
+  if (r1 === r2) {
+    const d = base * 2, total = Math.max(5, Math.ceil(d));
+    steps.push(`Par: ${fmt(base)} × 2 = ${fmt(d)}${d < 5 ? ', sobe para o mínimo de 5' : ''}`);
+    return { total, steps, calc: `${H}: ${fmt(base)} × 2${d < 5 ? ` = ${fmt(d)} → mín. 5` : ` = ${total}`}` };
+  }
+  const suited = suitOf(c1) === suitOf(c2), gap = hi - lo - 1;
+  const gp = gap === 0 ? 0 : gap === 1 ? 1 : gap === 2 ? 2 : gap === 3 ? 4 : 5;
+  const bonus = gap <= 1 && hi < 10 ? 1 : 0;
+  const raw = base + (suited ? 2 : 0) - gp + bonus, total = Math.ceil(raw);
+  steps.push(suited ? 'Mesmo naipe: +2' : 'Naipes diferentes: +0');
+  steps.push(gap === 0 ? 'Cartas seguidas: −0' : `Buraco de ${gap} carta${gap > 1 ? 's' : ''} entre elas: −${gp}`);
+  steps.push(bonus ? 'Bônus (seguidas ou 1 buraco, as duas abaixo da Q): +1' : gap <= 1 ? 'Sem bônus: há carta Q ou maior' : 'Sem bônus: buraco grande demais');
+  if (raw !== total) steps.push(`${fmt(raw)} arredondado para cima: ${fmt(total)}`);
+  const terms = [`${H}: ${fmt(base)}`];
+  if (suited) terms.push('+2'); if (gp) terms.push(`−${gp}`); if (bonus) terms.push('+1');
+  const calc = terms.join(' ') + (raw !== total ? ` = ${fmt(raw)} → ${fmt(total)}` : ` = ${fmt(total)}`);
+  return { total, steps, calc };
 }
 function comboName(c1, c2) {
   const a = rankOf(c1) >= rankOf(c2) ? c1 : c2, b = a === c1 ? c2 : c1;
@@ -1188,7 +1232,7 @@ function quizWinner(rng = Math.random) {
   return quizPotOdds(rng);
 }
 
-const Poker = { SKILLS, effBB, pushThreshold, callShoveThreshold, PUSH_DEPTH, BLIND_LEVELS, blindLevel, equityKnown, POS_BY_N, quizPotOdds, quizOuts, quizWinner, outsSets, best5, CAT_PT, drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
+const Poker = { chenBreakdown, SKILLS, effBB, pushThreshold, callShoveThreshold, PUSH_DEPTH, BLIND_LEVELS, blindLevel, equityKnown, POS_BY_N, quizPotOdds, quizOuts, quizWinner, outsSets, best5, CAT_PT, drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
 if (typeof module !== 'undefined') module.exports = Poker;
 </script>
 <script>
@@ -1207,7 +1251,7 @@ const PAGES_URL = 'bissolion.github.io/poker';
 const KEY = 'mesa-treino-v1', KEY_H = 'mesa-treino-maos-v1', KEY_CFG = 'mesa-treino-cfg-v1', MAX_HANDS = 25;
 const blank = () => ({ hands: 0, net: 0, vpip: 0, pfr: 0, good: 0, ok: 0, bad: 0, rebuys: 0, recent: [], tourneys: [], quiz: { pot: [0, 0], outs: [0, 0], win: [0, 0], streak: 0, best: 0 } });
 const DEF_CFG = { format: 'cash', table: '6', rival: 'lag', skill: 'normal', per: 8 };
-const DEF_PREFS = { speed: 'normal', sound: false };
+const DEF_PREFS = { speed: 'normal', sound: false, showStrength: true };
 let stats = blank(), liveHelp = true, hands = [], cfg = { ...DEF_CFG }, prefs = { ...DEF_PREFS };
 const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? d : v; } catch (e) { return d; } };
 const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
@@ -1266,7 +1310,7 @@ document.addEventListener('pointerdown', () => sfx.unlock(), { capture: true });
 // ---- jogo ----
 let game = null, tour = null;
 let decision = null, handFb = [], flags = {}, loopId = 0, counted = false, raiseTo = 0;
-let runout = null, anim = null, lastOut = [];
+let runout = null, anim = null, lastOut = [], strOpen = false;
 let studyTab = 'hands', replay = null, rangeSt = { pos: null, scn: 0, sel: null, hu: null };
 let quiz = { cat: 'mix', q: null, picked: null };
 
@@ -1346,8 +1390,27 @@ function liveView() {
 // ---- render principal ----
 function render() {
   renderStatus();
-  $('table').innerHTML = tableHTML(liveView(), 'lg');
+  renderTable();
   renderActions(); renderLive(); renderFb(); renderLog();
+}
+function renderTable() { $('table').innerHTML = tableHTML(liveView(), 'lg') + strengthHTML(); }
+const fmtN = x => String(x).replace('.', ',').replace('-', '−');
+// Força da mão (fórmula de Chen), sempre visível, independente do coach
+function strengthHTML() {
+  const g = game, h = g.players[0];
+  if (!prefs.showStrength || h.out || h.hole.length < 2) return '';
+  const [a, b] = h.hole, br = E.chenBreakdown(a, b), combo = E.comboName(a, b);
+  const top = `<span class="str-top">Força <b class="str-n">${fmtN(br.total)}</b><span class="str-combo">${combo}</span></span>`;
+  if (!strOpen) return `<button type="button" class="str" data-str="open" aria-expanded="false" aria-label="Força da mão ${combo}: ${br.total} de 20. Toque para ver a fórmula">${top}<span class="str-calc">${br.calc}</span></button>`;
+  const pos = g.posOf(0), nAct = g.activeCount(), t = E.preflopRule(br.total, pos, 0, pos === 'BB', nAct).t;
+  const ref = pos === 'BB' ? `No <b>Big blind</b>, se ninguém aumentar: aumente com força <b>${t}+</b>, senão passe de graça.` : `Para abrir no <b>${E.POS_LABEL[pos]}</b>${nAct === 2 ? ' (heads-up)' : ''}: força <b>${t}+</b>. Sua mão ${br.total >= t ? 'entra' : 'não entra'}.`;
+  return `<div class="str-pop" role="dialog" aria-label="Fórmula da força da mão">
+    <div class="str-head">${top}<button type="button" class="str-x" data-str="close" aria-label="Fechar">×</button></div>
+    <ol class="str-steps">${br.steps.map(x => `<li>${x}</li>`).join('')}</ol>
+    <div class="str-sum">${br.calc} <span style="color:var(--muted);font-weight:500">de 20</span></div>
+    <p class="str-rules"><b>Fórmula de Chen.</b> Carta mais alta: A = 10, K = 8, Q = 7, J = 6, 10 a 2 valem metade do número. Par: dobra (mínimo 5). Mesmo naipe: +2. Buraco entre as cartas: 1 → −1, 2 → −2, 3 → −4, 4 ou mais → −5. Bônus +1 se seguidas ou com 1 de buraco e as duas abaixo da Q. Arredonde para cima.</p>
+    <div class="str-ref">${ref}</div>
+  </div>`;
 }
 const skillLabel = () => (E.SKILLS[cfg.skill] || E.SKILLS.normal).label;
 function renderStatus() {
@@ -1676,6 +1739,7 @@ function renderSetup() {
       <h3>Preferências</h3>
       <div class="field"><span class="field-label">Velocidade dos bots</span>${segHTML('speed', Object.entries(SPEEDS).map(([k, v]) => [k, v.label]), prefs.speed)}</div>
       <label class="switch" for="soundOn">Sons <input type="checkbox" id="soundOn" ${prefs.sound ? 'checked' : ''}></label>
+      <label class="switch" for="strOn">Mostrar a força da mão no canto da mesa <input type="checkbox" id="strOn" ${prefs.showStrength ? 'checked' : ''}></label>
     </div>
     <div class="setup-block install"><h3>App no celular</h3>${installHTML}</div>`;
   $('setupBody').querySelectorAll('[data-k]').forEach(b => b.onclick = () => {
@@ -1683,6 +1747,7 @@ function renderSetup() {
     if (k === 'speed') { prefs.speed = v; saveCfg(); } else draft[k] = v;
     renderSetup();
   });
+  $('strOn').onchange = e => { prefs.showStrength = e.target.checked; saveCfg(); renderTable(); };
   $('soundOn').onchange = e => { prefs.sound = e.target.checked; saveCfg(); sfx.unlock(); setTimeout(() => sfx.chip(), 60); };
   $('btnStart').onclick = () => { closeSetup(); newGame(draft); };
   const bi = $('btnInstall');
@@ -1896,6 +1961,12 @@ function renderSession() {
   };
 }
 
+$('table').addEventListener('click', e => {
+  const t = e.target.closest('[data-str]');
+  if (!t) return;
+  strOpen = t.dataset.str === 'open'; renderTable();
+  const f = $('table').querySelector(strOpen ? '.str-x' : '.str'); if (f) f.focus();
+});
 $('btnGame').onclick = openSetup;
 $('btnSetupClose').onclick = closeSetup;
 $('btnStudy').onclick = () => openStudy(studyTab);
@@ -1904,7 +1975,7 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => { studyTab = t.
 $('study').addEventListener('click', e => { if (e.target.id === 'study') closeStudy(); });
 $('setup').addEventListener('click', e => { if (e.target.id === 'setup') closeSetup(); });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeStudy(); closeSetup(); return; }
+  if (e.key === 'Escape') { closeStudy(); closeSetup(); if (strOpen) { strOpen = false; renderTable(); } return; }
   if ($('study').hidden) return;
   if (studyTab === 'hands' && replay && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
     const n = hands[replay.idx].snaps.length;
