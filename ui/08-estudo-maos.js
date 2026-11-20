@@ -28,14 +28,17 @@ function renderHands() {
   const el = $('studyBody');
   if (replay && hands[replay.idx]) return renderReplay();
   replay = null;
-  if (!hands.length) { el.innerHTML = `<p class="muted">Jogue uma mão para poder revê-la aqui, passo a passo, com as notas do coach em cada decisão sua.</p>`; return; }
-  el.innerHTML = `<p class="muted">Últimas ${hands.length} mãos. Toque para rever passo a passo.</p><div class="hands">${hands.map((h, k) => `
+  if (!hands.length && !handFilter) { el.innerHTML = `<p class="muted">Jogue uma mão para poder revê-la aqui, passo a passo, com as notas do coach em cada decisão sua.</p>`; return; }
+  const shown = hands.map((h, k) => [h, k]).filter(([h]) => !handFilter || handFilter.keys.has(h.key));
+  const head = handFilter ? `<div class="rp-opts"><span class="muted">${handFilter.label}: ${shown.length} ${shown.length === 1 ? 'mão guardada' : 'mãos guardadas'}${shown.length ? '' : ' (só as últimas 25 ficam para o replay)'}.</span><button class="chip" id="hfAll" type="button">Mostrar todas</button></div>` : `<p class="muted">Últimas ${hands.length} mãos. Toque para rever passo a passo.</p>`;
+  el.innerHTML = `${head}<div class="hands">${shown.map(([h, k]) => `
     <button class="hand-row" type="button" data-h="${k}">
       <span class="hr-no">Mão ${h.no}${h.mode ? `<small>${h.mode}</small>` : ''}</span>
       <span class="hr-cards">${h.holes[0].map(c => card(c, 'sm')).join('')}</span>
       <span class="hr-mid"><span class="pos${h.pos[0] === 'BTN' ? ' btn' : ''}">${h.pos[0]}</span><span class="dots">${h.grades.map(g => `<i class="dot ${g}"></i>`).join('')}</span></span>
       <span class="hr-net ${h.net > 0 ? 'pos-t' : h.net < 0 ? 'neg-t' : ''}">${signed(h.net)}</span>
     </button>`).join('')}</div>`;
+  const hf = $('hfAll'); if (hf) hf.onclick = () => { handFilter = null; renderHands(); };
   el.querySelectorAll('[data-h]').forEach(b => b.onclick = () => { const k = +b.dataset.h; replay = { idx: k, i: firstStep(hands[k]), showAll: false }; renderHands(); });
 }
 function nextMistake(h, from) { for (let k = from + 1; k < h.snaps.length; k++) { const f = h.snaps[k].fb; if (f && f.grade !== 'good') return k; } return -1; }

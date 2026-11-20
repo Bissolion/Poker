@@ -341,3 +341,67 @@ console.log('leitura da mão e da mesa ok');
   g.players[utg].hole = H('Ks 9d'); assert.strictEqual(P.preflopAdvice(g, utg).rec, 'fold', 'K9o não abre do UTG');
 }
 console.log('faixas modernas ok');
+
+// ---- Coach pós-flop ----
+{
+  const spot = (heroHole, vilHole, board, opts = {}) => {
+    const g = new P.Game([{ name: 'Você' }, { name: 'Rival', profile: P.PROFILES.bal }]);
+    g.button = 1; g.startHand();
+    g.players[0].hole = H(heroHole); g.players[1].hole = H(vilHole);
+    g.act(0, { type: 'raise', to: 25 }); g.act(1, { type: 'call' });
+    g.board = H(board); g.street = board.split(' ').length === 3 ? 'flop' : board.split(' ').length === 4 ? 'turn' : 'river';
+    g.toAct = 1;
+    if (opts.bet) g.act(1, { type: 'raise', to: opts.bet }); else g.act(1, { type: 'check' });
+    const info = P.postflopInfo(g, 0, 600);
+    return P.postflopTips(g, 0, info);
+  };
+  const has = (t, k) => t.find(x => x.k === k);
+  const dry = spot('Qs Jd', '9h 8h', 'Kc 7d 2s');
+  assert(has(dry, 'cbet') && has(dry, 'cbet').rec === 'raise' && has(dry, 'cbet').size === 0.33, 'c-bet pequena em mesa seca');
+  const wet = spot('4s 3d', '9h 8h', 'Th 9c 8h');
+  assert(has(wet, 'cbet').rec === 'check', 'mesa molhada sem mão: passar');
+  const imp = spot('Ah 5h', 'Kc Kd', 'Kh 9h 2c', { bet: 60 });
+  assert(has(imp, 'range'), 'mostra o que a aposta representa');
+  const low = spot('6h 5h', 'Kc Kd', 'Kh 9h 2c', { bet: 60 });
+  assert(has(low, 'reverse'), 'alerta de flush baixo');
+  const riv = spot('Ac Qd', 'Kc Kd', 'Ks 9h 2c 4d 7s', { bet: 40 });
+  assert(has(riv, 'mdf'), 'defesa mínima no river');
+  const br = has(riv, 'range').breakdown, sum = br.reduce((a, x) => a + x.p, 0);
+  assert(sum > 0.9 && sum <= 1.0001, 'categorias somam ~100%');
+}
+console.log('coach pós-flop ok');
+
+// ---- Vazamentos: um jogador que paga demais no river ----
+{
+  let seed = 777; const rng = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const g = new P.Game([0, 1, 2, 3, 4, 5].map(i => ({ name: 'V' + i, profile: P.PROFILES.bal })), { rng });
+  const decs = [], hands = [];
+  for (let h = 0; h < 1000; h++) {
+    for (const p of g.players) if (p.stack < 400) p.stack = 1000;
+    g.startHand();
+    const fl = {};
+    while (!g.handOver) {
+      const s = g.toAct;
+      let a = P.botDecide(g, s, rng);
+      if (s === 0) {
+        const L = g.legal(0);
+        if (g.street === 'preflop') { const adv = P.preflopAdvice(g, 0); a = adv.rec === 'raise' ? { type: 'raise', to: adv.push ? L.maxTo : g.raises ? g.currentBet * 3 : g.bb * 3 } : { type: adv.rec }; }
+        if (g.street === 'river' && L.toCall > 0) a = { type: 'call' }; // o vazamento
+        let grade = 'good';
+        if (g.street !== 'preflop') { const info = P.postflopInfo(g, 0, 120); grade = P.gradePostflop(info, a.type === 'call' && L.toCall === 0 ? 'check' : a.type, L, g.street).grade; }
+        decs.push(P.decisionRecord(g, 0, a.type === 'call' && L.toCall === 0 ? 'check' : a.type, grade));
+        if (g.street === 'preflop' && (a.type === 'raise' || (a.type === 'call' && L.toCall > 0))) { fl.vpip = true; if (a.type === 'raise') fl.pfr = true; }
+      }
+      g.act(s, a);
+      if (g.board.length >= 3 && !g.players[0].folded) fl.flop = true;
+    }
+    hands.push(P.handRecord(g, 0, fl));
+  }
+  const leaks = P.findLeaks(decs, hands);
+  console.log('vazamentos encontrados:', leaks.slice(0, 3).map(l => `${l.id} ${Math.round(l.value * 100)}% (${l.n})`).join(', '));
+  assert(leaks.length && ['rivercall', 'wtsd', 'wsd'].includes(leaks[0].id), 'o primeiro vazamento é o call no river: ' + (leaks[0] && leaks[0].id));
+  const S = P.leakStats(decs, hands);
+  const manual = hands.filter(h => h.flop && h.sd).length / hands.filter(h => h.flop).length;
+  assert.strictEqual(S.wtsd.v, manual, 'estatística confere com a conta à mão');
+}
+console.log('vazamentos ok');

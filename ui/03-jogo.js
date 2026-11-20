@@ -1,12 +1,15 @@
 // ---- jogo ----
-let game = null, tour = null;
+let game = null, tour = null, gameId = 0;
+const handKey = () => `${gameId}:${game.handNo}`;
 let decision = null, handFb = [], flags = {}, loopId = 0, counted = false, raiseTo = 0;
 let runout = null, anim = null, lastOut = [], strOpen = false, readCache = { key: '' };
 let studyTab = 'hands', replay = null, rangeSt = { pos: null, scn: 'open', sel: null, hu: null, opener: null, depth: 10 };
+let handFilter = null;
 let quiz = { cat: 'mix', q: null, picked: null };
 
 function newGame(c) {
   cfg = { ...c }; saveCfg();
+  gameId = Date.now();
   const roster = c.table === 'hu' ? [BOTS.find(b => b.k === c.rival) || BOTS[1]] : BOTS;
   const tourney = c.format === 'tourney';
   game = new E.Game([{ name: 'Você', isHuman: true }, ...roster.map(b => ({ name: b.name, profile: E.PROFILES[b.k] }))],

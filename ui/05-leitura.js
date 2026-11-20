@@ -192,7 +192,7 @@ function defaultRaise(L) {
   if (d && d.adv && d.adv.push) return L.maxTo;
   if (g.street === 'preflop') return g.raises === 0 ? g.bb * (g.activeCount() === 2 ? 2.5 : 3 + limpersFor(0)) : g.currentBet * 3;
   const pot = g.pot();
-  return L.isBet ? pot * 0.66 : g.currentBet + (pot + L.toCall) * 0.75;
+  return L.isBet ? pot * (d && d.info && d.info.size || 0.66) : g.currentBet + (pot + L.toCall) * 0.75;
 }
 
 const REC_PT = { fold: 'desistir', check: 'passar', call: 'pagar', raise: 'aumentar' };
@@ -248,7 +248,7 @@ function renderLive() {
       <div class="kv"><span>Equity contra ${i.nOpp} ${i.nOpp > 1 ? 'rivais' : 'rival'}</span><b>${pct(i.eq)}</b></div>
       <div class="meter"><div class="fill ${i.toCall && i.eq < i.need ? 'low' : ''}" style="width:${w}%"></div>${i.toCall ? `<div class="mark ${markCls}" style="left:${i.need * 100}%"><span>precisa ${pct(i.need)}</span></div>` : ''}</div>
       <div class="scale"><span>0%</span><span>100%</span></div>
-      <div class="rec-line">${i.toCall ? `Pote ${i.pot}, para pagar ${i.toCall}: você precisa vencer ${pct(i.need)} das vezes.` : 'Ninguém apostou: passar é de graça.'} Sugestão: <b>${REC_PT[d.rec]}</b>.</div>`;
+      <div class="rec-line">${i.toCall ? `Pote ${i.pot}, para pagar ${i.toCall}: você precisa vencer ${pct(i.need)} das vezes.` : 'Ninguém apostou: passar é de graça.'} Sugestão: <b>${REC_PT[d.rec]}</b>.</div>${tipsHTML(i.tips)}`;
   }
 }
 const GRADE_PT = { good: 'Boa', ok: 'Ok', bad: 'Erro' };
@@ -265,3 +265,9 @@ function renderLog() {
   $('log').innerHTML = items.map(l => `<li class="${l.kind}">${l.text}</li>`).join('');
 }
 
+
+// Dicas do coach pós-flop (continuation bet, tamanho, odds implícitas, faixa do rival, defesa mínima)
+function tipsHTML(tips) {
+  if (!tips || !tips.length) return '';
+  return `<div class="tips">${tips.map(t => `<div class="tip"><span>${t.text}</span>${t.breakdown ? `<div class="rbreak">${t.breakdown.map(x => `<div class="rb-row"><span>${x.name}</span><span class="bar"><i style="width:${x.p * 100}%"></i></span><b>${pct(x.p)}</b></div>`).join('')}</div>` : ''}</div>`).join('')}</div>`;
+}

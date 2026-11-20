@@ -8,6 +8,7 @@ function soundFor(p, prevLen) {
 function doAct(seat, a) {
   const prevLen = game.board.length;
   game.act(seat, a);
+  if (!game.players[0].folded && game.board.length >= 3) flags.flop = true;
   soundFor(game.players[seat], prevLen);
   // Todos all-in: o motor distribui o resto do board de uma vez; a interface revela aos poucos
   if (game.handOver && game.result.showdown && game.board.length > prevLen) runout = { from: prevLen };
@@ -53,7 +54,14 @@ function beginHeroTurn() {
   const L = game.legal(0);
   let adv = null, info = null, rec;
   if (game.street === 'preflop') { adv = E.preflopAdvice(game, 0); rec = adv.rec; }
-  else { info = E.postflopInfo(game, 0, 1500); rec = E.postflopRec(info); }
+  else {
+    info = E.postflopInfo(game, 0, 1500); rec = E.postflopRec(info);
+    info.tips = E.postflopTips(game, 0, info);
+    // a continuation bet e o river mudam a sugestão quando ninguém apostou
+    const t = info.tips.find(x => x.rec && (x.k === 'cbet' || x.k === 'river'));
+    if (t && L.toCall === 0) rec = t.rec;
+    const sz = info.tips.find(x => x.size); if (sz) info.size = sz.size;
+  }
   if (rec === 'raise' && !L.canRaise) rec = L.canCheck ? 'check' : 'call';
   if (rec === 'check' && !L.canCheck) rec = 'call';
   decision = { street: game.street, L, adv, info, rec };
@@ -64,7 +72,10 @@ function heroAct(type) {
   const L = d.L, g = game;
   if (type === 'call' && L.canCheck) type = 'check';
   const to = raiseTo;
-  const fb = d.street === 'preflop' ? E.gradePreflop(d.adv, type, L) : E.gradePostflop(d.info, type, L, d.street);
+  let fb = d.street === 'preflop' ? E.gradePreflop(d.adv, type, L) : E.gradePostflop(d.info, type, L, d.street);
+  const cb = d.info && (d.info.tips || []).find(x => x.k === 'cbet');
+  if (cb && cb.rec === 'raise' && type === 'check') fb = { grade: 'ok', title: 'Faltou a continuation bet', text: cb.text };
+  if (cb && cb.rec === 'check' && type === 'raise' && fb.grade === 'good') fb = { grade: 'ok', title: 'Continuation bet arriscada aqui', text: cb.text };
   let sizing = null;
   if (type === 'raise') sizing = E.gradeSizing({ street: d.street, raises: g.raises, to, currentBet: g.currentBet, pot: g.pot(), toCall: L.toCall, isBet: L.isBet, bb: g.bb, limpers: limpersFor(0), maxTo: L.maxTo, st: d.info ? d.info.st : 0, draws: d.info ? d.info.draws : [], board: g.board, nAct: g.activeCount(), stackBB: d.adv && d.adv.push ? d.adv.depth : null });
   const actPt = type === 'fold' ? 'desistiu' : type === 'check' ? 'passou' : type === 'call' ? `pagou ${L.toCall}` : (to >= L.maxTo ? `all-in ${L.maxTo}` : (L.isBet ? `apostou ${to}` : `aumentou p/ ${to}`));
@@ -75,6 +86,8 @@ function heroAct(type) {
   stats.recent = stats.recent.slice(0, 20);
   if (d.street === 'preflop') { if (type === 'raise') { flags.vpip = flags.pfr = true; } else if (type === 'call') flags.vpip = true; }
   save();
+  const rec = E.decisionRecord(g, 0, type, fb.grade); rec.h = handKey(); rec.s = SESSION; rec.m = tour ? 't' : 'c';
+  reg.decs.push(rec); saveReg();
   decision = null;
   const at = g.snaps.length;
   doAct(0, type === 'raise' ? { type, to } : { type });
@@ -98,8 +111,9 @@ function onHandOver() {
   }
   counted = true;
   save();
+  if (!g.players[0].out || r.net[0]) { const hr = E.handRecord(g, 0, flags); hr.h = handKey(); hr.s = SESSION; hr.m = tour ? 't' : 'c'; reg.hands.push(hr); saveReg(); }
   hands.unshift({
-    no: g.handNo, mode: modeLabel(), names: g.players.map(p => p.name), labels: g.players.map(p => p.profile ? p.profile.label : ''),
+    key: handKey(), no: g.handNo, mode: modeLabel(), names: g.players.map(p => p.name), labels: g.players.map(p => p.profile ? p.profile.label : ''),
     pos: g.players.map(p => g.posOf(p.seat) || ''), holes: g.players.map(p => p.hole.slice()), snaps: g.snaps,
     shown: r.showdown ? g.players.filter(p => !p.folded).map(p => p.seat) : [], net: r.net[0], grades: handFb.map(f => f.grade),
   });

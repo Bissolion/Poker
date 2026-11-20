@@ -25,6 +25,11 @@ const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); retu
 const save = () => store(KEY, { stats, liveHelp });
 const saveHands = () => { if (!store(KEY_H, hands)) { hands = hands.slice(0, 8); store(KEY_H, hands); } };
 const saveCfg = () => store(KEY_CFG, { cfg, prefs });
+// Registro de decisões e mãos para os vazamentos (cada sessão = uma abertura do app)
+const KEY_REG = 'mesa-treino-reg-v1', SESSION = Date.now();
+let reg = load(KEY_REG, { decs: [], hands: [] });
+if (!reg || !Array.isArray(reg.decs) || !Array.isArray(reg.hands)) reg = { decs: [], hands: [] };
+const saveReg = () => { reg.decs = reg.decs.slice(-3000); reg.hands = reg.hands.slice(-1500); if (!store(KEY_REG, reg)) { reg.decs = reg.decs.slice(-800); reg.hands = reg.hands.slice(-400); store(KEY_REG, reg); } };
 $('liveHelp').checked = liveHelp;
 
 const SPEEDS = { slow: { label: 'Lenta', think: 1300, run: 1500 }, normal: { label: 'Normal', think: 750, run: 1100 }, fast: { label: 'Rápida', think: 350, run: 750 }, turbo: { label: 'Turbo', think: 90, run: 450 } };

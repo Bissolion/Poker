@@ -207,6 +207,13 @@ h3 { font-family: var(--font-d); font-weight: 800; font-size: 17px; text-transfo
 .eqrow.me .bar i { background: var(--brass); }
 .eqrow b { text-align: right; font-variant-numeric: tabular-nums; }
 .muted { color: var(--muted); font-size: 14px; margin: 0; }
+.tips { display: grid; gap: 8px; }
+.tip { display: grid; gap: 6px; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); border-left: 3px solid var(--brass); font-size: 13.5px; color: var(--ink); }
+.rbreak { display: grid; gap: 4px; }
+.rb-row { display: grid; grid-template-columns: minmax(0, 1fr) 70px 36px; gap: 8px; align-items: center; font-size: 12.5px; color: var(--muted); }
+.rb-row .bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.rb-row .bar i { display: block; height: 100%; background: var(--muted); }
+.rb-row b { text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
 .fb { display: grid; gap: 8px; }
 .fb-item { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border-left: 3px solid var(--line); }
 .fb-item.good { border-left-color: var(--good); } .fb-item.ok { border-left-color: var(--ok); } .fb-item.bad { border-left-color: var(--bad); }
@@ -303,6 +310,11 @@ details[open] summary { margin-bottom: 8px; }
 .danger { background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 13px; color: var(--muted); }
 .danger.armed { border-color: var(--bad); color: var(--bad); }
 .tlist { display: grid; gap: 6px; }
+.tscroll { overflow-x: auto; }
+.stbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.stbl th { text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); padding: 4px 6px; border-bottom: 1px solid var(--line); }
+.stbl td { padding: 6px; border-bottom: 1px solid var(--line); color: var(--ink); }
+.stbl .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .trow { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; color: var(--muted); }
 .trow .place { font-family: var(--font-d); font-weight: 800; font-size: 20px; color: var(--ink); min-width: 40px; font-variant-numeric: tabular-nums; }
 .trow .place.first { color: var(--brass); }
@@ -1534,7 +1546,235 @@ function pushFoldAdvice(cls, depth, kBehind, facingShoveFromK) {
 }
 const HAND_POS = Object.fromEntries(HAND_RANK.map((c, i) => [c, i / 168])); // 0 = melhor, 1 = pior
 
-const Poker = { parseRange, rangePct, classOf, rangeScenario, rangeFreq, pushFoldAdvice, HAND_RANK, HAND_POS, PUSH_MAX, CALL_MAX, RFI, VS_OPEN, VS_3BET, shortName, madeHand, heroDraws, boardRead, chenBreakdown, SKILLS, effBB, pushThreshold, callShoveThreshold, PUSH_DEPTH, BLIND_LEVELS, blindLevel, equityKnown, POS_BY_N, quizPotOdds, quizOuts, quizWinner, outsSets, best5, CAT_PT, drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
+// ---------- Coach pós-flop: o porquê de cada jogada ----------
+// Sorteia mãos do rival pela faixa estimada (ação pré-flop + apostas depois do flop), como a equity faz
+function sampleRange(hole, board, o, n = 600, rng = Math.random) {
+  const used = new Set([...hole, ...board]), pool = [];
+  for (let c = 0; c < 52; c++) if (!used.has(c)) pool.push(c);
+  const cons = (o.reads || []).filter(r => r.n <= board.length).map(r => { const bp = board.slice(0, r.n); return { bp, lv: r.lv, bc: catOf(evalHand(bp)) }; });
+  const out = [];
+  for (let it = 0; it < n; it++) {
+    let a, b, tries = 0;
+    for (;;) {
+      const i = Math.floor(rng() * pool.length); let j = Math.floor(rng() * (pool.length - 1)); if (j >= i) j++;
+      a = pool[i]; b = pool[j];
+      if (tries++ > 40) break;
+      if (o.minChen && chen(a, b) < o.minChen) continue;
+      if (cons.length && rng() >= BLUFF_ALLOW && cons.some(r => handLevel(a, b, r.bp, r.bc) < r.lv)) continue;
+      break;
+    }
+    out.push([a, b]);
+  }
+  return out;
+}
+// Divide a faixa do rival em categorias que o jogador entende
+const RANGE_CATS = ['Sequência, flush ou melhor', 'Trinca ou dois pares', 'Top pair ou overpair', 'Outro par', 'Projeto', 'Nada (blefe)'];
+function rangeBreakdown(hole, board, o, rng = Math.random) {
+  const hands = sampleRange(hole, board, o, 600, rng), cnt = RANGE_CATS.map(() => 0);
+  const bc = catOf(evalHand(board)), top = Math.max(...board.map(rankOf));
+  for (const [a, b] of hands) {
+    const sc = evalHand([a, b, ...board]), cat = catOf(sc);
+    let k;
+    if (cat >= 4 && cat > bc) k = 0;
+    else if ((cat === 3 || cat === 2) && cat > bc) k = 1;
+    else if (cat === 1 && cat > bc) {
+      const pr = kOf(sc, 0);
+      k = pr >= top ? 2 : 3;
+    } else k = board.length < 5 && drawsOf([a, b], board).length ? 4 : 5;
+    cnt[k]++;
+  }
+  return RANGE_CATS.map((name, i) => ({ name, p: cnt[i] / hands.length })).filter(x => x.p >= 0.02);
+}
+// Dicas do coach depois do flop. Devolve frases curtas, na ordem em que importam.
+function postflopTips(g, seat, info, rng = Math.random) {
+  const p = g.players[seat], L = g.legal(seat), tips = [];
+  const board = g.board, rd = boardRead(board, p.hole), label = rd.label;
+  const pot = g.pot(), aggressor = g.pfAgg === seat, multi = info.nOpp >= 2;
+  const P = x => Math.round(x * 100) + '%';
+  const rivals = g.players.filter(q => q !== p && !q.folded);
+  // 1. continuation bet
+  if (g.street === 'flop' && L.toCall === 0 && aggressor) {
+    if (multi) tips.push({ k: 'cbet', rec: info.st >= 0.6 ? 'raise' : 'check', text: `Você aumentou antes do flop, mas contra ${info.nOpp} rivais a continuation bet funciona menos: aposte só com mão boa ou projeto forte.` });
+    else if (label === 'Seca') tips.push({ k: 'cbet', rec: 'raise', size: 0.33, text: 'Você aumentou antes do flop e a mesa é seca: aposte pequeno (cerca de 1/3 do pote) com quase toda a sua faixa. O rival erra o flop na maior parte das vezes.' });
+    else tips.push({ k: 'cbet', rec: info.st >= 0.55 || (info.draws || []).length ? 'raise' : 'check', size: 0.66, text: `Você aumentou antes do flop, mas a mesa é ${label.toLowerCase()}: aposte maior (cerca de 2/3 do pote) com mão boa ou projeto, e passe com o resto.` });
+  }
+  // 2. tamanho pela textura (quando vai apostar)
+  if (L.toCall === 0 && info.st >= 0.62 && !tips.some(t => t.k === 'cbet')) {
+    const size = label === 'Seca' ? 0.33 : 0.66;
+    tips.push({ k: 'size', rec: 'raise', size, text: label === 'Seca' ? 'Mesa seca: uma aposta de 1/3 do pote já cobra das mãos piores sem afastá-las.' : `Mesa ${label.toLowerCase()}: aposte 2/3 a 3/4 do pote para cobrar caro de quem quer completar um projeto.` });
+  }
+  // 3. odds implícitas e reversas
+  const hd = heroDraws(p.hole, board);
+  if (hd && L.toCall > 0 && info.eq < info.need) {
+    const next = hd.outs / (52 - 2 - board.length);
+    const needFuture = Math.max(0, Math.round(L.toCall / next - (pot + L.toCall)));
+    const behind = Math.min(p.stack - L.toCall, Math.max(0, ...rivals.map(q => q.stack)));
+    tips.push({ k: 'implied', text: `Odds implícitas: só pelo pote, pagar não compensa. Para valer, você precisa ganhar mais cerca de ${needFuture} fichas quando completar (${hd.outs} outs, ${P(next)} na próxima carta). ${behind >= needFuture * 1.3 ? `Ainda há ${behind} fichas atrás: dá, se o rival costuma pagar.` : `Só há ${behind} fichas atrás: não dá.`}` });
+  }
+  if (hd && hd.flush) {
+    const fs = suitOf(heroDrawSuit(p.hole, board));
+    const myHigh = Math.max(...p.hole.filter(c => suitOf(c) === fs).map(rankOf));
+    if (myHigh < 10) tips.push({ k: 'reverse', text: `Cuidado com odds implícitas reversas: seu flush seria baixo (${RANK_CH[myHigh]} alto). Quando completar, quem tem flush maior ganha muito de você.` });
+  }
+  // 4. o que a aposta do rival representa
+  if (L.toCall > 0) {
+    const bettor = rivals.find(q => q.bet === g.currentBet) || rivals[0];
+    if (bettor) {
+      const br = rangeBreakdown(p.hole, board, { minChen: bettor.minChen, reads: bettor.reads }, rng);
+      tips.push({ k: 'range', text: `O que a aposta de ${bettor.name} representa (estimativa pela ação dele):`, breakdown: br });
+    }
+  }
+  // 5. defesa mínima no river
+  if (g.street === 'river' && L.toCall > 0) {
+    const before = pot - L.toCall, mdf = before / (before + L.toCall);
+    tips.push({ k: 'mdf', text: `Defesa mínima: contra essa aposta, quem paga com menos de ${P(mdf)} da própria faixa deixa o rival lucrar blefando com qualquer coisa. Pague com as melhores mãos da sua faixa até mais ou menos essa fração.` });
+  }
+  // 6. valor ou blefe no river
+  if (g.street === 'river' && L.toCall === 0) {
+    tips.push({ k: 'river', rec: info.st >= 0.65 ? 'raise' : 'check', text: info.st >= 0.65 ? 'River: aposte por valor. Sua mão ganha da maior parte das que pagariam.' : info.eq < 0.15 ? 'River: com quase nada, passe ou blefe raramente. Um blefe só funciona se a história das suas apostas fizer sentido (por exemplo, a carta que completou um projeto possível).' : 'River: com mão média, passe. Quem paga sua aposta costuma ter mão melhor, e quem tem mão pior desiste.' });
+  }
+  return tips;
+}
+// Naipe do projeto de flush do jogador (uma das cartas dele)
+function heroDrawSuit(hole, board) {
+  const sc = [0, 0, 0, 0]; [...hole, ...board].forEach(c => sc[suitOf(c)]++);
+  const s = sc.findIndex((n, k) => n === 4 && hole.some(c => suitOf(c) === k));
+  return hole.find(c => suitOf(c) === s) ?? hole[0];
+}
+
+// ---------- Vazamentos: erros que se repetem ----------
+// Entradas: decisões (uma por ação sua) e mãos (uma por mão terminada), como a interface registra.
+// decisão: { h, st: rua, pos, n: jogadores, r: aumentos antes, tc: havia o que pagar, a: ação, g: nota,
+//            opn: você abriu, agg: você foi o último a aumentar antes do flop, cbo: chance de continuation bet,
+//            fcb: enfrentando continuation bet }
+// mão: { h, pos, n, vpip, pfr, flop: viu o flop, sd: foi ao showdown, won, net: saldo em BB }
+const POS6 = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
+// Faixas saudáveis: o que um jogador que segue as tabelas e o coach do app produz contra estes bots
+// (medido em 3.000 mãos simuladas), com margem. Vazamento = se afastar da estratégia que o app ensina.
+const STAT_DEF = {
+  vpip: { name: 'VPIP', lo: 0.16, hi: 0.26, min: 30, fmt: 'pct' },
+  pfr: { name: 'PFR', lo: 0.12, hi: 0.21, min: 30, fmt: 'pct' },
+  gap: { name: 'Diferença VPIP − PFR', lo: 0, hi: 0.08, min: 30, fmt: 'pct' },
+  vpip_UTG: { name: 'VPIP no UTG', lo: 0.10, hi: 0.22, min: 15, fmt: 'pct' },
+  vpip_MP: { name: 'VPIP no Middle', lo: 0.11, hi: 0.23, min: 15, fmt: 'pct' },
+  vpip_CO: { name: 'VPIP no Cutoff', lo: 0.11, hi: 0.25, min: 15, fmt: 'pct' },
+  vpip_BTN: { name: 'VPIP no Botão', lo: 0.22, hi: 0.40, min: 15, fmt: 'pct' },
+  vpip_SB: { name: 'VPIP no Small blind', lo: 0.10, hi: 0.25, min: 15, fmt: 'pct' },
+  vpip_BB: { name: 'VPIP no Big blind', lo: 0.15, hi: 0.33, min: 15, fmt: 'pct' },
+  threebet: { name: '3-bet', lo: 0.03, hi: 0.08, min: 25, fmt: 'pct' },
+  fold3bet: { name: 'Desiste contra 3-bet', lo: 0.50, hi: 0.88, min: 12, fmt: 'pct' },
+  cbet: { name: 'Continuation bet', lo: 0.40, hi: 0.75, min: 15, fmt: 'pct' },
+  foldcbet: { name: 'Desiste contra continuation bet', lo: 0.30, hi: 0.62, min: 15, fmt: 'pct' },
+  wtsd: { name: 'Vai ao showdown', lo: 0.38, hi: 0.62, min: 25, fmt: 'pct' },
+  wsd: { name: 'Ganha no showdown', lo: 0.45, hi: 1, min: 15, fmt: 'pct' },
+  af: { name: 'Agressividade', lo: 1.5, hi: 4.5, min: 25, fmt: 'num' },
+  rivercall: { name: 'Calls certos no river', lo: 0.6, hi: 1, min: 10, fmt: 'pct' },
+};
+// O que cada desvio significa e o que fazer; sel = quais mãos mostrar no replay
+const LEAK_TXT = {
+  vpip: { high: ['Você entra em mãos demais', 'Mãos fracas jogadas por vontade própria perdem fichas aos poucos, principalmente fora de posição.', 'Siga a grade de faixas e desista mais antes do flop.'], low: ['Você joga mãos de menos', 'Desistir demais entrega os blinds e deixa os rivais roubarem sem resistência.', 'Abra mais do Cutoff e do Botão e defenda mais o Big blind.'] },
+  pfr: { high: ['Você aumenta demais antes do flop', 'Aumentar com mãos fracas cria potes grandes em que você está atrás.', 'Aumente com a faixa da tabela; o resto desiste.'], low: ['Você aumenta pouco antes do flop', 'Quem só paga deixa a iniciativa com o rival e ganha menos potes sem showdown.', 'Troque calls por aumentos quando for abrir: abra aumentando, não completando.'] },
+  gap: { high: ['Você paga demais em vez de aumentar', 'Uma diferença grande entre VPIP e PFR mostra muitos calls passivos antes do flop, que perdem mais que aumentos.', 'Quando a mão é boa para entrar, entre aumentando; quando não é, desista.'] },
+  threebet: { high: ['Você faz 3-bet demais', 'Re-aumentar com mãos fracas custa caro quando o rival devolve um 4-bet.', 'Faça 3-bet com a faixa da tabela: mãos fortes e alguns blefes como A5s.'], low: ['Você quase não faz 3-bet', 'Só pagar aumentos deixa os rivais abrirem à vontade e te põe em potes grandes sem iniciativa.', 'Re-aumente com QQ+, AK e alguns ases do mesmo naipe, principalmente contra aberturas do Botão.'] },
+  fold3bet: { high: ['Você desiste demais contra 3-bet', 'Se você abre e quase sempre larga contra re-aumento, os rivais lucram re-aumentando qualquer coisa.', 'Pague ou devolva com a faixa da tabela "Contra 3-bet", principalmente quando abriu de posição final.'], low: ['Você continua demais contra 3-bet', 'Pagar re-aumentos com mãos medianas te põe em potes grandes atrás da faixa forte do rival.', 'Contra 3-bet, continue só com as mãos da tabela.'] },
+  cbet: { high: ['Você faz continuation bet demais', 'Apostar todo flop, mesmo em mesa molhada e contra vários rivais, queima fichas quando o rival acertou.', 'Aposte em mesa seca; em mesa molhada ou contra vários rivais, só com mão ou projeto.'], low: ['Você faz pouca continuation bet', 'Quem aumentou antes do flop tem a faixa mais forte; passar demais desperdiça essa vantagem.', 'Em mesa seca contra um rival, aposte pequeno com quase tudo.'] },
+  foldcbet: { high: ['Você desiste demais contra continuation bet', 'O rival lucra apostando qualquer flop contra você.', 'Pague com pares, projetos e cartas altas com chance de melhorar; use as pot odds.'], low: ['Você não larga contra continuation bet', 'Pagar com nada no flop leva a decisões caras no turn e no river.', 'Sem par, sem projeto e sem carta alta útil, desista.'] },
+  wtsd: { high: ['Você vai ao showdown demais', 'Chegar ao fim com mãos fracas é sinal de calls demais no turn e no river.', 'No turn e no river, pague só quando a equity cobrir as pot odds.'], low: ['Você vai ao showdown de menos', 'Largar demais no fim deixa os rivais blefarem com lucro.', 'Contra apostas no river, use a defesa mínima como guia.'] },
+  wsd: { low: ['Você perde muito no showdown', 'Chegar ao showdown e perder mostra calls com mãos piores que a faixa de quem apostou.', 'Antes de pagar no river, veja o que a aposta do rival representa no painel do coach.'] },
+  af: { high: ['Você é agressivo demais depois do flop', 'Apostar e aumentar quase sempre fica fácil de explorar: os rivais pagam leve e pegam seus blefes.', 'Passe mais com mão média e deixe os blefes para mesas em que sua história faz sentido.'], low: ['Você é passivo depois do flop', 'Pagar muito e apostar pouco ganha menos com mãos boas e não tira ninguém do pote.', 'Aposte por valor com mão boa e use projetos fortes para semi-blefar.'] },
+  rivercall: { low: ['Seus calls no river erram muito', 'O river é a rua mais cara: cada call errado custa a aposta inteira.', 'Compare a equity com as pot odds e veja a faixa do rival antes de pagar.'] },
+};
+for (const p of POS6) LEAK_TXT['vpip_' + p] = {
+  high: [`Você joga demais do ${STAT_DEF['vpip_' + p].name.replace('VPIP no ', '')}`, 'Entrar com mãos de fora da faixa nessa posição perde fichas, principalmente quando ainda há muitos jogadores para agir.', `Abra a grade de faixas na posição ${p} e jogue só o que estiver colorido.`],
+  low: [`Você joga de menos do ${STAT_DEF['vpip_' + p].name.replace('VPIP no ', '')}`, p === 'BB' ? 'O Big blind já pagou um blind inteiro: desistir demais entrega fichas.' : 'Desistir de mãos que lucram nessa posição deixa fichas na mesa.', `Abra a grade de faixas na posição ${p} e jogue tudo o que estiver colorido.`],
+};
+function leakStats(decs, hands) {
+  const r = (num, den) => ({ v: den ? num / den : null, n: den });
+  const six = hands.filter(h => h.n >= 5), dsix = decs.filter(d => d.n >= 5);
+  const S = {};
+  S.vpip = r(six.filter(h => h.vpip).length, six.length);
+  S.pfr = r(six.filter(h => h.pfr).length, six.length);
+  S.gap = { v: S.vpip.v == null ? null : Math.max(0, S.vpip.v - S.pfr.v), n: six.length };
+  for (const p of POS6) { const hs = six.filter(h => h.pos === p); S['vpip_' + p] = r(hs.filter(h => h.vpip).length, hs.length); }
+  const vsOpen = dsix.filter(d => d.st === 'preflop' && d.r === 1 && !d.opn);
+  S.threebet = r(vsOpen.filter(d => d.a === 'raise').length, vsOpen.length);
+  const faced3 = decs.filter(d => d.st === 'preflop' && d.r === 2 && d.opn);
+  S.fold3bet = r(faced3.filter(d => d.a === 'fold').length, faced3.length);
+  const cbo = decs.filter(d => d.cbo);
+  S.cbet = r(cbo.filter(d => d.a === 'raise').length, cbo.length);
+  const fcb = decs.filter(d => d.fcb);
+  S.foldcbet = r(fcb.filter(d => d.a === 'fold').length, fcb.length);
+  const saw = hands.filter(h => h.flop);
+  S.wtsd = r(saw.filter(h => h.sd).length, saw.length);
+  const sd = hands.filter(h => h.sd);
+  S.wsd = r(sd.filter(h => h.won).length, sd.length);
+  const post = decs.filter(d => d.st !== 'preflop');
+  const aggr = post.filter(d => d.a === 'raise').length, calls = post.filter(d => d.a === 'call').length;
+  S.af = { v: calls ? aggr / calls : aggr ? 9 : null, n: post.length };
+  const rc = decs.filter(d => d.st === 'river' && d.a === 'call');
+  S.rivercall = r(rc.filter(d => d.g === 'good').length, rc.length);
+  return S;
+}
+// Mãos ligadas a cada vazamento (para o replay e para medir o resultado real)
+function leakHands(id, dir, decs, hands) {
+  if (id.startsWith('vpip_')) { const p = id.slice(5); return hands.filter(h => h.n >= 5 && h.pos === p && (dir === 'high' ? h.vpip : !h.vpip)).map(h => h.h); }
+  const pick = {
+    vpip: () => hands.filter(h => h.n >= 5 && (dir === 'high' ? h.vpip : !h.vpip)).map(h => h.h),
+    pfr: () => hands.filter(h => h.n >= 5 && (dir === 'high' ? h.pfr : h.vpip && !h.pfr)).map(h => h.h),
+    gap: () => hands.filter(h => h.vpip && !h.pfr).map(h => h.h),
+    threebet: () => decs.filter(d => d.st === 'preflop' && d.r === 1 && !d.opn && (dir === 'high' ? d.a === 'raise' : d.a === 'call')).map(d => d.h),
+    fold3bet: () => decs.filter(d => d.st === 'preflop' && d.r === 2 && d.opn && (dir === 'high' ? d.a === 'fold' : d.a !== 'fold')).map(d => d.h),
+    cbet: () => decs.filter(d => d.cbo && (dir === 'high' ? d.a === 'raise' : d.a !== 'raise')).map(d => d.h),
+    foldcbet: () => decs.filter(d => d.fcb && (dir === 'high' ? d.a === 'fold' : d.a !== 'fold')).map(d => d.h),
+    wtsd: () => hands.filter(h => h.flop && (dir === 'high' ? h.sd : !h.sd)).map(h => h.h),
+    wsd: () => hands.filter(h => h.sd && !h.won).map(h => h.h),
+    af: () => decs.filter(d => d.st !== 'preflop' && (dir === 'high' ? d.a === 'raise' : d.a === 'call')).map(d => d.h),
+    rivercall: () => decs.filter(d => d.st === 'river' && d.a === 'call' && d.g !== 'good').map(d => d.h),
+  }[id];
+  return pick ? [...new Set(pick())] : [];
+}
+// Os vazamentos, do mais grave para o menos grave
+function findLeaks(decs, hands) {
+  const S = leakStats(decs, hands), out = [];
+  for (const [id, def] of Object.entries(STAT_DEF)) {
+    const s = S[id];
+    if (!s || s.v == null || s.n < def.min) continue;
+    const dir = s.v > def.hi ? 'high' : s.v < def.lo ? 'low' : null;
+    if (!dir || !(LEAK_TXT[id] || {})[dir]) continue;
+    const dist = dir === 'high' ? s.v - def.hi : def.lo - s.v;
+    // só conta com evidência: o desvio tem de passar de 1,64 erro-padrão (95% de confiança, unilateral)
+    const edge = dir === 'high' ? def.hi : def.lo;
+    const se = def.fmt === 'pct' ? Math.sqrt(Math.max(0.02, edge * (1 - edge)) / s.n) : Math.max(0.3, edge * 0.5) / Math.sqrt(s.n / 10);
+    const z = dist / se;
+    if (z < 1.64) continue;
+    const sev = z;
+    const hs = leakHands(id, dir, decs, hands), hset = new Set(hs);
+    const net = hands.filter(h => hset.has(h.h)).reduce((a, h) => a + h.net, 0);
+    const [title, why, todo] = LEAK_TXT[id][dir];
+    out.push({ id, dir, title, why, todo, value: s.v, n: s.n, lo: def.lo, hi: def.hi, fmt: def.fmt, name: def.name, sev, hands: hs, net: Math.round(net * 10) / 10 });
+  }
+  return out.sort((a, b) => b.sev - a.sev);
+}
+// Registro de uma decisão (antes de aplicar a ação) e de uma mão (depois que terminou)
+function decisionRecord(g, seat, type, grade) {
+  const L = g.legal(seat), pre = g.street === 'preflop';
+  const bettor = L.toCall > 0 ? g.players.find(q => q.seat !== seat && !q.folded && q.bet === g.currentBet) : null;
+  return {
+    h: g.handNo, st: g.street, pos: g.posOf(seat), n: g.activeCount(), r: g.raises, tc: L.toCall > 0, a: type, g: grade,
+    opn: g.pfOpener === seat, agg: g.pfAgg === seat,
+    cbo: g.street === 'flop' && g.pfAgg === seat && L.toCall === 0 && g.raises === 0 || undefined,
+    fcb: g.street === 'flop' && L.toCall > 0 && g.raises === 1 && bettor && bettor.seat === g.pfAgg || undefined,
+  };
+}
+function handRecord(g, seat, flags) {
+  const p = g.players[seat], r = g.result;
+  return {
+    h: g.handNo, pos: g.posOf(seat) || '', n: g.activeCount(), vpip: !!flags.vpip, pfr: !!flags.pfr,
+    flop: !!flags.flop, sd: !!(r.showdown && !p.folded), won: r.net[seat] > 0, net: Math.round(r.net[seat] / g.bb * 10) / 10,
+  };
+}
+
+const Poker = { leakStats, findLeaks, leakHands, decisionRecord, handRecord, STAT_DEF, postflopTips, rangeBreakdown, sampleRange, parseRange, rangePct, classOf, rangeScenario, rangeFreq, pushFoldAdvice, HAND_RANK, HAND_POS, PUSH_MAX, CALL_MAX, RFI, VS_OPEN, VS_3BET, shortName, madeHand, heroDraws, boardRead, chenBreakdown, SKILLS, effBB, pushThreshold, callShoveThreshold, PUSH_DEPTH, BLIND_LEVELS, blindLevel, equityKnown, POS_BY_N, quizPotOdds, quizOuts, quizWinner, outsSets, best5, CAT_PT, drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
 if (typeof module !== 'undefined') module.exports = Poker;
 </script>
 <script>
@@ -1566,6 +1806,11 @@ const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); retu
 const save = () => store(KEY, { stats, liveHelp });
 const saveHands = () => { if (!store(KEY_H, hands)) { hands = hands.slice(0, 8); store(KEY_H, hands); } };
 const saveCfg = () => store(KEY_CFG, { cfg, prefs });
+// Registro de decisões e mãos para os vazamentos (cada sessão = uma abertura do app)
+const KEY_REG = 'mesa-treino-reg-v1', SESSION = Date.now();
+let reg = load(KEY_REG, { decs: [], hands: [] });
+if (!reg || !Array.isArray(reg.decs) || !Array.isArray(reg.hands)) reg = { decs: [], hands: [] };
+const saveReg = () => { reg.decs = reg.decs.slice(-3000); reg.hands = reg.hands.slice(-1500); if (!store(KEY_REG, reg)) { reg.decs = reg.decs.slice(-800); reg.hands = reg.hands.slice(-400); store(KEY_REG, reg); } };
 $('liveHelp').checked = liveHelp;
 
 const SPEEDS = { slow: { label: 'Lenta', think: 1300, run: 1500 }, normal: { label: 'Normal', think: 750, run: 1100 }, fast: { label: 'Rápida', think: 350, run: 750 }, turbo: { label: 'Turbo', think: 90, run: 450 } };
@@ -1612,14 +1857,17 @@ document.addEventListener('pointerdown', () => sfx.unlock(), { capture: true });
 
 
 // ---- jogo ----
-let game = null, tour = null;
+let game = null, tour = null, gameId = 0;
+const handKey = () => `${gameId}:${game.handNo}`;
 let decision = null, handFb = [], flags = {}, loopId = 0, counted = false, raiseTo = 0;
 let runout = null, anim = null, lastOut = [], strOpen = false, readCache = { key: '' };
 let studyTab = 'hands', replay = null, rangeSt = { pos: null, scn: 'open', sel: null, hu: null, opener: null, depth: 10 };
+let handFilter = null;
 let quiz = { cat: 'mix', q: null, picked: null };
 
 function newGame(c) {
   cfg = { ...c }; saveCfg();
+  gameId = Date.now();
   const roster = c.table === 'hu' ? [BOTS.find(b => b.k === c.rival) || BOTS[1]] : BOTS;
   const tourney = c.format === 'tourney';
   game = new E.Game([{ name: 'Você', isHuman: true }, ...roster.map(b => ({ name: b.name, profile: E.PROFILES[b.k] }))],
@@ -1897,7 +2145,7 @@ function defaultRaise(L) {
   if (d && d.adv && d.adv.push) return L.maxTo;
   if (g.street === 'preflop') return g.raises === 0 ? g.bb * (g.activeCount() === 2 ? 2.5 : 3 + limpersFor(0)) : g.currentBet * 3;
   const pot = g.pot();
-  return L.isBet ? pot * 0.66 : g.currentBet + (pot + L.toCall) * 0.75;
+  return L.isBet ? pot * (d && d.info && d.info.size || 0.66) : g.currentBet + (pot + L.toCall) * 0.75;
 }
 
 const REC_PT = { fold: 'desistir', check: 'passar', call: 'pagar', raise: 'aumentar' };
@@ -1953,7 +2201,7 @@ function renderLive() {
       <div class="kv"><span>Equity contra ${i.nOpp} ${i.nOpp > 1 ? 'rivais' : 'rival'}</span><b>${pct(i.eq)}</b></div>
       <div class="meter"><div class="fill ${i.toCall && i.eq < i.need ? 'low' : ''}" style="width:${w}%"></div>${i.toCall ? `<div class="mark ${markCls}" style="left:${i.need * 100}%"><span>precisa ${pct(i.need)}</span></div>` : ''}</div>
       <div class="scale"><span>0%</span><span>100%</span></div>
-      <div class="rec-line">${i.toCall ? `Pote ${i.pot}, para pagar ${i.toCall}: você precisa vencer ${pct(i.need)} das vezes.` : 'Ninguém apostou: passar é de graça.'} Sugestão: <b>${REC_PT[d.rec]}</b>.</div>`;
+      <div class="rec-line">${i.toCall ? `Pote ${i.pot}, para pagar ${i.toCall}: você precisa vencer ${pct(i.need)} das vezes.` : 'Ninguém apostou: passar é de graça.'} Sugestão: <b>${REC_PT[d.rec]}</b>.</div>${tipsHTML(i.tips)}`;
   }
 }
 const GRADE_PT = { good: 'Boa', ok: 'Ok', bad: 'Erro' };
@@ -1971,6 +2219,12 @@ function renderLog() {
 }
 
 
+// Dicas do coach pós-flop (continuation bet, tamanho, odds implícitas, faixa do rival, defesa mínima)
+function tipsHTML(tips) {
+  if (!tips || !tips.length) return '';
+  return `<div class="tips">${tips.map(t => `<div class="tip"><span>${t.text}</span>${t.breakdown ? `<div class="rbreak">${t.breakdown.map(x => `<div class="rb-row"><span>${x.name}</span><span class="bar"><i style="width:${x.p * 100}%"></i></span><b>${pct(x.p)}</b></div>`).join('')}</div>` : ''}</div>`).join('')}</div>`;
+}
+
 // ---- fluxo ----
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function soundFor(p, prevLen) {
@@ -1981,6 +2235,7 @@ function soundFor(p, prevLen) {
 function doAct(seat, a) {
   const prevLen = game.board.length;
   game.act(seat, a);
+  if (!game.players[0].folded && game.board.length >= 3) flags.flop = true;
   soundFor(game.players[seat], prevLen);
   // Todos all-in: o motor distribui o resto do board de uma vez; a interface revela aos poucos
   if (game.handOver && game.result.showdown && game.board.length > prevLen) runout = { from: prevLen };
@@ -2026,7 +2281,14 @@ function beginHeroTurn() {
   const L = game.legal(0);
   let adv = null, info = null, rec;
   if (game.street === 'preflop') { adv = E.preflopAdvice(game, 0); rec = adv.rec; }
-  else { info = E.postflopInfo(game, 0, 1500); rec = E.postflopRec(info); }
+  else {
+    info = E.postflopInfo(game, 0, 1500); rec = E.postflopRec(info);
+    info.tips = E.postflopTips(game, 0, info);
+    // a continuation bet e o river mudam a sugestão quando ninguém apostou
+    const t = info.tips.find(x => x.rec && (x.k === 'cbet' || x.k === 'river'));
+    if (t && L.toCall === 0) rec = t.rec;
+    const sz = info.tips.find(x => x.size); if (sz) info.size = sz.size;
+  }
   if (rec === 'raise' && !L.canRaise) rec = L.canCheck ? 'check' : 'call';
   if (rec === 'check' && !L.canCheck) rec = 'call';
   decision = { street: game.street, L, adv, info, rec };
@@ -2037,7 +2299,10 @@ function heroAct(type) {
   const L = d.L, g = game;
   if (type === 'call' && L.canCheck) type = 'check';
   const to = raiseTo;
-  const fb = d.street === 'preflop' ? E.gradePreflop(d.adv, type, L) : E.gradePostflop(d.info, type, L, d.street);
+  let fb = d.street === 'preflop' ? E.gradePreflop(d.adv, type, L) : E.gradePostflop(d.info, type, L, d.street);
+  const cb = d.info && (d.info.tips || []).find(x => x.k === 'cbet');
+  if (cb && cb.rec === 'raise' && type === 'check') fb = { grade: 'ok', title: 'Faltou a continuation bet', text: cb.text };
+  if (cb && cb.rec === 'check' && type === 'raise' && fb.grade === 'good') fb = { grade: 'ok', title: 'Continuation bet arriscada aqui', text: cb.text };
   let sizing = null;
   if (type === 'raise') sizing = E.gradeSizing({ street: d.street, raises: g.raises, to, currentBet: g.currentBet, pot: g.pot(), toCall: L.toCall, isBet: L.isBet, bb: g.bb, limpers: limpersFor(0), maxTo: L.maxTo, st: d.info ? d.info.st : 0, draws: d.info ? d.info.draws : [], board: g.board, nAct: g.activeCount(), stackBB: d.adv && d.adv.push ? d.adv.depth : null });
   const actPt = type === 'fold' ? 'desistiu' : type === 'check' ? 'passou' : type === 'call' ? `pagou ${L.toCall}` : (to >= L.maxTo ? `all-in ${L.maxTo}` : (L.isBet ? `apostou ${to}` : `aumentou p/ ${to}`));
@@ -2048,6 +2313,8 @@ function heroAct(type) {
   stats.recent = stats.recent.slice(0, 20);
   if (d.street === 'preflop') { if (type === 'raise') { flags.vpip = flags.pfr = true; } else if (type === 'call') flags.vpip = true; }
   save();
+  const rec = E.decisionRecord(g, 0, type, fb.grade); rec.h = handKey(); rec.s = SESSION; rec.m = tour ? 't' : 'c';
+  reg.decs.push(rec); saveReg();
   decision = null;
   const at = g.snaps.length;
   doAct(0, type === 'raise' ? { type, to } : { type });
@@ -2071,8 +2338,9 @@ function onHandOver() {
   }
   counted = true;
   save();
+  if (!g.players[0].out || r.net[0]) { const hr = E.handRecord(g, 0, flags); hr.h = handKey(); hr.s = SESSION; hr.m = tour ? 't' : 'c'; reg.hands.push(hr); saveReg(); }
   hands.unshift({
-    no: g.handNo, mode: modeLabel(), names: g.players.map(p => p.name), labels: g.players.map(p => p.profile ? p.profile.label : ''),
+    key: handKey(), no: g.handNo, mode: modeLabel(), names: g.players.map(p => p.name), labels: g.players.map(p => p.profile ? p.profile.label : ''),
     pos: g.players.map(p => g.posOf(p.seat) || ''), holes: g.players.map(p => p.hole.slice()), snaps: g.snaps,
     shown: r.showdown ? g.players.filter(p => !p.folded).map(p => p.seat) : [], net: r.net[0], grades: handFb.map(f => f.grade),
   });
@@ -2179,14 +2447,17 @@ function renderHands() {
   const el = $('studyBody');
   if (replay && hands[replay.idx]) return renderReplay();
   replay = null;
-  if (!hands.length) { el.innerHTML = `<p class="muted">Jogue uma mão para poder revê-la aqui, passo a passo, com as notas do coach em cada decisão sua.</p>`; return; }
-  el.innerHTML = `<p class="muted">Últimas ${hands.length} mãos. Toque para rever passo a passo.</p><div class="hands">${hands.map((h, k) => `
+  if (!hands.length && !handFilter) { el.innerHTML = `<p class="muted">Jogue uma mão para poder revê-la aqui, passo a passo, com as notas do coach em cada decisão sua.</p>`; return; }
+  const shown = hands.map((h, k) => [h, k]).filter(([h]) => !handFilter || handFilter.keys.has(h.key));
+  const head = handFilter ? `<div class="rp-opts"><span class="muted">${handFilter.label}: ${shown.length} ${shown.length === 1 ? 'mão guardada' : 'mãos guardadas'}${shown.length ? '' : ' (só as últimas 25 ficam para o replay)'}.</span><button class="chip" id="hfAll" type="button">Mostrar todas</button></div>` : `<p class="muted">Últimas ${hands.length} mãos. Toque para rever passo a passo.</p>`;
+  el.innerHTML = `${head}<div class="hands">${shown.map(([h, k]) => `
     <button class="hand-row" type="button" data-h="${k}">
       <span class="hr-no">Mão ${h.no}${h.mode ? `<small>${h.mode}</small>` : ''}</span>
       <span class="hr-cards">${h.holes[0].map(c => card(c, 'sm')).join('')}</span>
       <span class="hr-mid"><span class="pos${h.pos[0] === 'BTN' ? ' btn' : ''}">${h.pos[0]}</span><span class="dots">${h.grades.map(g => `<i class="dot ${g}"></i>`).join('')}</span></span>
       <span class="hr-net ${h.net > 0 ? 'pos-t' : h.net < 0 ? 'neg-t' : ''}">${signed(h.net)}</span>
     </button>`).join('')}</div>`;
+  const hf = $('hfAll'); if (hf) hf.onclick = () => { handFilter = null; renderHands(); };
   el.querySelectorAll('[data-h]').forEach(b => b.onclick = () => { const k = +b.dataset.h; replay = { idx: k, i: firstStep(hands[k]), showAll: false }; renderHands(); });
 }
 function nextMistake(h, from) { for (let k = from + 1; k < h.snaps.length; k++) { const f = h.snaps[k].fb; if (f && f.grade !== 'good') return k; } return -1; }
@@ -2374,6 +2645,7 @@ function renderSession() {
     </div>
     ${n ? `<div class="gradebar" role="img" aria-label="Boas ${s.good}, ok ${s.ok}, erros ${s.bad}"><i style="width:${s.good / n * 100}%;background:var(--good)"></i><i style="width:${s.ok / n * 100}%;background:var(--ok)"></i><i style="width:${s.bad / n * 100}%;background:var(--bad)"></i></div>
     <div class="legend"><span style="--c:var(--good)">Boas ${s.good}</span><span style="--c:var(--ok)">Ok ${s.ok}</span><span style="--c:var(--bad)">Erros ${s.bad}</span></div>` : ''}
+    ${leaksHTML()}
     <h3>Torneios</h3>
     ${T.length ? `<div class="stats">
       <div class="stat"><div class="v">${T.length}</div><div class="l">Jogados</div></div>
@@ -2384,10 +2656,11 @@ function renderSession() {
     <h3>Últimas decisões</h3>
     <div class="fb">${s.recent.length ? s.recent.map(r => `<div class="fb-item ${r.grade}"><span class="pill ${r.grade}">${GRADE_PT[r.grade]}</span><span class="fb-title">${r.title}</span><span class="fb-meta">Mão ${r.h} · ${r.street} · ${r.combo} · ${r.act}</span></div>`).join('') : '<p class="muted">Jogue algumas mãos para ver seu histórico aqui.</p>'}</div>
     <div><button class="danger" id="btnReset" type="button">Zerar estatísticas e mãos</button></div>`;
+  bindLeaks();
   const br = $('btnReset');
   br.onclick = () => {
     if (!br.classList.contains('armed')) { br.classList.add('armed'); br.textContent = 'Toque de novo para confirmar'; return; }
-    stats = blank(); hands = []; replay = null; save(); saveHands(); renderSession();
+    stats = blank(); hands = []; replay = null; reg = { decs: [], hands: [] }; save(); saveHands(); saveReg(); renderSession();
   };
 }
 
@@ -2415,5 +2688,71 @@ document.addEventListener('keydown', e => {
 $('liveHelp').onchange = e => { liveHelp = e.target.checked; save(); render(); };
 
 newGame(cfg);
+
+// Vazamentos, estatísticas por posição e comparação com a sessão anterior
+const fmtStat = (v, f) => v == null ? '–' : f === 'num' ? v.toFixed(1).replace('.', ',') : pct(v);
+const statusOf = (s, d) => s.v == null || s.n < d.min ? 'few' : s.v > d.hi ? 'high' : s.v < d.lo ? 'low' : 'ok';
+const ST_PILL = { ok: ['good', 'Na faixa'], high: ['bad', 'Alto'], low: ['bad', 'Baixo'], few: ['ok', 'Poucos dados'] };
+let leakCache = [];
+function leaksHTML() {
+  const L = E.findLeaks(reg.decs, reg.hands), S = E.leakStats(reg.decs, reg.hands), D = E.STAT_DEF;
+  leakCache = L;
+  const top = L.slice(0, 3);
+  const leakCards = top.length ? top.map((l, i) => `<div class="fb-item bad">
+      <span class="pill bad">${i + 1}º</span><span class="fb-title">${l.title}</span>
+      <span class="fb-meta">${l.name}: ${fmtStat(l.value, l.fmt)} · faixa ${fmtStat(l.lo, l.fmt)}–${fmtStat(l.hi, l.fmt)} · ${l.n} situações</span>
+      <span class="fb-text">${l.why} <b style="color:var(--ink)">O que fazer:</b> ${l.todo}</span>
+      <span class="fb-size"><b>Resultado</b>Nessas mãos você ficou com ${l.net > 0 ? '+' : ''}${String(l.net).replace('.', ',')} BB. <button class="str-link" type="button" data-leak="${i}">Ver no replay</button></span>
+    </div>`).join('')
+    : `<p class="muted">${reg.hands.length < 60 ? `Ainda não há dados suficientes: ${reg.hands.length} mãos registradas. Os vazamentos começam a aparecer depois de umas 60 mãos, e só quando o desvio é claro, não sorte.` : 'Nenhum vazamento claro: suas estatísticas estão dentro do que as tabelas do app produzem.'}</p>`;
+  const row = (id, label) => { const s = S[id], d = D[id], st = statusOf(s, d), [cls, txt] = ST_PILL[st]; return `<tr><td>${label || d.name}</td><td class="num">${fmtStat(s.v, d.fmt)}</td><td class="num">${fmtStat(d.lo, d.fmt)}–${fmtStat(d.hi, d.fmt)}</td><td class="num">${s.n}</td><td><span class="pill ${cls}">${txt}</span></td></tr>`; };
+  const posRows = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'].map(p => row('vpip_' + p, E.POS_LABEL[p])).join('');
+  const gameRows = ['vpip', 'pfr', 'gap', 'threebet', 'fold3bet', 'cbet', 'foldcbet', 'wtsd', 'wsd', 'af', 'rivercall'].map(id => row(id)).join('');
+  // esta sessão x a anterior
+  const sess = [...new Set(reg.hands.map(h => h.s))].sort((a, b) => b - a);
+  const cur = sess[0] === SESSION ? SESSION : null, prev = sess.find(x => x !== SESSION);
+  let cmp = '';
+  if (cur && prev) {
+    const part = id => ({ d: reg.decs.filter(x => x.s === id), h: reg.hands.filter(x => x.s === id) });
+    const A = part(cur), B = part(prev);
+    const goodPct = d => d.length ? d.filter(x => x.g === 'good').length / d.length : null;
+    const bb = h => h.length ? h.reduce((a, x) => a + x.net, 0) / h.length * 100 : null;
+    const sa = E.leakStats(A.d, A.h), sb = E.leakStats(B.d, B.h);
+    const line = (label, a, b, f, better) => { const diff = a != null && b != null ? a - b : null; const arrow = diff == null || Math.abs(diff) < (f === 'pct' ? 0.01 : 0.5) ? '' : (better(diff) ? '<span class="pos-t">melhorou</span>' : '<span class="neg-t">piorou</span>'); return `<tr><td>${label}</td><td class="num">${fmtStat(b, f)}</td><td class="num">${fmtStat(a, f)}</td><td>${arrow}</td></tr>`; };
+    cmp = `<h3>Esta sessão x a anterior</h3><div class="tscroll"><table class="stbl"><thead><tr><th></th><th class="num">Anterior</th><th class="num">Esta</th><th></th></tr></thead><tbody>
+      ${line('Decisões boas', goodPct(A.d), goodPct(B.d), 'pct', x => x > 0)}
+      ${line('VPIP', sa.vpip.v, sb.vpip.v, 'pct', x => Math.abs(sa.vpip.v - 0.21) < Math.abs(sb.vpip.v - 0.21))}
+      ${line('Calls certos no river', sa.rivercall.v, sb.rivercall.v, 'pct', x => x > 0)}
+      ${line('BB por 100 mãos', bb(A.h), bb(B.h), 'num', x => x > 0)}
+      </tbody></table></div><p class="muted">${A.h.length} mãos nesta sessão, ${B.h.length} na anterior.</p>`;
+  }
+  return `<h3>Seus vazamentos</h3><div class="fb">${leakCards}</div>
+    <h3>Por posição (mesas de 5 e 6)</h3><div class="tscroll"><table class="stbl"><thead><tr><th>Posição</th><th class="num">VPIP</th><th class="num">Faixa</th><th class="num">Mãos</th><th></th></tr></thead><tbody>${posRows}</tbody></table></div>
+    <h3>Estatísticas de jogo</h3><div class="tscroll"><table class="stbl"><thead><tr><th>Estatística</th><th class="num">Você</th><th class="num">Faixa</th><th class="num">Amostra</th><th></th></tr></thead><tbody>${gameRows}</tbody></table></div>
+    <p class="muted">A faixa é o que um jogador que segue as tabelas e o coach do app produz contra estes bots. Um desvio só vira vazamento quando a amostra é grande o bastante para não ser sorte.</p>
+    ${cmp}
+    <div class="seg"><button class="chip" id="csvCopy" type="button">Copiar histórico em CSV</button>${IS_PWA ? '<button class="chip" id="csvDown" type="button">Baixar CSV</button>' : ''}<span class="muted" id="csvMsg"></span></div>`;
+}
+function regCSV() {
+  const cols = ['h', 's', 'm', 'st', 'pos', 'n', 'r', 'tc', 'a', 'g', 'opn', 'agg', 'cbo', 'fcb'];
+  const hcols = ['h', 's', 'm', 'pos', 'n', 'vpip', 'pfr', 'flop', 'sd', 'won', 'net'];
+  const esc = v => v == null ? '' : String(v);
+  return ['tipo,' + cols.join(','), ...reg.decs.map(d => 'decisao,' + cols.map(c => esc(d[c])).join(',')), '', 'tipo,' + hcols.join(','), ...reg.hands.map(h => 'mao,' + hcols.map(c => esc(h[c])).join(','))].join('\n');
+}
+function bindLeaks() {
+  document.querySelectorAll('[data-leak]').forEach(b => b.onclick = () => {
+    const l = leakCache[+b.dataset.leak];
+    handFilter = { label: l.title, keys: new Set(l.hands) }; replay = null;
+    studyTab = 'hands'; renderStudy();
+  });
+  const msg = t => { const m = $('csvMsg'); if (m) m.textContent = t; };
+  const cp = $('csvCopy');
+  if (cp) cp.onclick = () => {
+    const txt = regCSV();
+    try { navigator.clipboard.writeText(txt).then(() => msg('Copiado.'), () => msg('Não foi possível copiar aqui.')); } catch (e) { msg('Não foi possível copiar aqui.'); }
+  };
+  const dn = $('csvDown');
+  if (dn) dn.onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([regCSV()], { type: 'text/csv' })); a.download = 'mesa-de-treino.csv'; a.click(); };
+}
 })();
 </script>
