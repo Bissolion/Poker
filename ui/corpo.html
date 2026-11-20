@@ -1,0 +1,77 @@
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="mark">♠</span> Mesa de Treino</div>
+    <button class="ghost" id="btnGame" type="button">Jogo</button>
+    <button class="ghost" id="btnStudy" type="button">Estudo</button>
+  </header>
+  <div class="statusbar" id="statusbar"></div>
+
+  <section class="table" id="table" aria-label="Mesa"></section>
+
+  <section class="panel actions" id="actions" aria-live="polite"></section>
+
+  <section class="panel coach">
+    <div class="coach-head">
+      <h2>Coach</h2>
+      <label class="switch" for="liveHelp">Ajuda ao vivo <input type="checkbox" id="liveHelp" checked></label>
+    </div>
+    <div class="live" id="live"></div>
+    <div class="fb" id="fb"></div>
+  </section>
+
+  <details id="logBox">
+    <summary>Histórico da mão</summary>
+    <ol class="log" id="log"></ol>
+  </details>
+
+  <details>
+    <summary>Quem está na mesa</summary>
+    <div class="who">
+      <p><b>Marta · Sólida.</b> Joga poucas mãos e aposta quando tem jogo. Respeite os aumentos dela.</p>
+      <p><b>Diego · Agressivo.</b> Aumenta e blefa bastante. Pague um pouco mais leve contra ele e deixe que ele aposte por você.</p>
+      <p><b>Seu Zé · Paga tudo.</b> Paga quase qualquer aposta e quase nunca aumenta. Não blefe; aposte mãos boas por valor. Se ele aumentar, acredite.</p>
+      <p><b>Helena · Cautelosa.</b> Só entra com mãos fortes. Roube os blinds dela; quando ela aumentar, desista sem mão premium.</p>
+      <p><b>Rafa · Equilibrado.</b> Estilo misto. O jogo padrão funciona contra ele.</p>
+      <p>Na dificuldade <b>Iniciante</b>, todos erram mais e pagam no automático. No <b>Difícil</b>, apostam de novo no flop quando aumentaram antes, leem suas tendências e blefam mais se você desiste demais.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Termos</summary>
+    <dl class="gloss">
+      <dt>Equity</dt><dd>Sua chance de ganhar o pote se a mão for até o fim. O coach estima simulando milhares de mãos com as faixas prováveis dos rivais, ajustadas pelo que cada um apostou ou pagou.</dd>
+      <dt>Pot odds</dt><dd>Quanto você precisa vencer para pagar valer a pena: valor a pagar ÷ (pote + valor a pagar). Pagar 50 num pote de 150 exige 25%.</dd>
+      <dt>Faixa (range)</dt><dd>O conjunto de mãos que um jogador pode ter, dada a forma como jogou. Quem aposta forte no river tem uma faixa mais forte do que quem só pagou no flop.</dd>
+      <dt>Posição</dt><dd>Quem age por último tem mais informação. No Botão (BTN) dá para jogar mais mãos; no UTG, primeiro a falar, só as fortes. No heads-up o botão também é o small blind.</dd>
+      <dt>Força pré-flop</dt><dd>Nota de −1 a 20 pela fórmula de Chen: AA vale 20, AKs 12, 72o −1. Nas siglas, T é o 10, “s” é mesmo naipe e “o” é naipes diferentes: TT é um par de 10.</dd>
+      <dt>Outs</dt><dd>Cartas que completam sua mão. Regra do 2 e 4: multiplique os outs por 4 no flop (duas cartas por vir) ou por 2 no turn para ter a chance aproximada em %.</dd>
+      <dt>Flush draw, straight draw, gutshot</dt><dd>Projetos: falta uma carta para completar. Flush draw (4 do mesmo naipe) tem 9 outs; straight draw aberto (4 seguidas, completa nas duas pontas) tem 8; gutshot (falta uma do meio) tem 4.</dd>
+      <dt>Mesa seca, molhada, perigosa</dt><dd>Seca tem poucos projetos possíveis; molhada tem flush draw ou straight draw possíveis; perigosa já permite flush ou sequência feitos. Pareada tem par na mesa, o que abre caminho para full house e quadra.</dd>
+      <dt>Nuts</dt><dd>A melhor mão possível com as cartas da mesa naquele momento.</dd>
+      <dt>Push/fold</dt><dd>Com 12 big blinds ou menos, a decisão pré-flop vira all-in ou desistir: um aumento normal compromete metade do stack sem tirar ninguém da mão.</dd>
+      <dt>VPIP / PFR</dt><dd>% das mãos em que você colocou fichas por vontade própria / em que aumentou antes do flop. Iniciantes costumam ter VPIP alto demais.</dd>
+    </dl>
+  </details>
+</div>
+
+<div class="sheet" id="setup" hidden>
+  <div class="sheet-in" role="dialog" aria-modal="true" aria-label="Jogo">
+    <div class="coach-head"><h2>Jogo</h2><button class="ghost" id="btnSetupClose" type="button">Fechar</button></div>
+    <div id="setupBody" class="study"></div>
+  </div>
+</div>
+
+<div class="sheet" id="study" hidden>
+  <div class="sheet-in" role="dialog" aria-modal="true" aria-label="Estudo">
+    <div class="coach-head"><h2>Estudo</h2><button class="ghost" id="btnClose" type="button">Fechar</button></div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="hands" type="button">Mãos</button>
+      <button class="tab" role="tab" data-tab="ranges" type="button">Faixas</button>
+      <button class="tab" role="tab" data-tab="quiz" type="button">Quiz</button>
+      <button class="tab" role="tab" data-tab="session" type="button">Sessão</button>
+    </div>
+    <div class="study" id="studyBody"></div>
+  </div>
+</div>
+

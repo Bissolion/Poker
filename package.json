@@ -5,7 +5,12 @@
   "private": true,
   "scripts": {
     "build": "node build.js",
-    "test": "node test.js"
+    "pretest": "node build.js",
+    "test": "node tests/motor.test.js",
+    "fumaca": "node tests/fumaca.test.js"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "1.48.2"
+  }
 }

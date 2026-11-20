@@ -1,4 +1,4 @@
-const P = require('./engine.js');
+const P = require('../dist/engine.js');
 const assert = require('assert');
 const R = '23456789TJQKA', S = 'shdc';
 const c = s => R.indexOf(s[0]) * 4 + S.indexOf(s[1]);

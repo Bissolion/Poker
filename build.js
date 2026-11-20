@@ -1,4 +1,4 @@
-// Gera duas saídas a partir de engine.js + src.html:
+// Gera duas saídas a partir dos módulos em engine/ e ui/:
 //  1. mesa-de-treino.html — página única (artifact / abrir direto no navegador)
 //  2. docs/ — app instalável (PWA) para o GitHub Pages: index.html, manifest, service worker e ícones
 const fs = require('fs');
@@ -7,16 +7,20 @@ const crypto = require('crypto');
 const dir = __dirname;
 const read = f => fs.readFileSync(path.join(dir, f), 'utf8');
 
-const engine = read('engine.js');
-const src = read('src.html');
-const page = src.replace('/*ENGINE*/', () => engine);
+// Junta os módulos (em ordem de nome) de uma pasta
+const join = (sub, ext) => fs.readdirSync(path.join(dir, sub)).filter(f => f.endsWith(ext)).sort().map(f => read(path.join(sub, f))).join('\n');
+const engine = join('engine', '.js');
+fs.mkdirSync(path.join(dir, 'dist'), { recursive: true });
+fs.writeFileSync(path.join(dir, 'dist', 'engine.js'), engine); // usado pelos testes no Node
+const ui = `(() => {\n${join('ui', '.js')}})();`;
+const page = `${read('ui/head.html')}<style>\n${read('ui/estilo.css')}</style>\n\n${read('ui/corpo.html')}\n<script>${engine}</script>\n<script>\n${ui}\n</script>\n`;
 fs.writeFileSync(path.join(dir, 'mesa-de-treino.html'), page);
 
 // ---- PWA ----
 const docs = path.join(dir, 'docs');
 fs.mkdirSync(path.join(docs, 'icons'), { recursive: true });
 const cut = page.indexOf('<div class="app">');
-if (cut < 0) throw new Error('marcador <div class="app"> não encontrado em src.html');
+if (cut < 0) throw new Error('marcador <div class="app"> não encontrado em ui/corpo.html');
 const headPart = page.slice(0, cut), bodyPart = page.slice(cut);
 const desc = "Treino de Texas Hold'em contra bots, com coach de equity, pot odds, quiz e torneios.";
 const index = `<!doctype html>

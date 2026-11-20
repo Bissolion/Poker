@@ -343,6 +343,7 @@ details[open] summary { margin-bottom: 8px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 
+
 </head>
 <body>
 <div class="app">
@@ -420,6 +421,7 @@ details[open] summary { margin-bottom: 8px; }
     <div class="study" id="studyBody"></div>
   </div>
 </div>
+
 
 <script>// ===== Motor de Texas Hold'em No-Limit =====
 // Cartas: inteiros 0..51. rank = c>>2 (0 = 2 ... 12 = A), naipe = c&3 (0 ♠, 1 ♥, 2 ♦, 3 ♣)
@@ -1414,6 +1416,7 @@ $('liveHelp').checked = liveHelp;
 const SPEEDS = { slow: { label: 'Lenta', think: 1300, run: 1500 }, normal: { label: 'Normal', think: 750, run: 1100 }, fast: { label: 'Rápida', think: 350, run: 750 }, turbo: { label: 'Turbo', think: 90, run: 450 } };
 const speed = () => SPEEDS[prefs.speed] || SPEEDS.normal;
 
+
 // ---- som (sintetizado, sem arquivos) ----
 const sfx = (() => {
   let ctx = null;
@@ -1451,6 +1454,7 @@ const sfx = (() => {
   };
 })();
 document.addEventListener('pointerdown', () => sfx.unlock(), { capture: true });
+
 
 // ---- jogo ----
 let game = null, tour = null;
@@ -1534,6 +1538,7 @@ function liveView() {
   return { seats, board, pot: g.handOver ? g.result.pot : g.potCollected(), street, hl: winningCards(), newFrom: anim ? anim.newFrom : null, made: rd ? new Set(rd.made.core) : null };
 }
 
+
 // ---- render principal ----
 function render() {
   renderStatus();
@@ -1542,6 +1547,7 @@ function render() {
 }
 function renderTable() { $('table').innerHTML = tableHTML(liveView(), 'lg') + strengthHTML(); }
 const fmtN = x => String(x).replace('.', ',').replace('-', '−');
+
 // Leitura da mão e da mesa, sempre visível, independente do coach
 function reading() {
   const g = game, h = g.players[0];
@@ -1795,6 +1801,7 @@ function renderLog() {
   $('log').innerHTML = items.map(l => `<li class="${l.kind}">${l.text}</li>`).join('');
 }
 
+
 // ---- fluxo ----
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function soundFor(p, prevLen) {
@@ -1922,6 +1929,7 @@ function nextHand() {
   loop();
 }
 
+
 // ---- Jogo (configuração) ----
 let draft = null;
 const segHTML = (key, opts, val) => `<div class="seg" role="group">${opts.map(([v, l]) => `<button type="button" class="chip" data-k="${key}" data-v="${v}" aria-pressed="${String(v) === String(val)}">${l}</button>`).join('')}</div>`;
@@ -1970,6 +1978,7 @@ function renderSetup() {
   const bi = $('btnInstall');
   if (bi) bi.onclick = async () => { try { deferredInstall.prompt(); await deferredInstall.userChoice; } catch (e) {} deferredInstall = null; renderSetup(); };
 }
+
 
 // ---- Estudo ----
 function openStudy(tab) { studyTab = tab; $('study').hidden = false; renderStudy(); $('btnClose').focus(); }
@@ -2039,6 +2048,7 @@ function renderReplay() {
   $('rpAll').onchange = e => { replay.showAll = e.target.checked; renderReplay(); };
 }
 
+
 // Faixas 13×13
 const GR = 'AKQJT98765432';
 const ACT_LABEL = { 0: { raise: 'Abrir', call: 'Pagar', check: 'Passar', fold: 'Desistir' }, 1: { raise: '3-bet', call: 'Pagar', check: 'Passar', fold: 'Desistir' }, 2: { raise: '4-bet', call: 'Pagar', check: 'Passar', fold: 'Desistir' } };
@@ -2093,6 +2103,7 @@ function renderRanges() {
   if (sel) { sel.classList.add('sel'); info(sel.dataset.n, sel.dataset.s, sel.dataset.a, sel.dataset.t, sel.dataset.rr); }
 }
 
+
 // Quiz
 const QCATS = [['mix', 'Misturado'], ['pot', 'Pot odds'], ['outs', 'Outs'], ['win', 'Qual ganha']];
 const QTYPE = { pot: 'Pot odds', outs: 'Contagem de outs', win: 'Qual mão ganha' };
@@ -2142,6 +2153,7 @@ function renderQuiz() {
   });
   const n = $('qNext'); if (n) n.onclick = () => { newQuestion(); renderQuiz(); };
 }
+
 
 // Sessão
 function renderSession() {
