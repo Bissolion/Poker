@@ -74,32 +74,32 @@ function posAlias(pos, nAct) {
   return pos;
 }
 const EARLY = new Set(['UTG', 'MP']);
-const POS_TXT = { UTG: 'UTG', MP: 'Middle', CO: 'Cutoff', BTN: 'Botão', SB: 'Small blind', BB: 'Big blind' };
+const POS_TXT = { UTG: 'UTG', MP: 'Middle', CO: 'Cutoff', BTN: tx`Botão`, SB: 'Small blind', BB: 'Big blind' };
 
 // Cenário pré-flop para quem vai agir: qual tabela vale e como explicar
 // raises: aumentos até agora; opener: posição de quem abriu; heroOpened: se o próprio jogador abriu
 function rangeScenario(pos, nAct, raises, opener, heroOpened, canCheck) {
   const hu = nAct === 2, p = posAlias(pos, nAct), op = opener ? posAlias(opener, nAct) : null;
   if (raises === 0) {
-    if (hu) return pos === 'BB' ? { key: 'hu_bb_check', raise: VS_OPEN.hu_bb.raise, call: {}, txt: 'Big blind no heads-up, sem aumento: aumente com as mãos de 3-bet; senão passe de graça' }
-      : { key: 'HU_BTN', raise: RFI.HU_BTN, call: {}, txt: 'Abrir do botão no heads-up' };
-    if (pos === 'BB') return { key: 'bb_check', raise: VS_OPEN.late_bb.raise, call: {}, txt: 'Big blind sem aumento: aumente as melhores mãos; as outras passam de graça' };
-    return { key: 'RFI_' + p, raise: RFI[p] || RFI.CO, call: {}, txt: `Abrir do ${POS_TXT[p] || p}` };
+    if (hu) return pos === 'BB' ? { key: 'hu_bb_check', raise: VS_OPEN.hu_bb.raise, call: {}, txt: tx`Big blind no heads-up, sem aumento: aumente com as mãos de 3-bet; senão passe de graça` }
+      : { key: 'HU_BTN', raise: RFI.HU_BTN, call: {}, txt: tx`Abrir do botão no heads-up` };
+    if (pos === 'BB') return { key: 'bb_check', raise: VS_OPEN.late_bb.raise, call: {}, txt: tx`Big blind sem aumento: aumente as melhores mãos; as outras passam de graça` };
+    return { key: 'RFI_' + p, raise: RFI[p] || RFI.CO, call: {}, txt: tx`Abrir do ${POS_TXT[p] || p}` };
   }
   if (raises === 1) {
-    if (hu) return { key: 'hu_bb', ...VS_OPEN.hu_bb, txt: 'Big blind contra abertura do botão no heads-up' };
+    if (hu) return { key: 'hu_bb', ...VS_OPEN.hu_bb, txt: tx`Big blind contra abertura do botão no heads-up` };
     const grp = op && EARLY.has(op) ? 'early' : 'late';
     const seat = pos === 'BB' ? 'bb' : pos === 'SB' ? 'sb' : 'ip';
-    const where = { bb: 'do Big blind', sb: 'do Small blind', ip: 'em posição' }[seat];
-    return { key: `${grp}_${seat}`, ...VS_OPEN[`${grp}_${seat}`], txt: `Contra abertura do ${POS_TXT[op] || 'rival'}, ${where}` };
+    const where = { bb: tx`do Big blind`, sb: tx`do Small blind`, ip: tx`em posição` }[seat];
+    return { key: `${grp}_${seat}`, ...VS_OPEN[`${grp}_${seat}`], txt: tx`Contra abertura do ${POS_TXT[op] || tx`rival`}, ${where}` };
   }
   if (raises === 2) {
-    if (!heroOpened) return { key: 'cold', ...VS_3BET.cold, txt: 'Aumento e re-aumento na sua frente' };
-    if (hu) return { key: 'hu_3bet', ...VS_3BET.hu, txt: 'Você abriu e levou 3-bet no heads-up' };
+    if (!heroOpened) return { key: 'cold', ...VS_3BET.cold, txt: tx`Aumento e re-aumento na sua frente` };
+    if (hu) return { key: 'hu_3bet', ...VS_3BET.hu, txt: tx`Você abriu e levou 3-bet no heads-up` };
     const grp = EARLY.has(p) ? 'early' : 'late';
-    return { key: `3bet_${grp}`, ...VS_3BET[grp], txt: `Você abriu do ${POS_TXT[p] || p} e levou 3-bet` };
+    return { key: `3bet_${grp}`, ...VS_3BET[grp], txt: tx`Você abriu do ${POS_TXT[p] || p} e levou 3-bet` };
   }
-  return { key: '4bet', ...VS_4BET, txt: 'Contra 4-bet ou mais' };
+  return { key: '4bet', ...VS_4BET, txt: tx`Contra 4-bet ou mais` };
 }
 // Frequências da mão no cenário
 function rangeFreq(sc, cls) { return { raise: sc.raise[cls] || 0, call: sc.call[cls] || 0 }; }

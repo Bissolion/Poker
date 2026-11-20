@@ -1,7 +1,7 @@
 // ---- Jogo (configuração) ----
 let draft = null;
 const segHTML = (key, opts, val) => `<div class="seg" role="group">${opts.map(([v, l]) => `<button type="button" class="chip" data-k="${key}" data-v="${v}" aria-pressed="${String(v) === String(val)}">${l}</button>`).join('')}</div>`;
-const SKILL_HINT = { easy: 'Os bots erram mais, pagam no automático e quase não blefam. Bom para começar.', normal: 'Cada bot joga o próprio estilo sem grandes erros.', hard: 'Os bots erram pouco, apostam de novo no flop e exploram suas tendências.' };
+const SKILL_HINT = { easy: tx`Os bots erram mais, pagam no automático e quase não blefam. Bom para começar.`, normal: tx`Cada bot joga o próprio estilo sem grandes erros.`, hard: tx`Os bots erram pouco, apostam de novo no flop e exploram suas tendências.` };
 function openSetup() { draft = { ...cfg }; $('setup').hidden = false; renderSetup(); $('btnSetupClose').focus(); }
 function closeSetup() { $('setup').hidden = true; }
 let deferredInstall = null;
@@ -15,22 +15,23 @@ function renderSetup() {
       ? '<p class="field-hint">Você está usando o app instalado. Ele funciona sem internet.</p>'
       : `${deferredInstall ? '<button class="second" id="btnInstall" type="button">Instalar na tela inicial</button>' : ''}
          <p class="field-hint">No Android (Chrome): menu ⋮ → <b>Instalar app</b>. No iPhone (Safari): <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b>. Depois de instalado, funciona sem internet.</p>`)
-    : `<p class="field-hint">Esta versão roda dentro do Claude. Para instalar na tela inicial e jogar sem internet, abra a versão publicada em <code>${PAGES_URL}</code> e use <b>Adicionar à tela inicial</b>.</p>`;
+    : tx`<p class="field-hint">Esta versão roda dentro do Claude. Para instalar na tela inicial e jogar sem internet, abra a versão publicada em <code>${PAGES_URL}</code> e use <b>Adicionar à tela inicial</b>.</p>`;
   $('setupBody').innerHTML = `
     <div class="setup-block">
       <h3>Novo jogo</h3>
-      <div class="field"><span class="field-label">Formato</span>${segHTML('format', [['cash', 'Cash'], ['tourney', 'Torneio']], d.format)}
-        <p class="field-hint">${d.format === 'cash' ? 'Blinds fixos de 5/10 e recompra quando as fichas acabam.' : 'Começa com 1.500 fichas, os blinds sobem e quem zera está fora. Ganha quem ficar com tudo.'}</p></div>
-      <div class="field"><span class="field-label">Mesa</span>${segHTML('table', [['6', '6 jogadores'], ['hu', 'Heads-up']], d.table)}</div>
+      <div class="field"><span class="field-label">Formato</span>${segHTML('format', [['cash', 'Cash'], ['tourney', tx`Torneio`]], d.format)}
+        <p class="field-hint">${d.format === 'cash' ? tx`Blinds fixos de 5/10 e recompra quando as fichas acabam.` : tx`Começa com 1.500 fichas, os blinds sobem e quem zera está fora. Ganha quem ficar com tudo.`}</p></div>
+      <div class="field"><span class="field-label">${tx`[[jogo]]Mesa`}</span>${segHTML('table', [['6', tx`6 jogadores`], ['hu', 'Heads-up']], d.table)}</div>
       ${d.table === 'hu' ? `<div class="field"><span class="field-label">Rival</span>${segHTML('rival', BOTS.map(b => [b.k, `${b.name} · ${E.PROFILES[b.k].label}`]), d.rival)}</div>` : ''}
-      <div class="field"><span class="field-label">Dificuldade</span>${segHTML('skill', [['easy', 'Iniciante'], ['normal', 'Normal'], ['hard', 'Difícil']], d.skill)}<p class="field-hint">${SKILL_HINT[d.skill]}</p></div>
-      ${d.format === 'tourney' && d.table !== 'hu' ? `<div class="field"><span class="field-label">Prêmios (em pontos)</span>${segHTML('prize', [['65/35', '65/35 · 2 premiados'], ['50/30/20', '50/30/20 · 3 premiados']], d.prize || '65/35')}<p class="field-hint">Com prêmios, o coach usa o ICM: perto da bolha, sobreviver vale mais que ganhar fichas.</p></div>` : ''}
-      ${d.format === 'tourney' ? `<div class="field"><span class="field-label">Blinds sobem a cada</span>${segHTML('per', [[5, '5 mãos'], [8, '8 mãos'], [12, '12 mãos']], d.per)}</div>` : ''}
+      <div class="field"><span class="field-label">Dificuldade</span>${segHTML('skill', [['easy', tx`Iniciante`], ['normal', 'Normal'], ['hard', tx`Difícil`]], d.skill)}<p class="field-hint">${SKILL_HINT[d.skill]}</p></div>
+      ${d.format === 'tourney' && d.table !== 'hu' ? `<div class="field"><span class="field-label">Prêmios (em pontos)</span>${segHTML('prize', [['65/35', tx`65/35 · 2 premiados`], ['50/30/20', tx`50/30/20 · 3 premiados`]], d.prize || '65/35')}<p class="field-hint">Com prêmios, o coach usa o ICM: perto da bolha, sobreviver vale mais que ganhar fichas.</p></div>` : ''}
+      ${d.format === 'tourney' ? `<div class="field"><span class="field-label">Blinds sobem a cada</span>${segHTML('per', [[5, tx`5 mãos`], [8, tx`8 mãos`], [12, tx`12 mãos`]], d.per)}</div>` : ''}
       <button class="primary" id="btnStart" type="button">Começar</button>
       ${inHand ? '<p class="field-hint">A mão em andamento será abandonada.</p>' : ''}
     </div>
     <div class="setup-block">
       <h3>Preferências</h3>
+      <div class="field"><span class="field-label">Idioma · Language</span>${segHTML('lang', [['pt', 'Português'], ['en', 'English']], E.LANG)}</div>
       <div class="field"><span class="field-label">Velocidade dos bots</span>${segHTML('speed', Object.entries(SPEEDS).map(([k, v]) => [k, v.label]), prefs.speed)}</div>
       <label class="switch" for="soundOn">Sons <input type="checkbox" id="soundOn" ${prefs.sound ? 'checked' : ''}></label>
       <label class="switch" for="strOn">Mostrar a leitura da mão e da mesa (força, combinação, projetos) <input type="checkbox" id="strOn" ${prefs.showStrength ? 'checked' : ''}></label>
@@ -38,6 +39,7 @@ function renderSetup() {
     <div class="setup-block install"><h3>App no celular</h3>${installHTML}</div>`;
   $('setupBody').querySelectorAll('[data-k]').forEach(b => b.onclick = () => {
     const k = b.dataset.k, v = k === 'per' ? +b.dataset.v : b.dataset.v;
+    if (k === 'lang') { if (v !== E.LANG) { try { localStorage.setItem('mesa-treino-lang', v); } catch (e) {} location.reload(); } return; }
     if (k === 'speed') { prefs.speed = v; saveCfg(); } else draft[k] = v;
     renderSetup();
   });

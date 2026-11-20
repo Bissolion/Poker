@@ -5,4 +5,4 @@ function render() {
   renderActions(); renderLive(); renderFb(); renderLog();
 }
 function renderTable() { $('table').innerHTML = tableHTML(liveView(), 'lg') + strengthHTML(); }
-const fmtN = x => String(x).replace('.', ',').replace('-', '−');
+const fmtN = x => String(x).replace('.', DEC).replace('-', '−');

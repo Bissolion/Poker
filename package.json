@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node build.js",
     "pretest": "node build.js",
-    "test": "node tests/motor.test.js",
+    "test": "node tests/motor.test.js && node tests/idiomas.test.js",
     "fumaca": "node tests/fumaca.test.js"
   },
   "license": "MIT",

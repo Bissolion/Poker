@@ -14,23 +14,23 @@ function chen(c1, c2) {
 function chenBreakdown(c1, c2) {
   const r1 = rankOf(c1), r2 = rankOf(c2), hi = Math.max(r1, r2), lo = Math.min(r1, r2);
   const RC = '23456789TJQKA';
-  const fmt = x => String(x).replace('.', ',').replace('-', '−');
+  const fmt = x => String(x).replace('.', DEC).replace('-', '−');
   const pts = r => r === 12 ? 10 : r === 11 ? 8 : r === 10 ? 7 : r === 9 ? 6 : (r + 2) / 2;
   const base = pts(hi), H = RC[hi];
-  const steps = [`Carta mais alta: ${H} vale ${fmt(base)}`];
+  const steps = [tx`Carta mais alta: ${H} vale ${fmt(base)}`];
   if (r1 === r2) {
     const d = base * 2, total = Math.max(5, Math.ceil(d));
-    steps.push(`Par: ${fmt(base)} × 2 = ${fmt(d)}${d < 5 ? ', sobe para o mínimo de 5' : ''}`);
-    return { total, steps, calc: `${H}: ${fmt(base)} × 2${d < 5 ? ` = ${fmt(d)} → mín. 5` : ` = ${total}`}` };
+    steps.push(tx`Par: ${fmt(base)} × 2 = ${fmt(d)}${d < 5 ? tx`, sobe para o mínimo de 5` : ''}`);
+    return { total, steps, calc: `${H}: ${fmt(base)} × 2${d < 5 ? tx` = ${fmt(d)} → mín. 5` : ` = ${total}`}` };
   }
   const suited = suitOf(c1) === suitOf(c2), gap = hi - lo - 1;
   const gp = gap === 0 ? 0 : gap === 1 ? 1 : gap === 2 ? 2 : gap === 3 ? 4 : 5;
   const bonus = gap <= 1 && hi < 10 ? 1 : 0;
   const raw = base + (suited ? 2 : 0) - gp + bonus, total = Math.ceil(raw);
-  steps.push(suited ? 'Mesmo naipe: +2' : 'Naipes diferentes: +0');
-  steps.push(gap === 0 ? 'Cartas seguidas: −0' : `Buraco de ${gap} carta${gap > 1 ? 's' : ''} entre elas: −${gp}`);
-  steps.push(bonus ? 'Bônus (seguidas ou 1 buraco, as duas abaixo da Q): +1' : gap <= 1 ? 'Sem bônus: há carta Q ou maior' : 'Sem bônus: buraco grande demais');
-  if (raw !== total) steps.push(`${fmt(raw)} arredondado para cima: ${fmt(total)}`);
+  steps.push(suited ? tx`Mesmo naipe: +2` : tx`Naipes diferentes: +0`);
+  steps.push(gap === 0 ? tx`Cartas seguidas: −0` : tx`Buraco de ${gap} carta${gap > 1 ? 's' : ''} entre elas: −${gp}`);
+  steps.push(bonus ? tx`Bônus (seguidas ou 1 buraco, as duas abaixo da Q): +1` : gap <= 1 ? tx`Sem bônus: há carta Q ou maior` : tx`Sem bônus: buraco grande demais`);
+  if (raw !== total) steps.push(tx`${fmt(raw)} arredondado para cima: ${fmt(total)}`);
   const terms = [`${H}: ${fmt(base)}`];
   if (suited) terms.push('+2'); if (gp) terms.push(`−${gp}`); if (bonus) terms.push('+1');
   const calc = terms.join(' ') + (raw !== total ? ` = ${fmt(raw)} → ${fmt(total)}` : ` = ${fmt(total)}`);

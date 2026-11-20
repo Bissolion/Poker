@@ -22,38 +22,47 @@ Texas Hold'em No-Limit contra 5 bots com estilos diferentes, com um coach que ex
 - **Feedback por decisão:** cada jogada recebe nota (Boa / Ok / Erro) e explicação; apostas e aumentos também recebem nota de tamanho.
 - **All-in:** quando ninguém mais pode agir, as cartas são abertas e o board é revelado rua por rua, com a chance de cada jogador.
 - **Ritmo e som:** quatro velocidades para os bots e sons opcionais (gerados no navegador, sem arquivos).
+- **Coach depois do flop:** continuation bet, tamanho da aposta pela textura da mesa, odds implícitas e reversas, defesa mínima no river e o que a aposta do rival representa (a faixa dele dividida em categorias).
+- **Faixas modernas:** abertura por posição, defesa contra abertura e contra 3-bet com frequências (jogadas mistas), e push/fold calculado por equilíbrio para stacks curtos.
+- **Torneio com prêmios:** 65/35 ou 50/30/20 em pontos (sem dinheiro). Perto da bolha, o coach usa o ICM para dizer quanto de equity a mais um all-in exige.
+- **Idiomas:** português e inglês (Jogo → Preferências). Começa no idioma do aparelho.
 - **Estudo:**
-  - *Mãos:* replay das últimas 25 mãos passo a passo, com as notas do coach, opção de ver as cartas de todos e atalho para o próximo erro.
-  - *Faixas:* grade 13×13 de mãos iniciais por posição e situação, para 6 jogadores ou heads-up, com a mesma regra usada pelo coach.
-  - *Quiz:* pot odds, contagem de outs e qual mão ganha, com explicação, placar por tipo e sequência de acertos.
-  - *Sessão:* saldo no cash, VPIP, PFR, histórico de torneios e últimas decisões, salvos no navegador.
+  - *Mãos:* replay das últimas 25 mãos passo a passo, com as notas do coach, as cartas de todos e atalho para o próximo erro.
+  - *Faixas:* grade 13×13 para abrir, contra abertura, contra 3-bet e all-in curto, em 6 jogadores ou heads-up.
+  - *Treinos:* séries de 10 decisões montadas no ponto da dúvida (abrir, defender o big blind, push/fold, projetos, continuation bet, call no river), que ficam mais difíceis conforme você acerta.
+  - *Quiz:* pot odds, outs, qual mão ganha, abrir ou desistir, textura, nuts, combinações e defesa mínima.
+  - *Sessão:* seus vazamentos (só quando o desvio é estatisticamente claro), VPIP por posição, estatísticas de jogo, esta sessão contra a anterior, torneios e histórico em CSV.
 
 ## Estrutura
 
-| Arquivo | Conteúdo |
+| Pasta / arquivo | Conteúdo |
 | --- | --- |
-| `engine.js` | Regras, avaliador de mãos, equity, bots, coach, torneio e quiz (sem DOM, roda no Node) |
-| `src.html` | Interface da mesa |
-| `build.js` | Gera `mesa-de-treino.html` (página única) e `docs/` (app instalável) |
-| `docs/` | Versão PWA: `index.html`, `manifest.webmanifest`, `sw.js` (funciona offline) e ícones |
-| `tools/make-icons.py` | Gera os ícones do app (Python + Pillow) |
-| `test.js` | Testes: avaliador, side pots, heads-up, eliminação e torneio completo, dificuldade, push/fold, equity, quiz e 1.500 mãos simuladas |
+| `engine/` | Motor em módulos: cartas, avaliador, equity, mesa, bots, coach pré e pós-flop, faixas, vazamentos, treinos, quiz e ICM (sem DOM, roda no Node) |
+| `ui/` | Interface: `head.html`, `corpo.html`, `estilo.css` e os scripts da tela |
+| `i18n/en.json` | Textos em inglês. O português é o próprio texto do código (`` tx`...` ``) |
+| `build.js` | Junta os módulos e gera `mesa-de-treino.html` (página única) e `docs/` (app instalável) |
+| `docs/` | Versão PWA: `index.html`, manifest, service worker e ícones |
+| `tools/` | `gerar-dados.js` (tabelas de equity e push/fold), `i18n-chaves.js` (lista os textos a traduzir), `make-icons.py` |
+| `tests/` | `motor.test.js` (regras, coach, faixas, vazamentos, treinos, ICM), `idiomas.test.js` e `fumaca.test.js` (navegador, nos dois idiomas) |
 
 ## Desenvolvimento
 
-Precisa só de Node.js.
+Precisa só de Node.js. O CI do GitHub roda os testes a cada push.
 
 ```sh
-npm test        # roda os testes
-npm run build   # gera mesa-de-treino.html e docs/ depois de editar engine.js ou src.html
+npm test               # build + testes do motor e dos idiomas
+npm run fumaca         # abre o jogo no Chromium (Playwright) em português e em inglês
+node tools/i18n-chaves.js   # mostra os textos novos ainda sem tradução
 ```
+
+Texto novo na interface ou no coach: escreva em português dentro de `` tx`...` `` (ou direto no HTML) e acrescente a tradução em `i18n/en.json`. O teste de idiomas falha se faltar alguma.
 
 Os ícones já estão em `docs/icons/`. Para refazê-los: `python3 tools/make-icons.py`.
 
 ## Publicar no GitHub Pages
 
-1. No GitHub, abra **Settings → Pages**.
-2. Em **Build and deployment**, escolha **Deploy from a branch**, branch `main` e pasta `/docs`.
+1. No GitHub, abra **Settings → Pages** e escolha **Source: GitHub Actions**.
+2. Na aba **Actions**, rode o workflow **Publicar** (por enquanto ele só roda manualmente).
 3. O app fica em `https://bissolion.github.io/poker/`.
 
 O GitHub Pages em repositório privado exige um plano pago (Pro, Team ou Enterprise), e o site publicado fica público. Sem plano pago, é preciso tornar o repositório público.

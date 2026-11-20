@@ -2,7 +2,7 @@
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function soundFor(p, prevLen) {
   const a = p.lastAction || '';
-  if (a === 'Desiste') sfx.fold(); else if (a === 'Passa') sfx.check(); else if (a === 'All-in') sfx.allin(); else if (a) sfx.chip();
+  if (a === tx`Desiste`) sfx.fold(); else if (a === tx`Passa`) sfx.check(); else if (a === 'All-in') sfx.allin(); else if (a) sfx.chip();
   if (!game.handOver && game.board.length > prevLen) setTimeout(() => sfx.card(game.board.length - prevLen), 160);
 }
 function doAct(seat, a) {
@@ -74,11 +74,11 @@ function heroAct(type) {
   const to = raiseTo;
   let fb = d.street === 'preflop' ? E.gradePreflop(d.adv, type, L) : E.gradePostflop(d.info, type, L, d.street);
   const cb = d.info && (d.info.tips || []).find(x => x.k === 'cbet');
-  if (cb && cb.rec === 'raise' && type === 'check') fb = { grade: 'ok', title: 'Faltou a continuation bet', text: cb.text };
-  if (cb && cb.rec === 'check' && type === 'raise' && fb.grade === 'good') fb = { grade: 'ok', title: 'Continuation bet arriscada aqui', text: cb.text };
+  if (cb && cb.rec === 'raise' && type === 'check') fb = { grade: 'ok', title: tx`Faltou a continuation bet`, text: cb.text };
+  if (cb && cb.rec === 'check' && type === 'raise' && fb.grade === 'good') fb = { grade: 'ok', title: tx`Continuation bet arriscada aqui`, text: cb.text };
   let sizing = null;
   if (type === 'raise') sizing = E.gradeSizing({ street: d.street, raises: g.raises, to, currentBet: g.currentBet, pot: g.pot(), toCall: L.toCall, isBet: L.isBet, bb: g.bb, limpers: limpersFor(0), maxTo: L.maxTo, st: d.info ? d.info.st : 0, draws: d.info ? d.info.draws : [], board: g.board, nAct: g.activeCount(), stackBB: d.adv && d.adv.push ? d.adv.depth : null });
-  const actPt = type === 'fold' ? 'desistiu' : type === 'check' ? 'passou' : type === 'call' ? `pagou ${L.toCall}` : (to >= L.maxTo ? `all-in ${L.maxTo}` : (L.isBet ? `apostou ${to}` : `aumentou p/ ${to}`));
+  const actPt = type === 'fold' ? tx`desistiu` : type === 'check' ? tx`passou` : type === 'call' ? tx`pagou ${L.toCall}` : (to >= L.maxTo ? `all-in ${L.maxTo}` : (L.isBet ? tx`apostou ${to}` : tx`aumentou p/ ${to}`));
   const item = Object.assign({ street: E.STREET_LABEL[d.street], act: actPt, sizing }, fb);
   handFb.push(item);
   stats[fb.grade]++;
@@ -94,7 +94,7 @@ function heroAct(type) {
   if (g.snaps[at]) g.snaps[at].fb = item;
   loop();
 }
-function modeLabel() { return (tour ? 'Torneio' : 'Cash') + (cfg.table === 'hu' ? ' · HU' : ''); }
+function modeLabel() { return (tour ? tx`Torneio` : 'Cash') + (cfg.table === 'hu' ? ' · HU' : ''); }
 function onHandOver() {
   if (counted) return;
   const g = game, r = g.result;
@@ -134,7 +134,7 @@ function nextHand() {
   }
   decision = null; handFb = []; flags = {}; counted = false; raiseTo = 0; runout = null; anim = null; lastOut = [];
   g.startHand();
-  if (tour && tour.flash) g.log.push({ hand: g.handNo, text: `Blinds sobem para ${g.sb}/${g.bb}`, kind: 'level' });
+  if (tour && tour.flash) g.log.push({ hand: g.handNo, text: tx`Blinds sobem para ${g.sb}/${g.bb}`, kind: 'level' });
   setTimeout(() => sfx.card(2), 60);
   loop();
 }

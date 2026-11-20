@@ -126,7 +126,7 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 .str-top.wrap { white-space: normal; display: block; line-height: 1.2; }
 .str-hand { font-size: 13.5px; font-weight: 700; color: var(--ink); text-transform: none; letter-spacing: 0; }
 .str-lbl { font-size: 13px; font-weight: 800; text-transform: none; letter-spacing: 0; }
-.lbl-Seca { color: var(--good); } .lbl-Molhada, .lbl-Pareada { color: var(--ok); } .lbl-Perigosa { color: var(--bad); }
+.lbl-Seca, .lbl-Dry { color: var(--good); } .lbl-Molhada, .lbl-Pareada, .lbl-Wet, .lbl-Paired { color: var(--ok); } .lbl-Perigosa, .lbl-Dangerous { color: var(--bad); }
 .str-pop.right { left: auto; right: 0; }
 .str-cards { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
 .str-note { margin: 0; padding: 6px 9px; border-radius: 8px; background: var(--surface-2); color: var(--ink); }
@@ -160,6 +160,7 @@ input[type=range] { width: 100%; accent-color: var(--brass); }
 .act.raise { background: var(--brass); color: var(--brass-ink); border-color: var(--brass); }
 .act:disabled { opacity: .35; cursor: default; }
 .act.rec::after { content: "dica"; position: absolute; top: -8px; right: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; background: var(--ink); color: var(--bg); border-radius: 4px; padding: 1px 5px; }
+:lang(en) .act.rec::after { content: "tip"; }
 .result { display: grid; gap: 10px; text-align: center; }
 .result .big { font-family: var(--font-d); font-weight: 800; font-size: 24px; text-transform: uppercase; letter-spacing: .02em; line-height: 1.1; text-wrap: balance; }
 .result .big.huge { font-size: 32px; color: var(--brass); }

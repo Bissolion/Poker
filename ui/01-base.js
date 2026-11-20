@@ -32,6 +32,6 @@ if (!reg || !Array.isArray(reg.decs) || !Array.isArray(reg.hands)) reg = { decs:
 const saveReg = () => { reg.decs = reg.decs.slice(-3000); reg.hands = reg.hands.slice(-1500); if (!store(KEY_REG, reg)) { reg.decs = reg.decs.slice(-800); reg.hands = reg.hands.slice(-400); store(KEY_REG, reg); } };
 $('liveHelp').checked = liveHelp;
 
-const SPEEDS = { slow: { label: 'Lenta', think: 1300, run: 1500 }, normal: { label: 'Normal', think: 750, run: 1100 }, fast: { label: 'Rápida', think: 350, run: 750 }, turbo: { label: 'Turbo', think: 90, run: 450 } };
+const SPEEDS = { slow: { label: tx`Lenta`, think: 1300, run: 1500 }, normal: { label: 'Normal', think: 750, run: 1100 }, fast: { label: tx`Rápida`, think: 350, run: 750 }, turbo: { label: tx`Turbo`, think: 90, run: 450 } };
 const speed = () => SPEEDS[prefs.speed] || SPEEDS.normal;
 

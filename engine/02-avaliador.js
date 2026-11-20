@@ -41,14 +41,14 @@ const kOf = (s, i) => Math.floor(s / 16 ** (4 - i)) % 16 - 1;
 function handName(score) {
   const c = catOf(score), R = i => RANK_CH[kOf(score, i)];
   switch (c) {
-    case 8: return kOf(score, 0) === 12 ? 'Royal flush' : `Straight flush até o ${R(0)}`;
-    case 7: return `Quadra de ${R(0)}`;
-    case 6: return `Full house, ${R(0)} com ${R(1)}`;
-    case 5: return `Flush, ${R(0)} alto`;
-    case 4: return `Sequência até o ${R(0)}`;
-    case 3: return `Trinca de ${R(0)}`;
-    case 2: return `Dois pares, ${R(0)} e ${R(1)}`;
-    case 1: return `Par de ${R(0)}`;
-    default: return `Carta alta ${R(0)}`;
+    case 8: return kOf(score, 0) === 12 ? 'Royal flush' : tx`Straight flush até o ${R(0)}`;
+    case 7: return tx`Quadra de ${R(0)}`;
+    case 6: return tx`Full house, ${R(0)} com ${R(1)}`;
+    case 5: return tx`Flush, ${R(0)} alto`;
+    case 4: return tx`Sequência até o ${R(0)}`;
+    case 3: return tx`Trinca de ${R(0)}`;
+    case 2: return tx`Dois pares, ${R(0)} e ${R(1)}`;
+    case 1: return tx`Par de ${R(0)}`;
+    default: return tx`Carta alta ${R(0)}`;
   }
 }

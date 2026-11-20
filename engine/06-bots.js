@@ -1,10 +1,10 @@
 // ---------- Bots ----------
 const PROFILES = {
-  tag:     { label: 'Sólida',      open: 7,  call: 8,  rr: 12, limp: 99, aggr: 0.7,  bluff: 0.08, margin: 0.03,  bet: 0.62, raise: 0.78, size: 0.66, noise: 1,   dev: { open: 0, call: 0, raise: 0, push: 0 } },
-  lag:     { label: 'Agressivo',   open: 6,  call: 7,  rr: 10, limp: 99, aggr: 0.85, bluff: 0.22, margin: 0.0,   bet: 0.55, raise: 0.68, size: 0.8,  noise: 2,   dev: { open: 0.10, call: 0.03, raise: 0.06, push: 2 } },
-  station: { label: 'Paga tudo',   open: 11, call: 4,  rr: 14, limp: 4,  aggr: 0.25, bluff: 0.03, margin: -0.12, bet: 0.72, raise: 0.88, size: 0.5,  noise: 1.5, dev: { open: -0.03, call: 0.25, raise: -0.04, push: -1, callPush: 4 } },
-  nit:     { label: 'Cautelosa',   open: 9,  call: 10, rr: 14, limp: 99, aggr: 0.6,  bluff: 0.02, margin: 0.08,  bet: 0.7,  raise: 0.84, size: 0.6,  noise: 0.5, dev: { open: -0.06, call: -0.08, raise: -0.02, push: -2 } },
-  bal:     { label: 'Equilibrado', open: 7,  call: 8,  rr: 11, limp: 99, aggr: 0.65, bluff: 0.12, margin: 0.02,  bet: 0.6,  raise: 0.75, size: 0.65, noise: 1.5, dev: { open: 0.02, call: 0.03, raise: 0, push: 0 } },
+  tag:     { label: tx`Sólida`,      open: 7,  call: 8,  rr: 12, limp: 99, aggr: 0.7,  bluff: 0.08, margin: 0.03,  bet: 0.62, raise: 0.78, size: 0.66, noise: 1,   dev: { open: 0, call: 0, raise: 0, push: 0 } },
+  lag:     { label: tx`Agressivo`,   open: 6,  call: 7,  rr: 10, limp: 99, aggr: 0.85, bluff: 0.22, margin: 0.0,   bet: 0.55, raise: 0.68, size: 0.8,  noise: 2,   dev: { open: 0.10, call: 0.03, raise: 0.06, push: 2 } },
+  station: { label: tx`Paga tudo`,   open: 11, call: 4,  rr: 14, limp: 4,  aggr: 0.25, bluff: 0.03, margin: -0.12, bet: 0.72, raise: 0.88, size: 0.5,  noise: 1.5, dev: { open: -0.03, call: 0.25, raise: -0.04, push: -1, callPush: 4 } },
+  nit:     { label: tx`Cautelosa`,   open: 9,  call: 10, rr: 14, limp: 99, aggr: 0.6,  bluff: 0.02, margin: 0.08,  bet: 0.7,  raise: 0.84, size: 0.6,  noise: 0.5, dev: { open: -0.06, call: -0.08, raise: -0.02, push: -2 } },
+  bal:     { label: tx`Equilibrado`, open: 7,  call: 8,  rr: 11, limp: 99, aggr: 0.65, bluff: 0.12, margin: 0.02,  bet: 0.6,  raise: 0.75, size: 0.65, noise: 1.5, dev: { open: 0.02, call: 0.03, raise: 0, push: 0 } },
 };
 const POS_BONUS = { UTG: -1, MP: -0.5, CO: 0.5, BTN: 1.5, SB: 0, BB: 0.5 };
 
@@ -21,9 +21,9 @@ function sizeRaise(g, p, L, to) {
 
 // Níveis de dificuldade: o mesmo estilo de cada bot, jogado com mais ou menos habilidade
 const SKILLS = {
-  easy:   { label: 'Iniciante', noise: 2.6, iters: 120, reads: false, mistake: 0.2,  bluff: 0.5,  margin: -0.05, exploit: false, cbet: 0 },
+  easy:   { label: tx`Iniciante`, noise: 2.6, iters: 120, reads: false, mistake: 0.2,  bluff: 0.5,  margin: -0.05, exploit: false, cbet: 0 },
   normal: { label: 'Normal',    noise: 1,   iters: 300, reads: true,  mistake: 0.03, bluff: 1,    margin: 0,     exploit: false, cbet: 0.2 },
-  hard:   { label: 'Difícil',   noise: 0.4, iters: 500, reads: true,  mistake: 0,    bluff: 1.15, margin: 0,     exploit: true,  cbet: 0.6 },
+  hard:   { label: tx`Difícil`,   noise: 0.4, iters: 500, reads: true,  mistake: 0,    bluff: 1.15, margin: 0,     exploit: true,  cbet: 0.6 },
 };
 
 // Stack efetivo em big blinds: o menor entre o seu e o maior rival ainda na mão

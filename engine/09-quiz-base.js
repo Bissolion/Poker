@@ -1,5 +1,5 @@
 // ---------- Quiz ----------
-const CAT_PT = ['carta alta', 'par', 'dois pares', 'trinca', 'sequência', 'flush', 'full house', 'quadra', 'straight flush'];
+const CAT_PT = [tx`carta alta`, tx`par`, tx`dois pares`, tx`trinca`, tx`sequência`, tx`flush`, tx`full house`, tx`quadra`, tx`straight flush`];
 const pickOf = (a, rng) => a[Math.floor(rng() * a.length)];
 function choices(correct, pool, rng, n = 4, minGap = 1) {
   const out = [correct];

@@ -12,7 +12,7 @@ function newGame(c) {
   gameId = Date.now();
   const roster = c.table === 'hu' ? [BOTS.find(b => b.k === c.rival) || BOTS[1]] : BOTS;
   const tourney = c.format === 'tourney';
-  game = new E.Game([{ name: 'Você', isHuman: true }, ...roster.map(b => ({ name: b.name, profile: E.PROFILES[b.k] }))],
+  game = new E.Game([{ name: tx`Você`, isHuman: true }, ...roster.map(b => ({ name: b.name, profile: E.PROFILES[b.k] }))],
     { stack: tourney ? 1500 : 1000, skill: c.skill, sb: tourney ? E.BLIND_LEVELS[0][0] : 5, bb: tourney ? E.BLIND_LEVELS[0][1] : 10 });
   const payouts = tourney ? E.PAYOUTS[c.table === 'hu' ? 'vencedor' : (c.prize || '65/35')] : null;
   if (payouts) game.payouts = payouts;
@@ -27,7 +27,7 @@ const back = size => `<div class="card ${size} back" aria-hidden="true"></div>`;
 const slot = () => `<div class="card md slot" aria-hidden="true"></div>`;
 const pct = x => Math.round(x * 100) + '%';
 const signed = n => (n > 0 ? '+' : '') + n;
-const ordinal = n => n + 'º';
+const ordinal = n => E.LANG === 'en' ? n + (n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th') : n + 'º';
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 // ---- mesa (compartilhada entre jogo e replay) ----
@@ -75,12 +75,12 @@ function liveView() {
   const eqBy = {}; if (anim && anim.eq) anim.live.forEach((s, k) => eqBy[s] = anim.eq[k]);
   const seats = g.players.map((p, i) => ({
     name: p.name, label: p.profile ? p.profile.label : '', pos: g.posOf(i), stack: anim ? p.startStack - p.committed : p.stack, bet: anim ? 0 : p.bet, folded: p.folded, allIn: p.allIn, out: p.out && !(anim || (g.handOver && !counted)),
-    tag: p.out ? `Fora${p.place ? ' · ' + ordinal(p.place) : ''}` : winners.has(i) ? '+' + r.winners.find(w => w.seat === i).amount : p.lastAction, hole: p.hole,
+    tag: p.out ? tx`Fora${p.place ? ' · ' + ordinal(p.place) : ''}` : winners.has(i) ? '+' + r.winners.find(w => w.seat === i).amount : p.lastAction, hole: p.hole,
     mode: i === 0 ? 'up' : p.folded ? 'none' : ((r && r.showdown) || anim) ? 'up' : 'back', flip: anim && anim.first,
     turn: g.toAct === i && !g.handOver, win: winners.has(i), eq: anim && eqBy[i] != null ? eqBy[i] : null,
   }));
   const board = anim ? g.board.slice(0, anim.len) : g.board;
-  const street = anim ? 'All-in' : g.handOver ? (r.showdown ? 'Showdown' : 'Fim da mão') : E.STREET_LABEL[g.street];
+  const street = anim ? 'All-in' : g.handOver ? (r.showdown ? 'Showdown' : tx`Fim da mão`) : E.STREET_LABEL[g.street];
   const rd = !anim && !g.handOver && !g.players[0].folded && prefs.showStrength ? reading() : null;
   return { seats, board, pot: g.handOver ? g.result.pot : g.potCollected(), street, hl: winningCards(), newFrom: anim ? anim.newFrom : null, made: rd ? new Set(rd.made.core) : null };
 }

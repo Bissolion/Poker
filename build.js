@@ -13,7 +13,10 @@ const engine = join('engine', '.js');
 fs.mkdirSync(path.join(dir, 'dist'), { recursive: true });
 fs.writeFileSync(path.join(dir, 'dist', 'engine.js'), engine); // usado pelos testes no Node
 const ui = `(() => {\n${join('ui', '.js')}})();`;
-const page = `${read('ui/head.html')}<style>\n${read('ui/estilo.css')}</style>\n\n${read('ui/corpo.html')}\n<script>${engine}</script>\n<script>\n${ui}\n</script>\n`;
+const en = fs.existsSync(path.join(dir, 'i18n/en.json')) ? JSON.stringify(JSON.parse(read('i18n/en.json'))) : '{}';
+// Idioma escolhido (ou o do aparelho) antes do motor carregar; trocar de idioma recarrega a página
+const langScript = `<script>var POKER_LANG = (function () { try { var v = localStorage.getItem('mesa-treino-lang'); if (v) return v; } catch (e) {} return /^pt/i.test(navigator.language || 'pt') ? 'pt' : 'en'; })(); document.documentElement.lang = POKER_LANG === 'en' ? 'en' : 'pt-BR'; var POKER_EN = ${en.replace(/<\//g, '<\\/')};</script>`;
+const page = `${read('ui/head.html')}<style>\n${read('ui/estilo.css')}</style>\n\n${read('ui/corpo.html')}\n${langScript}\n<script>${engine}</script>\n<script>\n${ui}\n</script>\n`;
 fs.writeFileSync(path.join(dir, 'mesa-de-treino.html'), page);
 
 // ---- PWA ----

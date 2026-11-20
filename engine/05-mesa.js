@@ -1,8 +1,8 @@
 // ---------- Mesa ----------
 // Nomes de posição a partir do botão, conforme o número de jogadores na mesa
 const POS_BY_N = { 2: ['BTN', 'BB'], 3: ['BTN', 'SB', 'BB'], 4: ['BTN', 'SB', 'BB', 'CO'], 5: ['BTN', 'SB', 'BB', 'UTG', 'CO'], 6: ['BTN', 'SB', 'BB', 'UTG', 'MP', 'CO'] };
-const POS_LABEL = { BTN: 'Botão', SB: 'Small blind', BB: 'Big blind', UTG: 'UTG (primeiro)', MP: 'Middle', CO: 'Cutoff' };
-const STREET_LABEL = { preflop: 'Pré-flop', flop: 'Flop', turn: 'Turn', river: 'River' };
+const POS_LABEL = { BTN: tx`Botão`, SB: 'Small blind', BB: 'Big blind', UTG: tx`UTG (primeiro)`, MP: 'Middle', CO: 'Cutoff' };
+const STREET_LABEL = { preflop: tx`Pré-flop`, flop: 'Flop', turn: 'Turn', river: 'River' };
 
 class Game {
   constructor(players, opts = {}) {
@@ -41,9 +41,9 @@ class Game {
     this.board = []; this.street = 'preflop'; this.handOver = false; this.result = null;
     this.currentBet = 0; this.minRaise = this.bb; this.raises = 0; this.pfAgg = -1; this.pfOpener = -1;
     this.deck = shuffle([...Array(52).keys()], this.rng);
-    for (const p of this.players) Object.assign(p, { hole: [], bet: 0, committed: 0, folded: p.out, allIn: false, hasActed: false, actedSinceFull: false, minChen: 0, reads: [], lastAction: p.out ? 'Fora' : '', startStack: p.stack });
+    for (const p of this.players) Object.assign(p, { hole: [], bet: 0, committed: 0, folded: p.out, allIn: false, hasActed: false, actedSinceFull: false, minChen: 0, reads: [], lastAction: p.out ? tx`Fora` : '', startStack: p.stack });
     this.snaps = [];
-    this.emit(`Mão #${this.handNo}`, 'hand');
+    this.emit(tx`Mão #${this.handNo}`, 'hand');
     for (let k = 0; k < 2; k++) for (let i = 1; i <= this.n; i++) { const q = this.players[(this.button + i) % this.n]; if (!q.out) q.hole.push(this.deck.pop()); }
     // No heads-up o botão posta o small blind e age primeiro antes do flop
     const sbS = this.activeCount() === 2 ? this.button : this.next(this.button), bbS = this.next(sbS);
@@ -55,7 +55,7 @@ class Game {
   post(seat, amt) {
     const p = this.players[seat]; const a = Math.min(amt, p.stack);
     p.stack -= a; p.bet += a; p.committed += a; if (p.stack === 0) p.allIn = true;
-    this.emit(`${p.name} posta ${a}`, 'blind', seat);
+    this.emit(tx`${p.name} posta ${a}`, 'blind', seat);
   }
   needs(p) { return !p.folded && !p.allIn && (!p.hasActed || p.bet < this.currentBet); }
   findNext(from) {
@@ -78,7 +78,7 @@ class Game {
   }
 
   act(seat, a) {
-    if (this.handOver || seat !== this.toAct) throw new Error('fora de vez');
+    if (this.handOver || seat !== this.toAct) throw new Error(tx`fora de vez`);
     const p = this.players[seat], L = this.legal(seat);
     let type = a.type;
     if (type === 'check' && !L.canCheck) type = 'call';
@@ -86,12 +86,12 @@ class Game {
     if (type === 'raise' && !L.canRaise) type = L.canCheck ? 'check' : 'call';
     const prevBet = this.currentBet, potBefore = this.pot(), post = this.street !== 'preflop';
     if (post && L.toCall > 0) { p.tend.faced++; if (type === 'fold') p.tend.folded++; }
-    if (type === 'fold') { p.folded = true; p.lastAction = 'Desiste'; this.emit(`${p.name} desiste`, 'act', seat); }
-    else if (type === 'check') { p.lastAction = 'Passa'; this.emit(`${p.name} passa`, 'act', seat); }
+    if (type === 'fold') { p.folded = true; p.lastAction = tx`Desiste`; this.emit(tx`${p.name} desiste`, 'act', seat); }
+    else if (type === 'check') { p.lastAction = tx`Passa`; this.emit(tx`${p.name} passa`, 'act', seat); }
     else if (type === 'call') {
       if (post) p.reads.push({ n: this.board.length, lv: 1, st: this.street });
-      this.put(p, L.toCall); p.lastAction = p.allIn ? 'All-in' : `Paga ${L.toCall}`;
-      this.emit(`${p.name} paga ${L.toCall}${p.allIn ? ' (all-in)' : ''}`, 'act', seat);
+      this.put(p, L.toCall); p.lastAction = p.allIn ? 'All-in' : tx`Paga ${L.toCall}`;
+      this.emit(tx`${p.name} paga ${L.toCall}${p.allIn ? ' (all-in)' : ''}`, 'act', seat);
       if (this.street === 'preflop' && prevBet > this.bb) p.minChen = Math.max(p.minChen, this.raises >= 2 ? 9 : 5);
     } else {
       let to = Math.round(Math.max(L.minTo, Math.min(a.to || L.minTo, L.maxTo)));
@@ -109,8 +109,8 @@ class Game {
         this.pfAgg = seat;
       }
       this.raises++;
-      const verb = prevBet === 0 ? 'aposta' : 'aumenta para';
-      p.lastAction = p.allIn ? 'All-in' : (prevBet === 0 ? `Aposta ${to}` : `Aumenta ${to}`);
+      const verb = prevBet === 0 ? tx`aposta` : tx`aumenta para`;
+      p.lastAction = p.allIn ? 'All-in' : (prevBet === 0 ? tx`Aposta ${to}` : tx`Aumenta ${to}`);
       this.emit(`${p.name} ${verb} ${to}${p.allIn ? ' (all-in)' : ''}`, 'act', seat);
     }
     p.hasActed = true; p.actedSinceFull = true;
@@ -133,7 +133,7 @@ class Game {
     if (sorted[0] > sorted[1]) {
       const d = sorted[0] - sorted[1];
       top.bet -= d; top.committed -= d; top.stack += d; if (top.stack > 0) top.allIn = false;
-      if (d > 0 && this.live().length > 1) this.emit(`${d} devolvidos a ${top.name}`, 'info');
+      if (d > 0 && this.live().length > 1) this.emit(tx`${d} devolvidos a ${top.name}`, 'info');
     }
   }
   endStreet() {
@@ -157,7 +157,7 @@ class Game {
     const pot = this.pot();
     for (const p of this.players) p.bet = 0;
     w.stack += pot;
-    this.emit(`${w.name} leva ${pot} (todos desistiram)`, 'win', w.seat);
+    this.emit(tx`${w.name} leva ${pot} (todos desistiram)`, 'win', w.seat);
     this.handOver = true; this.toAct = -1;
     this.result = { showdown: false, pot, winners: [{ seat: w.seat, amount: pot }], net: this.netMap({ [w.seat]: pot }) };
   }
@@ -184,8 +184,8 @@ class Game {
       const share = Math.floor(amt / ws.length); let rem = amt - share * ws.length;
       for (const s of ws) { const g = share + (rem > 0 ? 1 : 0); if (rem > 0) rem--; won[s] = (won[s] || 0) + g; this.players[s].stack += g; }
     }
-    for (const p of live) this.emit(`${p.name} mostra ${p.hole.map(cardStr).join(' ')}: ${handName(sc[p.seat])}`, 'show', p.seat);
-    for (const s in won) this.emit(`${this.players[s].name} ganha ${won[s]} com ${handName(sc[s])}`, 'win', +s);
+    for (const p of live) this.emit(tx`${p.name} mostra ${p.hole.map(cardStr).join(' ')}: ${handName(sc[p.seat])}`, 'show', p.seat);
+    for (const s in won) this.emit(tx`${this.players[s].name} ganha ${won[s]} com ${handName(sc[s])}`, 'win', +s);
     this.handOver = true; this.toAct = -1;
     this.result = { showdown: true, pot: this.pot(), scores: sc, winners: Object.keys(won).map(s => ({ seat: +s, amount: won[s], hand: handName(sc[s]) })), net: this.netMap(won) };
   }
@@ -196,7 +196,7 @@ class Game {
     const remaining = this.activeCount();
     busted.forEach((p, i) => {
       p.out = true; p.place = remaining - busted.length + 1 + i;
-      this.log.push({ hand: this.handNo, text: `${p.name} foi eliminado em ${p.place}º`, kind: 'info' });
+      this.log.push({ hand: this.handNo, text: tx`${p.name} foi eliminado em ${p.place}º`, kind: 'info' });
     });
     return busted;
   }

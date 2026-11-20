@@ -1,16 +1,16 @@
 // ---------- Treinos: situações montadas direto no ponto da decisão ----------
 const DRILLS = {
-  abrir: { name: 'Abrir ou desistir', desc: 'Todos desistiram até você. Abre ou larga?' },
-  defesa: { name: 'Defender o big blind', desc: 'Alguém abriu e você está no big blind.' },
-  pushfold: { name: 'All-in ou desistir', desc: 'Stack curto: vai all-in, paga ou larga?' },
-  projetos: { name: 'Jogar projetos', desc: 'Você tem um projeto e o rival apostou.' },
-  cbet: { name: 'Continuation bet', desc: 'Você abriu, levou call e o rival passou no flop.' },
-  river: { name: 'Pagar no river', desc: 'O rival apostou no river. Paga ou larga?' },
+  abrir: { name: tx`Abrir ou desistir`, desc: tx`Todos desistiram até você. Abre ou larga?` },
+  defesa: { name: tx`Defender o big blind`, desc: tx`Alguém abriu e você está no big blind.` },
+  pushfold: { name: tx`All-in ou desistir`, desc: tx`Stack curto: vai all-in, paga ou larga?` },
+  projetos: { name: tx`Jogar projetos`, desc: tx`Você tem um projeto e o rival apostou.` },
+  cbet: { name: 'Continuation bet', desc: tx`Você abriu, levou call e o rival passou no flop.` },
+  river: { name: tx`Pagar no river`, desc: tx`O rival apostou no river. Paga ou larga?` },
 };
 const SEATS6 = [0, 1, 2, 3, 4, 5];
 const drillRng = rng => (a, b) => a + Math.floor(rng() * (b - a + 1));
 function drillGame(rng, stack = 1000) {
-  const g = new Game(SEATS6.map(i => i === 0 ? { name: 'Você', isHuman: true } : { name: ['', 'Marta', 'Diego', 'Seu Zé', 'Helena', 'Rafa'][i], profile: PROFILES[['', 'tag', 'lag', 'station', 'nit', 'bal'][i]] }), { stack, rng });
+  const g = new Game(SEATS6.map(i => i === 0 ? { name: tx`Você`, isHuman: true } : { name: ['', 'Marta', 'Diego', 'Seu Zé', 'Helena', 'Rafa'][i], profile: PROFILES[['', 'tag', 'lag', 'station', 'nit', 'bal'][i]] }), { stack, rng });
   return g;
 }
 // Põe o botão de forma que o jogador (lugar 0) caia na posição pedida
@@ -119,8 +119,8 @@ function gradeDrill(d, action, rng = Math.random) {
   const cb = tips.find(x => x.k === 'cbet' || x.k === 'river');
   if (cb && cb.rec && L.toCall === 0) rec = cb.rec;
   let fb = gradePostflop(info, action, L, g.street);
-  if (cb && cb.k === 'cbet' && cb.rec === 'raise' && action === 'check') fb = { grade: 'ok', title: 'Faltou a continuation bet', text: cb.text };
-  if (cb && cb.k === 'cbet' && cb.rec === 'check' && action === 'raise' && fb.grade === 'good') fb = { grade: 'ok', title: 'Continuation bet arriscada aqui', text: cb.text };
+  if (cb && cb.k === 'cbet' && cb.rec === 'raise' && action === 'check') fb = { grade: 'ok', title: tx`Faltou a continuation bet`, text: cb.text };
+  if (cb && cb.k === 'cbet' && cb.rec === 'check' && action === 'raise' && fb.grade === 'good') fb = { grade: 'ok', title: tx`Continuation bet arriscada aqui`, text: cb.text };
   return { ...fb, rec, info, tips };
 }
 // Treino sugerido para cada vazamento
