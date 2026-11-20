@@ -374,6 +374,7 @@ console.log('coach pós-flop ok');
 // ---- Vazamentos: um jogador que paga demais no river ----
 {
   let seed = 777; const rng = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const realRandom = Math.random; Math.random = rng; // toda a simulação reprodutível, inclusive a equity
   const g = new P.Game([0, 1, 2, 3, 4, 5].map(i => ({ name: 'V' + i, profile: P.PROFILES.bal })), { rng });
   const decs = [], hands = [];
   for (let h = 0; h < 1000; h++) {
@@ -397,6 +398,7 @@ console.log('coach pós-flop ok');
     }
     hands.push(P.handRecord(g, 0, fl));
   }
+  Math.random = realRandom;
   const leaks = P.findLeaks(decs, hands);
   console.log('vazamentos encontrados:', leaks.slice(0, 3).map(l => `${l.id} ${Math.round(l.value * 100)}% (${l.n})`).join(', '));
   assert(leaks.length && ['rivercall', 'wtsd', 'wsd'].includes(leaks[0].id), 'o primeiro vazamento é o call no river: ' + (leaks[0] && leaks[0].id));
