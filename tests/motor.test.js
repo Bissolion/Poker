@@ -405,3 +405,20 @@ console.log('coach pós-flop ok');
   assert.strictEqual(S.wtsd.v, manual, 'estatística confere com a conta à mão');
 }
 console.log('vazamentos ok');
+
+// ---- Treinos e quiz novos ----
+{
+  const expect = { abrir: g => g.street === 'preflop' && g.raises === 0, defesa: g => g.posOf(0) === 'BB' && g.raises === 1, pushfold: g => P.effBB(g, 0) <= 15,
+    projetos: g => g.street !== 'preflop' && g.legal(0).toCall > 0 && P.heroDraws(g.players[0].hole, g.board), cbet: g => g.street === 'flop' && g.legal(0).toCall === 0 && g.pfAgg === 0, river: g => g.street === 'river' && g.legal(0).toCall > 0 };
+  for (const t of Object.keys(P.DRILLS)) for (let i = 0; i < 100; i++) {
+    const d = P.makeDrill(t, i % 3), g = d.g;
+    assert(g.toAct === 0 && !g.handOver && g.players.every(p => p.stack >= 0), `treino ${t} válido`);
+    assert.strictEqual(new Set([...g.board, ...g.players.flatMap(p => p.hole)]).size, g.board.length + 12, `treino ${t} sem carta repetida`);
+    assert(expect[t](g), `treino ${t} monta a situação certa`);
+  }
+  for (let i = 0; i < 300; i++) for (const q of [P.quizOpen(), P.quizTexture(), P.quizNuts(), P.quizCombos(), P.quizMDF()]) {
+    assert(q.answer >= 0 && q.answer < q.options.length && new Set(q.options).size === q.options.length, 'quiz novo válido: ' + q.type);
+    if (q.type === 'tex') assert.strictEqual(q.options[q.answer], P.boardRead(q.board, null).label);
+  }
+}
+console.log('treinos e quiz novos ok');

@@ -1,18 +1,22 @@
 // Quiz
-const QCATS = [['mix', 'Misturado'], ['pot', 'Pot odds'], ['outs', 'Outs'], ['win', 'Qual ganha']];
-const QTYPE = { pot: 'Pot odds', outs: 'Contagem de outs', win: 'Qual mão ganha' };
+const QCATS = [['mix', 'Misturado'], ['pot', 'Pot odds'], ['outs', 'Outs'], ['win', 'Qual ganha'], ['open', 'Abrir?'], ['tex', 'Textura'], ['nuts', 'Nuts'], ['combos', 'Combinações'], ['mdf', 'Defesa mínima']];
+const QTYPE = { pot: 'Pot odds', outs: 'Contagem de outs', win: 'Qual mão ganha', open: 'Abrir ou desistir', tex: 'Textura da mesa', nuts: 'Melhor mão possível', combos: 'Combinações', mdf: 'Defesa mínima' };
+const QGEN = { pot: () => E.quizPotOdds(), outs: () => E.quizOuts(), win: () => E.quizWinner(), open: () => E.quizOpen(), tex: () => E.quizTexture(), nuts: () => E.quizNuts(), combos: () => E.quizCombos(), mdf: () => E.quizMDF() };
+const QKEYS = Object.keys(QGEN);
 function newQuestion() {
-  const t = quiz.cat === 'mix' ? ['pot', 'outs', 'win'][Math.floor(Math.random() * 3)] : quiz.cat;
-  quiz.q = t === 'pot' ? E.quizPotOdds() : t === 'outs' ? E.quizOuts() : E.quizWinner();
+  const t = quiz.cat === 'mix' ? QKEYS[Math.floor(Math.random() * QKEYS.length)] : quiz.cat;
+  quiz.q = QGEN[t]();
   quiz.picked = null;
 }
 function renderQuiz() {
   const el = $('studyBody'), z = stats.quiz;
   if (!quiz.q) newQuestion();
   const q = quiz.q, done = quiz.picked != null;
-  const tot = ['pot', 'outs', 'win'].reduce((a, k) => [a[0] + z[k][0], a[1] + z[k][1]], [0, 0]);
+  const tot = QKEYS.reduce((a, k) => [a[0] + z[k][0], a[1] + z[k][1]], [0, 0]);
   const catScore = k => z[k][1] ? `${z[k][0]}/${z[k][1]}` : '–';
   let felt = '';
+  if (q.type === 'open') felt = `<div class="qfelt"><div class="qrow"><span class="qlabel">Você</span>${q.hole.map(c => card(c, 'md')).join('')}</div></div>`;
+  if (q.type === 'tex' || q.type === 'nuts') felt = `<div class="qfelt"><div class="qrow"><span class="qlabel">Mesa</span>${q.board.map(c => card(c, 'md')).join('')}</div></div>`;
   if (q.type === 'outs') felt = `<div class="qfelt"><div class="qrow"><span class="qlabel">Mesa</span>${q.board.map(c => card(c, 'md')).join('')}</div><div class="qrow"><span class="qlabel">Você</span>${q.hole.map(c => card(c, 'md')).join('')}</div></div>`;
   if (q.type === 'win') {
     const hand = k => {
@@ -27,7 +31,7 @@ function renderQuiz() {
   const right = done && quiz.picked === q.answer;
   el.innerHTML = `
     <div class="seg" role="group" aria-label="Tipo de pergunta">${QCATS.map(([k, l]) => `<button type="button" class="chip" data-qc="${k}" aria-pressed="${k === quiz.cat}">${l}</button>`).join('')}</div>
-    <div class="qscore"><span>Acertos <b>${tot[0]}/${tot[1]}</b></span><span>Sequência <b>${z.streak}</b> (recorde ${z.best})</span><span>Pot odds ${catScore('pot')} · Outs ${catScore('outs')} · Qual ganha ${catScore('win')}</span></div>
+    <div class="qscore"><span>Acertos <b>${tot[0]}/${tot[1]}</b></span><span>Sequência <b>${z.streak}</b> (recorde ${z.best})</span><span>${QKEYS.filter(k => z[k][1]).map(k => `${QCATS.find(c => c[0] === k)[1]} ${catScore(k)}`).join(' · ')}</span></div>
     <div class="qcard">
       <span class="qtype">${QTYPE[q.type]}</span>
       ${felt}

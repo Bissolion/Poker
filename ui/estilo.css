@@ -238,7 +238,7 @@ details[open] summary { margin-bottom: 8px; }
 .sheet { position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,.6); display: flex; align-items: flex-end; justify-content: center; }
 .sheet-in { width: 100%; max-width: 560px; height: 92%; overflow-y: auto; background: var(--bg); border: 1px solid var(--line); border-bottom: 0; border-radius: 18px 18px 0 0; padding: 14px max(16px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 12px; }
 .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
-.tab { flex: 1; border: 0; background: transparent; border-radius: 999px; padding: 7px 0; font-weight: 700; font-size: 14px; color: var(--muted); min-width: 0; }
+.tab { flex: 1; border: 0; background: transparent; border-radius: 999px; padding: 7px 0; font-weight: 700; font-size: 13.5px; color: var(--muted); min-width: 0; }
 .tab[aria-selected="true"] { background: var(--surface-2); color: var(--ink); box-shadow: inset 0 0 0 1px var(--brass); }
 .study { display: grid; gap: 12px; }
 .field { display: grid; gap: 8px; }
@@ -312,6 +312,21 @@ details[open] summary { margin-bottom: 8px; }
 .trow { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; color: var(--muted); }
 .trow .place { font-family: var(--font-d); font-weight: 800; font-size: 20px; color: var(--ink); min-width: 40px; font-variant-numeric: tabular-nums; }
 .trow .place.first { color: var(--brass); }
+
+/* Treinos */
+.dlist { display: grid; gap: 8px; }
+.drow { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.drow:hover { border-color: var(--brass); }
+.drow.sug { border-color: var(--brass); box-shadow: inset 3px 0 0 var(--brass); }
+.drow b { font-size: 15px; }
+.drow span { grid-column: 1; font-size: 13px; color: var(--muted); }
+.drow .best { grid-column: 2; grid-row: 1 / span 2; font-family: var(--font-d); font-weight: 800; font-size: 20px; color: var(--brass); font-variant-numeric: tabular-nums; text-align: right; }
+.drow .best small { display: block; font-family: var(--font-b); font-size: 10.5px; font-weight: 600; color: var(--faint); text-transform: uppercase; letter-spacing: .06em; }
+.dhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+.dhead b { color: var(--ink); }
+.dprog { display: flex; gap: 4px; }
+.dprog i { width: 14px; height: 6px; border-radius: 3px; background: var(--line); }
+.dprog i.good { background: var(--good); } .dprog i.ok { background: var(--ok); } .dprog i.bad { background: var(--bad); } .dprog i.cur { background: var(--brass); }
 
 /* Quiz */
 .qscore { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13.5px; color: var(--muted); font-variant-numeric: tabular-nums; }

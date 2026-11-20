@@ -6,6 +6,7 @@ function renderStudy() {
   if (studyTab === 'hands') renderHands();
   else if (studyTab === 'ranges') renderRanges();
   else if (studyTab === 'quiz') renderQuiz();
+  else if (studyTab === 'drills') renderDrills();
   else renderSession();
 }
 

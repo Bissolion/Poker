@@ -244,7 +244,7 @@ details[open] summary { margin-bottom: 8px; }
 .sheet { position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,.6); display: flex; align-items: flex-end; justify-content: center; }
 .sheet-in { width: 100%; max-width: 560px; height: 92%; overflow-y: auto; background: var(--bg); border: 1px solid var(--line); border-bottom: 0; border-radius: 18px 18px 0 0; padding: 14px max(16px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 12px; }
 .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
-.tab { flex: 1; border: 0; background: transparent; border-radius: 999px; padding: 7px 0; font-weight: 700; font-size: 14px; color: var(--muted); min-width: 0; }
+.tab { flex: 1; border: 0; background: transparent; border-radius: 999px; padding: 7px 0; font-weight: 700; font-size: 13.5px; color: var(--muted); min-width: 0; }
 .tab[aria-selected="true"] { background: var(--surface-2); color: var(--ink); box-shadow: inset 0 0 0 1px var(--brass); }
 .study { display: grid; gap: 12px; }
 .field { display: grid; gap: 8px; }
@@ -318,6 +318,21 @@ details[open] summary { margin-bottom: 8px; }
 .trow { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; color: var(--muted); }
 .trow .place { font-family: var(--font-d); font-weight: 800; font-size: 20px; color: var(--ink); min-width: 40px; font-variant-numeric: tabular-nums; }
 .trow .place.first { color: var(--brass); }
+
+/* Treinos */
+.dlist { display: grid; gap: 8px; }
+.drow { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.drow:hover { border-color: var(--brass); }
+.drow.sug { border-color: var(--brass); box-shadow: inset 3px 0 0 var(--brass); }
+.drow b { font-size: 15px; }
+.drow span { grid-column: 1; font-size: 13px; color: var(--muted); }
+.drow .best { grid-column: 2; grid-row: 1 / span 2; font-family: var(--font-d); font-weight: 800; font-size: 20px; color: var(--brass); font-variant-numeric: tabular-nums; text-align: right; }
+.drow .best small { display: block; font-family: var(--font-b); font-size: 10.5px; font-weight: 600; color: var(--faint); text-transform: uppercase; letter-spacing: .06em; }
+.dhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+.dhead b { color: var(--ink); }
+.dprog { display: flex; gap: 4px; }
+.dprog i { width: 14px; height: 6px; border-radius: 3px; background: var(--line); }
+.dprog i.good { background: var(--good); } .dprog i.ok { background: var(--ok); } .dprog i.bad { background: var(--bad); } .dprog i.cur { background: var(--brass); }
 
 /* Quiz */
 .qscore { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -414,6 +429,7 @@ details[open] summary { margin-bottom: 8px; }
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" data-tab="hands" type="button">Mãos</button>
       <button class="tab" role="tab" data-tab="ranges" type="button">Faixas</button>
+      <button class="tab" role="tab" data-tab="drills" type="button">Treinos</button>
       <button class="tab" role="tab" data-tab="quiz" type="button">Quiz</button>
       <button class="tab" role="tab" data-tab="session" type="button">Sessão</button>
     </div>
@@ -1774,7 +1790,201 @@ function handRecord(g, seat, flags) {
   };
 }
 
-const Poker = { leakStats, findLeaks, leakHands, decisionRecord, handRecord, STAT_DEF, postflopTips, rangeBreakdown, sampleRange, parseRange, rangePct, classOf, rangeScenario, rangeFreq, pushFoldAdvice, HAND_RANK, HAND_POS, PUSH_MAX, CALL_MAX, RFI, VS_OPEN, VS_3BET, shortName, madeHand, heroDraws, boardRead, chenBreakdown, SKILLS, effBB, pushThreshold, callShoveThreshold, PUSH_DEPTH, BLIND_LEVELS, blindLevel, equityKnown, POS_BY_N, quizPotOdds, quizOuts, quizWinner, outsSets, best5, CAT_PT, drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
+// ---------- Treinos: situações montadas direto no ponto da decisão ----------
+const DRILLS = {
+  abrir: { name: 'Abrir ou desistir', desc: 'Todos desistiram até você. Abre ou larga?' },
+  defesa: { name: 'Defender o big blind', desc: 'Alguém abriu e você está no big blind.' },
+  pushfold: { name: 'All-in ou desistir', desc: 'Stack curto: vai all-in, paga ou larga?' },
+  projetos: { name: 'Jogar projetos', desc: 'Você tem um projeto e o rival apostou.' },
+  cbet: { name: 'Continuation bet', desc: 'Você abriu, levou call e o rival passou no flop.' },
+  river: { name: 'Pagar no river', desc: 'O rival apostou no river. Paga ou larga?' },
+};
+const SEATS6 = [0, 1, 2, 3, 4, 5];
+const drillRng = rng => (a, b) => a + Math.floor(rng() * (b - a + 1));
+function drillGame(rng, stack = 1000) {
+  const g = new Game(SEATS6.map(i => i === 0 ? { name: 'Você', isHuman: true } : { name: ['', 'Marta', 'Diego', 'Seu Zé', 'Helena', 'Rafa'][i], profile: PROFILES[['', 'tag', 'lag', 'station', 'nit', 'bal'][i]] }), { stack, rng });
+  return g;
+}
+// Põe o botão de forma que o jogador (lugar 0) caia na posição pedida
+function seatButtonFor(g, pos) {
+  for (let b = 0; b < 6; b++) { g.button = b; if (g.posOf(0) === pos) { g.button = (b + 5) % 6; return; } }
+}
+// Escolhe a mão do jogador: perto da borda da faixa com mais frequência conforme o nível
+function pickHole(g, rng, wantClass) {
+  const all = []; for (let c = 0; c < 52; c++) all.push(c);
+  for (let t = 0; t < 4000; t++) {
+    const a = all[Math.floor(rng() * 52)], b = all[Math.floor(rng() * 52)];
+    if (a === b) continue;
+    if (!wantClass || wantClass(classOf(a, b))) return [a, b];
+  }
+  return [0, 4];
+}
+// Refaz o baralho para que as cartas dadas saiam primeiro (mãos e board)
+function rigDeck(g, holes, board) {
+  const used = new Set([...holes.flat(), ...board]);
+  const rest = shuffle([...Array(52).keys()].filter(c => !used.has(c)), g.rng);
+  g.deck = [...rest, ...board.slice().reverse()];
+  holes.forEach((h, s) => { if (h) g.players[s].hole = h.slice(); });
+  // as outras mãos saem do resto do baralho
+  for (const p of g.players) if (!holes[p.seat]) p.hole = [g.deck.shift(), g.deck.shift()];
+}
+const nearEdge = (sc, level) => cls => {
+  const size = rangePct({ ...sc.call, ...sc.raise });
+  const d = Math.abs(HAND_POS[cls] - size);
+  return d < 0.12 - level * 0.03;
+};
+function makeDrill(type, level = 0, rng = Math.random) {
+  const R = drillRng(rng), edge = rng() < 0.35 + level * 0.2;
+  if (type === 'abrir') {
+    const g = drillGame(rng), pos = ['UTG', 'MP', 'CO', 'BTN', 'SB'][R(0, 4)];
+    seatButtonFor(g, pos); g.startHand();
+    const sc = rangeScenario(pos, 6, 0, null, false, false);
+    rigDeck(g, [pickHole(g, rng, edge ? nearEdge(sc, level) : null)], []);
+    while (g.toAct !== 0) g.act(g.toAct, { type: 'fold' });
+    return { g, type };
+  }
+  if (type === 'defesa') {
+    const g = drillGame(rng); seatButtonFor(g, 'BB'); g.startHand();
+    const opener = ['UTG', 'MP', 'CO', 'BTN', 'SB'][R(0, 4)];
+    const sc = rangeScenario('BB', 6, 1, opener, false, false);
+    rigDeck(g, [pickHole(g, rng, edge ? nearEdge(sc, level) : null)], []);
+    while (g.toAct !== 0) { const s = g.toAct; g.act(s, g.posOf(s) === opener ? { type: 'raise', to: g.bb * (opener === 'SB' ? 3 : [2.5, 3][R(0, 1)]) } : { type: 'fold' }); }
+    return { g, type };
+  }
+  if (type === 'pushfold') {
+    const depth = R(3, 14), g = drillGame(rng), facing = rng() < 0.35;
+    const pos = facing ? 'BB' : ['UTG', 'MP', 'CO', 'BTN', 'SB'][R(0, 4)];
+    seatButtonFor(g, pos);
+    g.players.forEach(p => { p.stack = p.seat === 0 ? depth * 10 : R(depth, 25) * 10; });
+    g.startHand();
+    rigDeck(g, [pickHole(g, rng, null)], []);
+    const shover = facing ? ['CO', 'BTN', 'SB'][R(0, 2)] : null;
+    while (g.toAct !== 0) { const s = g.toAct; g.act(s, facing && g.posOf(s) === shover ? { type: 'raise', to: g.players[s].stack + g.players[s].bet } : { type: 'fold' }); }
+    return { g, type };
+  }
+  // pós-flop: você abre do botão ou cutoff, o big blind paga, o flop sai como pedido
+  const g = drillGame(rng), pos = ['CO', 'BTN'][R(0, 1)];
+  seatButtonFor(g, pos); g.startHand();
+  const bbSeat = SEATS6.find(s => g.posOf(s) === 'BB');
+  let hole, board;
+  for (let t = 0; t < 3000; t++) {
+    const d = shuffle([...Array(52).keys()], rng);
+    hole = [d[0], d[1]];
+    const n = type === 'river' ? 5 : type === 'projetos' ? (rng() < 0.6 ? 3 : 4) : 3;
+    board = d.slice(4, 4 + n);
+    if (type === 'projetos') { const hd = heroDraws(hole, board); if (!hd || catOf(evalHand([...hole, ...board])) >= 1 && rng() < 0.7) continue; }
+    if (type === 'river') { const c = catOf(evalHand([...hole, ...board])); if (c < 1 || c > 2) continue; } // par ou dois pares: a decisão difícil
+    if (type === 'cbet') { const c = catOf(evalHand([...hole, ...board])); if (c > 2) continue; }
+    break;
+  }
+  const holes = []; holes[0] = hole;
+  rigDeck(g, holes, board);
+  // pré-flop: abrir e o BB pagar
+  while (g.street === 'preflop' && !g.handOver) {
+    const s = g.toAct;
+    if (s === 0) g.act(0, { type: 'raise', to: g.bb * 2.5 });
+    else if (s === bbSeat) g.act(s, { type: 'call' });
+    else g.act(s, { type: 'fold' });
+  }
+  // completa o board pelas ruas pedidas
+  const playStreet = (bbBets) => {
+    if (bbBets) { const pot = g.pot(); g.act(bbSeat, { type: 'raise', to: Math.max(g.bb, Math.round(pot * [0.5, 0.66, 0.75, 1][R(0, 3)] / 5) * 5) }); }
+    else g.act(bbSeat, { type: 'check' });
+  };
+  const target = board.length;
+  // ruas intermediárias: os dois passam (o baralho já traz o board sorteado, na ordem)
+  while (g.board.length < target) { playStreet(false); g.act(0, { type: 'check' }); }
+  if (type === 'cbet') playStreet(false);
+  else playStreet(true);
+  return { g, type };
+}
+// Avalia a resposta do treino com o mesmo coach do jogo
+function gradeDrill(d, action, rng = Math.random) {
+  const g = d.g, L = g.legal(0);
+  if (g.street === 'preflop') {
+    const adv = preflopAdvice(g, 0);
+    return { ...gradePreflop(adv, action, L), rec: adv.rec, push: adv.push };
+  }
+  const info = postflopInfo(g, 0, 900);
+  const tips = postflopTips(g, 0, info, rng);
+  let rec = postflopRec(info);
+  const cb = tips.find(x => x.k === 'cbet' || x.k === 'river');
+  if (cb && cb.rec && L.toCall === 0) rec = cb.rec;
+  let fb = gradePostflop(info, action, L, g.street);
+  if (cb && cb.k === 'cbet' && cb.rec === 'raise' && action === 'check') fb = { grade: 'ok', title: 'Faltou a continuation bet', text: cb.text };
+  if (cb && cb.k === 'cbet' && cb.rec === 'check' && action === 'raise' && fb.grade === 'good') fb = { grade: 'ok', title: 'Continuation bet arriscada aqui', text: cb.text };
+  return { ...fb, rec, info, tips };
+}
+// Treino sugerido para cada vazamento
+const LEAK_DRILL = { vpip: 'abrir', pfr: 'abrir', gap: 'abrir', vpip_UTG: 'abrir', vpip_MP: 'abrir', vpip_CO: 'abrir', vpip_BTN: 'abrir', vpip_SB: 'abrir', vpip_BB: 'defesa', threebet: 'defesa', fold3bet: 'defesa', cbet: 'cbet', foldcbet: 'projetos', wtsd: 'river', wsd: 'river', af: 'cbet', rivercall: 'river' };
+
+// ---------- Novos tipos de quiz ----------
+// Abrir ou desistir: posição e mão, resposta pela tabela (só mãos sem jogada mista)
+function quizOpen(rng = Math.random) {
+  const pos = pickOf(['UTG', 'MP', 'CO', 'BTN', 'SB'], rng), sc = rangeScenario(pos, 6, 0, null, false, false);
+  for (let t = 0; t < 500; t++) {
+    const d = shuffle([...Array(52).keys()], rng), cls = classOf(d[0], d[1]), f = sc.raise[cls] || 0;
+    if (f > 0 && f < 1) continue;
+    // metade das perguntas perto da borda, onde a dúvida é real
+    if (rng() < 0.6 && Math.abs(HAND_POS[cls] - rangePct(sc.raise)) > 0.1) continue;
+    const ans = f ? 0 : 1;
+    return { type: 'open', hole: [d[0], d[1]], prompt: `Todos desistiram até você, no ${POS_LABEL[pos]}. Com ${comboName(d[0], d[1])}, o que fazer?`,
+      options: ['Abrir (aumentar)', 'Desistir'], answer: ans,
+      explain: `A faixa de abertura do ${POS_LABEL[pos]} tem ${Math.round(rangePct(sc.raise) * 100)}% das mãos, e ${comboName(d[0], d[1])} ${f ? 'está nela' : 'fica de fora'}. Quanto mais jogadores ainda vão agir depois de você, mais apertada é a faixa.` };
+  }
+  return quizPotOdds(rng);
+}
+// Textura: seca, molhada, perigosa ou pareada
+const TEX = ['Seca', 'Molhada', 'Perigosa', 'Pareada'];
+function quizTexture(rng = Math.random) {
+  const want = pickOf(TEX, rng);
+  for (let t = 0; t < 3000; t++) {
+    const d = shuffle([...Array(52).keys()], rng), board = d.slice(0, 3), r = boardRead(board, null);
+    if (r.label !== want) continue;
+    return { type: 'tex', board, prompt: 'Como é essa mesa (flop)?', options: TEX.slice(), answer: TEX.indexOf(r.label),
+      explain: `${r.items.filter(x => x.tag || x.lv !== 'info').map(x => x.text).join(' ') || 'Sem par, sem flush e sem sequência possíveis, e poucos projetos.'} Por isso ela é ${r.label.toLowerCase()}.` };
+  }
+  return quizPotOdds(rng);
+}
+// Melhor mão possível (nuts)
+function quizNuts(rng = Math.random) {
+  for (let t = 0; t < 500; t++) {
+    const d = shuffle([...Array(52).keys()], rng), board = d.slice(0, rng() < 0.5 ? 4 : 5), r = boardRead(board, null);
+    const nc = catOf(evalHand([...r.nuts.ex, ...board])), right = CAT_PT[nc];
+    const pool = CAT_PT.filter((_, i) => i !== nc && i >= 1 && Math.abs(i - nc) <= 3);
+    if (pool.length < 3) continue;
+    const opts = shuffle([right, ...shuffle(pool.slice(), rng).slice(0, 3)], rng).map(x => x[0].toUpperCase() + x.slice(1));
+    return { type: 'nuts', board, prompt: 'Qual é a melhor mão possível com essa mesa?', options: opts, answer: opts.indexOf(right[0].toUpperCase() + right.slice(1)),
+      explain: `A melhor mão possível é ${r.nuts.name}, por exemplo com ${r.nuts.ex.map(cardStr).join(' ')}. ${r.items.filter(x => x.lv === 'made').map(x => x.text).join(' ')}` };
+  }
+  return quizPotOdds(rng);
+}
+// Combinações de mãos
+function quizCombos(rng = Math.random) {
+  const Q = [
+    ['Quantas combinações de AK existem (mesmo naipe ou não)?', 16, '4 ases × 4 reis = 16: 4 do mesmo naipe e 12 de naipes diferentes.'],
+    ['Quantas combinações de um par específico, como 99, existem?', 6, 'São 4 noves; escolhendo 2 deles: 4 × 3 ÷ 2 = 6.'],
+    ['Quantas combinações de AK do mesmo naipe (AKs) existem?', 4, 'Uma por naipe: 4.'],
+    ['Quantas combinações de AK de naipes diferentes (AKo) existem?', 12, '16 combinações de AK menos as 4 do mesmo naipe = 12.'],
+    ['Há um ás na mesa. Quantas combinações de AK sobram para o rival?', 12, 'Sobram 3 ases: 3 × 4 reis = 12.'],
+    ['Há um rei na mesa. Quantas combinações de KK sobram?', 3, 'Sobram 3 reis; escolhendo 2: 3 × 2 ÷ 2 = 3.'],
+    ['Você tem um ás. Quantas combinações de AA o rival pode ter?', 3, 'Sobram 3 ases: 3 combinações de par.'],
+  ];
+  const [prompt, ans, why] = pickOf(Q, rng);
+  const opts = choices(ans, [3, 4, 6, 8, 9, 12, 16, 24].filter(x => x !== ans), rng, 4, 1);
+  return { type: 'combos', prompt, options: opts.map(String), answer: opts.indexOf(ans), explain: why + ' Contar combinações mostra quanto da faixa do rival é cada tipo de mão.' };
+}
+// Defesa mínima
+function quizMDF(rng = Math.random) {
+  const fr = pickOf([[1 / 3, '1/3 do pote'], [1 / 2, 'meio pote'], [2 / 3, '2/3 do pote'], [3 / 4, '3/4 do pote'], [1, 'o pote inteiro'], [2, 'o dobro do pote']], rng);
+  const mdf = Math.round(1 / (1 + fr[0]) * 100);
+  const opts = choices(mdf, [mdf - 15, mdf + 12, mdf - 25, 100 - mdf, Math.round(fr[0] / (1 + 2 * fr[0]) * 100)].filter(x => x > 5 && x < 99 && x !== mdf), rng, 4, 4);
+  return { type: 'mdf', prompt: `O rival aposta ${fr[1]} no river. Com que frequência você precisa continuar para ele não lucrar blefando com qualquer coisa?`,
+    options: opts.map(x => x + '%'), answer: opts.indexOf(mdf),
+    explain: `Defesa mínima = pote ÷ (pote + aposta) = 1 ÷ (1 + ${String(Math.round(fr[0] * 100) / 100).replace('.', ',')}) ≈ ${mdf}%. Quanto maior a aposta, menos você precisa defender.` };
+}
+
+const Poker = { quizOpen, quizTexture, quizNuts, quizCombos, quizMDF, DRILLS, makeDrill, gradeDrill, LEAK_DRILL, leakStats, findLeaks, leakHands, decisionRecord, handRecord, STAT_DEF, postflopTips, rangeBreakdown, sampleRange, parseRange, rangePct, classOf, rangeScenario, rangeFreq, pushFoldAdvice, HAND_RANK, HAND_POS, PUSH_MAX, CALL_MAX, RFI, VS_OPEN, VS_3BET, shortName, madeHand, heroDraws, boardRead, chenBreakdown, SKILLS, effBB, pushThreshold, callShoveThreshold, PUSH_DEPTH, BLIND_LEVELS, blindLevel, equityKnown, POS_BY_N, quizPotOdds, quizOuts, quizWinner, outsSets, best5, CAT_PT, drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
 if (typeof module !== 'undefined') module.exports = Poker;
 </script>
 <script>
@@ -1791,7 +2001,7 @@ const PAGES_URL = 'bissolion.github.io/poker';
 
 // ---- estado salvo ----
 const KEY = 'mesa-treino-v1', KEY_H = 'mesa-treino-maos-v1', KEY_CFG = 'mesa-treino-cfg-v1', MAX_HANDS = 25;
-const blank = () => ({ hands: 0, net: 0, vpip: 0, pfr: 0, good: 0, ok: 0, bad: 0, rebuys: 0, recent: [], tourneys: [], quiz: { pot: [0, 0], outs: [0, 0], win: [0, 0], streak: 0, best: 0 } });
+const blank = () => ({ hands: 0, net: 0, vpip: 0, pfr: 0, good: 0, ok: 0, bad: 0, rebuys: 0, recent: [], tourneys: [], quiz: { pot: [0, 0], outs: [0, 0], win: [0, 0], open: [0, 0], tex: [0, 0], nuts: [0, 0], combos: [0, 0], mdf: [0, 0], streak: 0, best: 0 }, drills: {} });
 const DEF_CFG = { format: 'cash', table: '6', rival: 'lag', skill: 'normal', per: 8 };
 const DEF_PREFS = { speed: 'normal', sound: false, showStrength: true };
 let stats = blank(), liveHelp = true, hands = [], cfg = { ...DEF_CFG }, prefs = { ...DEF_PREFS };
@@ -1799,7 +2009,7 @@ const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k) || '
 const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
 {
   const s = load(KEY, null);
-  if (s) { stats = Object.assign(blank(), s.stats || {}); stats.quiz = Object.assign(blank().quiz, stats.quiz || {}); if (!Array.isArray(stats.tourneys)) stats.tourneys = []; if (typeof s.liveHelp === 'boolean') liveHelp = s.liveHelp; }
+  if (s) { stats = Object.assign(blank(), s.stats || {}); stats.quiz = Object.assign(blank().quiz, stats.quiz || {}); stats.drills = stats.drills || {}; if (!Array.isArray(stats.tourneys)) stats.tourneys = []; if (typeof s.liveHelp === 'boolean') liveHelp = s.liveHelp; }
   const h = load(KEY_H, []); if (Array.isArray(h)) hands = h;
   const c = load(KEY_CFG, null); if (c) { cfg = Object.assign({ ...DEF_CFG }, c.cfg || {}); prefs = Object.assign({ ...DEF_PREFS }, c.prefs || {}); }
 }
@@ -2425,6 +2635,7 @@ function renderStudy() {
   if (studyTab === 'hands') renderHands();
   else if (studyTab === 'ranges') renderRanges();
   else if (studyTab === 'quiz') renderQuiz();
+  else if (studyTab === 'drills') renderDrills();
   else renderSession();
 }
 
@@ -2577,20 +2788,24 @@ function renderRanges() {
 }
 
 // Quiz
-const QCATS = [['mix', 'Misturado'], ['pot', 'Pot odds'], ['outs', 'Outs'], ['win', 'Qual ganha']];
-const QTYPE = { pot: 'Pot odds', outs: 'Contagem de outs', win: 'Qual mão ganha' };
+const QCATS = [['mix', 'Misturado'], ['pot', 'Pot odds'], ['outs', 'Outs'], ['win', 'Qual ganha'], ['open', 'Abrir?'], ['tex', 'Textura'], ['nuts', 'Nuts'], ['combos', 'Combinações'], ['mdf', 'Defesa mínima']];
+const QTYPE = { pot: 'Pot odds', outs: 'Contagem de outs', win: 'Qual mão ganha', open: 'Abrir ou desistir', tex: 'Textura da mesa', nuts: 'Melhor mão possível', combos: 'Combinações', mdf: 'Defesa mínima' };
+const QGEN = { pot: () => E.quizPotOdds(), outs: () => E.quizOuts(), win: () => E.quizWinner(), open: () => E.quizOpen(), tex: () => E.quizTexture(), nuts: () => E.quizNuts(), combos: () => E.quizCombos(), mdf: () => E.quizMDF() };
+const QKEYS = Object.keys(QGEN);
 function newQuestion() {
-  const t = quiz.cat === 'mix' ? ['pot', 'outs', 'win'][Math.floor(Math.random() * 3)] : quiz.cat;
-  quiz.q = t === 'pot' ? E.quizPotOdds() : t === 'outs' ? E.quizOuts() : E.quizWinner();
+  const t = quiz.cat === 'mix' ? QKEYS[Math.floor(Math.random() * QKEYS.length)] : quiz.cat;
+  quiz.q = QGEN[t]();
   quiz.picked = null;
 }
 function renderQuiz() {
   const el = $('studyBody'), z = stats.quiz;
   if (!quiz.q) newQuestion();
   const q = quiz.q, done = quiz.picked != null;
-  const tot = ['pot', 'outs', 'win'].reduce((a, k) => [a[0] + z[k][0], a[1] + z[k][1]], [0, 0]);
+  const tot = QKEYS.reduce((a, k) => [a[0] + z[k][0], a[1] + z[k][1]], [0, 0]);
   const catScore = k => z[k][1] ? `${z[k][0]}/${z[k][1]}` : '–';
   let felt = '';
+  if (q.type === 'open') felt = `<div class="qfelt"><div class="qrow"><span class="qlabel">Você</span>${q.hole.map(c => card(c, 'md')).join('')}</div></div>`;
+  if (q.type === 'tex' || q.type === 'nuts') felt = `<div class="qfelt"><div class="qrow"><span class="qlabel">Mesa</span>${q.board.map(c => card(c, 'md')).join('')}</div></div>`;
   if (q.type === 'outs') felt = `<div class="qfelt"><div class="qrow"><span class="qlabel">Mesa</span>${q.board.map(c => card(c, 'md')).join('')}</div><div class="qrow"><span class="qlabel">Você</span>${q.hole.map(c => card(c, 'md')).join('')}</div></div>`;
   if (q.type === 'win') {
     const hand = k => {
@@ -2605,7 +2820,7 @@ function renderQuiz() {
   const right = done && quiz.picked === q.answer;
   el.innerHTML = `
     <div class="seg" role="group" aria-label="Tipo de pergunta">${QCATS.map(([k, l]) => `<button type="button" class="chip" data-qc="${k}" aria-pressed="${k === quiz.cat}">${l}</button>`).join('')}</div>
-    <div class="qscore"><span>Acertos <b>${tot[0]}/${tot[1]}</b></span><span>Sequência <b>${z.streak}</b> (recorde ${z.best})</span><span>Pot odds ${catScore('pot')} · Outs ${catScore('outs')} · Qual ganha ${catScore('win')}</span></div>
+    <div class="qscore"><span>Acertos <b>${tot[0]}/${tot[1]}</b></span><span>Sequência <b>${z.streak}</b> (recorde ${z.best})</span><span>${QKEYS.filter(k => z[k][1]).map(k => `${QCATS.find(c => c[0] === k)[1]} ${catScore(k)}`).join(' · ')}</span></div>
     <div class="qcard">
       <span class="qtype">${QTYPE[q.type]}</span>
       ${felt}
@@ -2753,6 +2968,70 @@ function bindLeaks() {
   };
   const dn = $('csvDown');
   if (dn) dn.onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([regCSV()], { type: 'text/csv' })); a.download = 'mesa-de-treino.csv'; a.click(); };
+}
+
+// Treinos: 10 decisões do mesmo tipo seguidas, com nota no fim
+let drill = null; // { type, i, res: [], cur: { d, fb, picked }, streak }
+const DRILL_N = 10;
+function drillView(g) {
+  const seats = g.players.map((p, i) => ({
+    name: p.name, label: p.profile ? p.profile.label : '', pos: g.posOf(i), stack: p.stack, bet: p.bet, folded: p.folded, allIn: p.allIn, out: false,
+    tag: p.lastAction, hole: p.hole, mode: i === 0 ? 'up' : p.folded ? 'none' : 'back', turn: g.toAct === i, win: false, eq: null,
+  }));
+  return { seats, board: g.board, pot: g.potCollected(), street: E.STREET_LABEL[g.street], hl: new Set(), newFrom: null, made: null };
+}
+function drillLevel() { return Math.min(2, Math.floor((drill.streak || 0) / 3)); }
+function nextDrill() { drill.cur = { d: E.makeDrill(drill.type, drillLevel()), fb: null, picked: null }; }
+function renderDrills() {
+  const el = $('studyBody');
+  if (!drill) {
+    const L = E.findLeaks(reg.decs, reg.hands), sug = L.length ? E.LEAK_DRILL[L[0].id] : null;
+    el.innerHTML = `<p class="muted">Séries de ${DRILL_N} decisões do mesmo tipo, montadas direto no ponto da decisão. A cada 3 acertos seguidos, as mãos ficam mais perto da borda das faixas, onde a dúvida é real.</p>
+      ${sug ? `<p class="muted">Sugerido para você: <b style="color:var(--ink)">${E.DRILLS[sug].name}</b>, pelo seu maior vazamento (${L[0].title.toLowerCase()}).</p>` : ''}
+      <div class="dlist">${Object.entries(E.DRILLS).map(([k, v]) => { const st = stats.drills[k]; return `<button class="drow${k === sug ? ' sug' : ''}" type="button" data-dr="${k}"><b>${v.name}</b><span>${v.desc}</span><span class="best">${st ? st.best + '/' + DRILL_N : '–'}<small>${st ? 'recorde' : 'novo'}</small></span></button>`; }).join('')}</div>`;
+    el.querySelectorAll('[data-dr]').forEach(b => b.onclick = () => { drill = { type: b.dataset.dr, i: 0, res: [], streak: 0 }; nextDrill(); renderDrills(); });
+    return;
+  }
+  if (drill.i >= DRILL_N) return renderDrillEnd();
+  const { d, fb, picked } = drill.cur, g = d.g, L = g.legal(0), pre = g.street === 'preflop';
+  const push = d.type === 'pushfold';
+  const prog = Array.from({ length: DRILL_N }, (_, k) => `<i class="${drill.res[k] || (k === drill.i ? 'cur' : '')}"></i>`).join('');
+  const callTxt = L.canCheck ? 'Passar' : `Pagar<small>${L.toCall}</small>`;
+  const raiseTxt = push || !L.canRaise ? 'All-in' : pre ? (g.raises ? '3-bet' : 'Aumentar') : L.isBet ? 'Apostar' : 'Aumentar';
+  const ctx = pre ? '' : `<p class="muted">Pote ${g.pot()}${L.toCall ? `, para pagar ${L.toCall} (precisa de ${pct(L.toCall / (g.pot() + L.toCall))} de equity)` : ''}. Sua mão: <b style="color:var(--ink)">${E.madeHand(g.players[0].hole, g.board).name}</b>${E.heroDraws(g.players[0].hole, g.board) ? ' + ' + E.heroDraws(g.players[0].hole, g.board).name : ''}.</p>`;
+  const stackLine = push ? `<p class="muted">Seu stack: <b style="color:var(--ink)">${Math.round(E.effBB(g, 0) * 10) / 10} BB</b> efetivos.</p>` : '';
+  el.innerHTML = `
+    <div class="dhead"><button class="ghost" id="drBack" type="button">← Treinos</button><span><b>${E.DRILLS[drill.type].name}</b> · ${drill.i + 1}/${DRILL_N}</span></div>
+    <div class="dprog" aria-hidden="true">${prog}</div>
+    <div class="table mini">${tableHTML(drillView(g), 'md')}</div>
+    ${stackLine}${ctx}
+    ${fb ? `${fbHTML(fb)}${fb.tips ? tipsHTML(fb.tips) : ''}<button class="primary" id="drNext" type="button">${drill.i + 1 < DRILL_N ? 'Próxima' : 'Ver resultado'}</button>`
+      : `<div class="btns"><button type="button" class="act fold" data-da="fold">Desistir</button><button type="button" class="act" data-da="call">${callTxt}</button><button type="button" class="act raise" data-da="raise" ${L.canRaise || push ? '' : 'disabled'}>${raiseTxt}</button></div>`}`;
+  $('drBack').onclick = () => { drill = null; renderDrills(); };
+  el.querySelectorAll('[data-da]').forEach(b => b.onclick = () => {
+    let a = b.dataset.da; if (a === 'call' && L.canCheck) a = 'check';
+    const r = E.gradeDrill(d, a);
+    const names = { fold: 'desistiu', check: 'passou', call: 'pagou', raise: push ? 'all-in' : 'aumentou' };
+    drill.cur.fb = Object.assign({ street: E.STREET_LABEL[g.street], act: names[a] }, r);
+    drill.res[drill.i] = r.grade;
+    drill.streak = r.grade === 'good' ? (drill.streak || 0) + 1 : 0;
+    r.grade === 'good' ? sfx.chip() : sfx.fold();
+    renderDrills();
+    const n = $('drNext'); if (n) n.focus();
+  });
+  const n = $('drNext'); if (n) n.onclick = () => { drill.i++; if (drill.i < DRILL_N) nextDrill(); renderDrills(); };
+}
+function renderDrillEnd() {
+  const el = $('studyBody'), good = drill.res.filter(x => x === 'good').length, ok = drill.res.filter(x => x === 'ok').length;
+  const score = good + Math.floor(ok / 2), st = stats.drills[drill.type] || { best: 0, played: 0 };
+  if (!drill.saved) { st.played++; st.best = Math.max(st.best, score); stats.drills[drill.type] = st; save(); drill.saved = true; }
+  el.innerHTML = `
+    <div class="dhead"><button class="ghost" id="drBack" type="button">← Treinos</button><span><b>${E.DRILLS[drill.type].name}</b></span></div>
+    <div class="result"><div class="big huge">${score}/${DRILL_N}</div><div class="sub">${good} boas, ${ok} ok e ${DRILL_N - good - ok} erros. Recorde: <b>${st.best}/${DRILL_N}</b>.</div></div>
+    <div class="dprog" aria-hidden="true">${drill.res.map(r => `<i class="${r}"></i>`).join('')}</div>
+    <button class="primary" id="drAgain" type="button">Treinar de novo</button>`;
+  $('drBack').onclick = () => { drill = null; renderDrills(); };
+  $('drAgain').onclick = () => { drill = { type: drill.type, i: 0, res: [], streak: drill.streak }; nextDrill(); renderDrills(); };
 }
 })();
 </script>
