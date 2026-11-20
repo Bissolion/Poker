@@ -278,6 +278,11 @@ details[open] summary { margin-bottom: 8px; }
 .cell.call { background: var(--call); color: var(--call-ink); }
 .cell.check { background: var(--check); color: var(--ink); }
 .cell.fold { background: var(--surface-2); color: var(--faint); }
+.cell.mix { color: var(--ink); text-shadow: 0 0 3px var(--bg), 0 0 2px var(--bg); }
+.freqbar { display: flex; height: 12px; border-radius: 999px; overflow: hidden; background: var(--line); margin-top: 4px; }
+.freqbar i { display: block; height: 100%; }
+.freqleg { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.freqleg span::before { content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; background: var(--c); }
 .cell.mine { box-shadow: inset 0 0 0 2px var(--ink); }
 .cell.sel { outline: 2px solid var(--ink); outline-offset: 1px; position: relative; z-index: 1; }
 .rlegend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -405,7 +410,15 @@ details[open] summary { margin-bottom: 8px; }
 </div>
 
 
-<script>// ===== Motor de Texas Hold'em No-Limit =====
+<script>// Gerado por tools/gerar-dados.js — não edite à mão.
+// HAND_RANK: as 169 mãos iniciais da mais forte para a mais fraca (equity contra uma mão qualquer).
+// PUSH_MAX[k][mão] = maior stack (em BB) em que vale ir all-in com k jogadores ainda por agir.
+// CALL_MAX[k][mão] = maior stack (em BB) em que vale pagar o all-in de quem empurrou com k jogadores por agir.
+const HAND_RANK = ["AA","KK","QQ","JJ","TT","99","88","AKs","77","AQs","AKo","AJs","ATs","AQo","66","AJo","KQs","KJs","ATo","A9s","KTs","KQo","A8s","55","A7s","KJo","A9o","QJs","K9s","KTo","A5s","A8o","QTs","A6s","A4s","A7o","QJo","K8s","A3s","K9o","44","Q9s","JTs","A5o","A6o","QTo","K7s","A2s","K6s","A4o","Q8s","K8o","K5s","J9s","Q9o","JTo","A3o","K7o","A2o","33","K4s","J8s","T9s","Q7s","K6o","K3s","Q8o","J9o","Q6s","K2s","K5o","Q5s","J7s","T8s","K4o","Q7o","Q4s","J8o","T9o","22","K3o","98s","Q6o","T7s","Q3s","J6s","K2o","Q5o","Q2s","J5s","J7o","T8o","97s","J4s","T6s","Q4o","98o","J3s","Q3o","87s","T7o","J6o","96s","J2s","T5s","Q2o","J5o","T4s","97o","86s","T6o","J4o","T3s","95s","76s","87o","J3o","T2s","J2o","85s","96o","T5o","94s","T4o","75s","93s","86o","65s","84s","T3o","92s","95o","76o","T2o","74s","64s","85o","54s","83s","94o","75o","82s","93o","73s","65o","63s","84o","53s","92o","43s","74o","72s","54o","62s","52s","64o","83o","82o","42s","73o","63o","53o","32s","43o","72o","52o","62o","42o","32o"];
+const PUSH_MAX = {"1":{"22":20,"33":20,"44":20,"55":20,"66":20,"77":20,"88":20,"99":20,"AA":20,"AKs":20,"AQs":20,"AJs":20,"ATs":20,"A9s":20,"A8s":20,"A7s":20,"A6s":20,"A5s":20,"A4s":20,"A3s":20,"A2s":20,"AKo":20,"KK":20,"KQs":20,"KJs":20,"KTs":20,"K9s":20,"K8s":20,"K7s":20,"K6s":20,"K5s":20,"K4s":20,"K3s":20,"K2s":18,"AQo":20,"KQo":20,"QQ":20,"QJs":20,"QTs":20,"Q9s":20,"Q8s":20,"Q7s":20,"Q6s":20,"Q5s":20,"Q4s":19,"Q3s":13,"Q2s":11,"AJo":20,"KJo":20,"QJo":20,"JJ":20,"JTs":20,"J9s":20,"J8s":20,"J7s":20,"J6s":18,"J5s":16,"J4s":13,"J3s":10,"J2s":8,"ATo":20,"KTo":20,"QTo":20,"JTo":20,"TT":20,"T9s":20,"T8s":20,"T7s":20,"T6s":20,"T5s":13,"T4s":10,"T3s":7,"T2s":6,"A9o":20,"K9o":20,"Q9o":20,"J9o":20,"T9o":20,"98s":20,"97s":20,"96s":20,"95s":15,"94s":7,"93s":5,"92s":3,"A8o":20,"K8o":16,"Q8o":12,"J8o":11,"T8o":15,"98o":20,"87s":20,"86s":20,"85s":20,"84s":13,"83s":2,"82s":2,"A7o":20,"K7o":15,"Q7o":9,"J7o":8,"T7o":7,"97o":14,"87o":18,"76s":20,"75s":20,"74s":18,"73s":10,"72s":2,"A6o":20,"K6o":14,"Q6o":9,"J6o":6,"T6o":5,"96o":4,"86o":7,"76o":15,"65s":20,"64s":20,"63s":10,"62s":2,"A5o":20,"K5o":12,"Q5o":8,"J5o":5,"T5o":4,"95o":3,"85o":2,"75o":2,"65o":9,"54s":20,"53s":13,"52s":7,"A4o":20,"K4o":12,"Q4o":7,"J4o":5,"T4o":3,"94o":2,"84o":2,"74o":2,"64o":2,"54o":2,"43s":11,"42s":1,"A3o":20,"K3o":11,"Q3o":7,"J3o":5,"T3o":3,"93o":2,"83o":2,"73o":1,"63o":1,"53o":1,"43o":1,"32s":1,"A2o":20,"K2o":10,"Q2o":6,"J2o":4,"T2o":3,"92o":2,"82o":1,"72o":1,"62o":1,"52o":1,"42o":1,"32o":1},"2":{"22":19,"33":20,"44":20,"55":20,"66":20,"77":20,"88":20,"99":20,"AA":20,"AKs":20,"AQs":20,"AJs":20,"ATs":20,"A9s":20,"A8s":20,"A7s":20,"A6s":19,"A5s":18,"A4s":17,"A3s":16,"A2s":15,"AKo":20,"KK":20,"KQs":20,"KJs":20,"KTs":17,"K9s":12,"K8s":11,"K7s":10,"K6s":9,"K5s":8,"K4s":7,"K3s":7,"K2s":6,"AQo":20,"KQo":20,"QQ":20,"QJs":16,"QTs":12,"Q9s":9,"Q8s":7,"Q7s":6,"Q6s":5,"Q5s":5,"Q4s":5,"Q3s":4,"Q2s":4,"AJo":20,"KJo":17,"QJo":12,"JJ":20,"JTs":10,"J9s":7,"J8s":6,"J7s":5,"J6s":4,"J5s":4,"J4s":3,"J3s":3,"J2s":3,"ATo":20,"KTo":13,"QTo":9,"JTo":7,"TT":20,"T9s":6,"T8s":5,"T7s":4,"T6s":3,"T5s":3,"T4s":3,"T3s":3,"T2s":3,"A9o":20,"K9o":11,"Q9o":7,"J9o":5,"T9o":4,"98s":4,"97s":3,"96s":3,"95s":3,"94s":2,"93s":2,"92s":2,"A8o":20,"K8o":9,"Q8o":6,"J8o":4,"T8o":3,"98o":3,"87s":3,"86s":3,"85s":2,"84s":2,"83s":2,"82s":2,"A7o":17,"K7o":8,"Q7o":5,"J7o":4,"T7o":3,"97o":3,"87o":3,"76s":3,"75s":2,"74s":2,"73s":2,"72s":1,"A6o":14,"K6o":7,"Q6o":4,"J6o":3,"T6o":3,"96o":2,"86o":2,"76o":2,"65s":2,"64s":2,"63s":1,"62s":1,"A5o":14,"K5o":6,"Q5o":4,"J5o":3,"T5o":2,"95o":2,"85o":2,"75o":2,"65o":1,"54s":2,"53s":1,"52s":1,"A4o":12,"K4o":6,"Q4o":4,"J4o":3,"T4o":2,"94o":2,"84o":1,"74o":1,"64o":1,"54o":1,"43s":1,"42s":1,"A3o":11,"K3o":5,"Q3o":3,"J3o":3,"T3o":2,"93o":2,"83o":1,"73o":1,"63o":1,"53o":1,"43o":1,"32s":1,"A2o":11,"K2o":5,"Q2o":3,"J2o":2,"T2o":2,"92o":1,"82o":1,"72o":1,"62o":1,"52o":1,"42o":1},"3":{"22":13,"33":16,"44":20,"55":20,"66":20,"77":20,"88":20,"99":20,"AA":20,"AKs":20,"AQs":20,"AJs":20,"ATs":20,"A9s":20,"A8s":20,"A7s":19,"A6s":15,"A5s":14,"A4s":13,"A3s":12,"A2s":12,"AKo":20,"KK":20,"KQs":20,"KJs":19,"KTs":14,"K9s":11,"K8s":9,"K7s":8,"K6s":7,"K5s":7,"K4s":6,"K3s":6,"K2s":5,"AQo":20,"KQo":18,"QQ":20,"QJs":12,"QTs":10,"Q9s":8,"Q8s":6,"Q7s":5,"Q6s":5,"Q5s":4,"Q4s":4,"Q3s":4,"Q2s":4,"AJo":20,"KJo":13,"QJo":9,"JJ":20,"JTs":8,"J9s":6,"J8s":5,"J7s":4,"J6s":4,"J5s":3,"J4s":3,"J3s":3,"J2s":3,"ATo":20,"KTo":12,"QTo":8,"JTo":6,"TT":20,"T9s":5,"T8s":4,"T7s":4,"T6s":3,"T5s":3,"T4s":3,"T3s":3,"T2s":2,"A9o":20,"K9o":10,"Q9o":6,"J9o":5,"T9o":4,"98s":4,"97s":3,"96s":3,"95s":3,"94s":2,"93s":2,"92s":2,"A8o":17,"K8o":7,"Q8o":5,"J8o":4,"T8o":3,"98o":3,"87s":3,"86s":3,"85s":2,"84s":2,"83s":2,"82s":2,"A7o":14,"K7o":6,"Q7o":4,"J7o":3,"T7o":3,"97o":3,"87o":3,"76s":3,"75s":2,"74s":2,"73s":2,"72s":1,"A6o":12,"K6o":6,"Q6o":4,"J6o":3,"T6o":3,"96o":2,"86o":2,"76o":2,"65s":2,"64s":2,"63s":1,"62s":1,"A5o":11,"K5o":5,"Q5o":3,"J5o":3,"T5o":2,"95o":2,"85o":2,"75o":2,"65o":1,"54s":2,"53s":1,"52s":1,"A4o":10,"K4o":5,"Q4o":3,"J4o":3,"T4o":2,"94o":2,"84o":1,"74o":1,"64o":1,"54o":1,"43s":1,"42s":1,"A3o":9,"K3o":4,"Q3o":3,"J3o":3,"T3o":2,"93o":2,"83o":1,"73o":1,"63o":1,"53o":1,"43o":1,"32s":1,"A2o":9,"K2o":4,"Q2o":3,"J2o":2,"T2o":2,"92o":1,"82o":1,"72o":1,"62o":1,"52o":1,"42o":1},"4":{"22":9,"33":14,"44":19,"55":20,"66":20,"77":20,"88":20,"99":20,"AA":20,"AKs":20,"AQs":20,"AJs":20,"ATs":20,"A9s":20,"A8s":19,"A7s":16,"A6s":14,"A5s":13,"A4s":12,"A3s":12,"A2s":11,"AKo":20,"KK":20,"KQs":20,"KJs":17,"KTs":13,"K9s":11,"K8s":9,"K7s":8,"K6s":7,"K5s":6,"K4s":6,"K3s":5,"K2s":5,"AQo":20,"KQo":17,"QQ":20,"QJs":10,"QTs":9,"Q9s":7,"Q8s":6,"Q7s":5,"Q6s":5,"Q5s":4,"Q4s":4,"Q3s":4,"Q2s":4,"AJo":20,"KJo":12,"QJo":8,"JJ":20,"JTs":7,"J9s":5,"J8s":5,"J7s":4,"J6s":3,"J5s":3,"J4s":3,"J3s":3,"J2s":3,"ATo":20,"KTo":11,"QTo":7,"JTo":5,"TT":20,"T9s":5,"T8s":4,"T7s":3,"T6s":3,"T5s":3,"T4s":3,"T3s":3,"T2s":2,"A9o":19,"K9o":9,"Q9o":6,"J9o":5,"T9o":4,"98s":4,"97s":3,"96s":3,"95s":3,"94s":2,"93s":2,"92s":2,"A8o":15,"K8o":7,"Q8o":5,"J8o":4,"T8o":3,"98o":3,"87s":3,"86s":3,"85s":2,"84s":2,"83s":2,"82s":2,"A7o":13,"K7o":6,"Q7o":4,"J7o":3,"T7o":3,"97o":3,"87o":3,"76s":3,"75s":2,"74s":2,"73s":2,"72s":1,"A6o":11,"K6o":5,"Q6o":4,"J6o":3,"T6o":3,"96o":2,"86o":2,"76o":2,"65s":2,"64s":2,"63s":1,"62s":1,"A5o":10,"K5o":5,"Q5o":3,"J5o":3,"T5o":2,"95o":2,"85o":2,"75o":2,"65o":1,"54s":2,"53s":1,"52s":1,"A4o":9,"K4o":5,"Q4o":3,"J4o":3,"T4o":2,"94o":2,"84o":1,"74o":1,"64o":1,"54o":1,"43s":1,"42s":1,"A3o":8,"K3o":4,"Q3o":3,"J3o":3,"T3o":2,"93o":2,"83o":1,"73o":1,"63o":1,"53o":1,"43o":1,"32s":1,"A2o":8,"K2o":4,"Q2o":3,"J2o":2,"T2o":2,"92o":1,"82o":1,"72o":1,"62o":1,"52o":1,"42o":1},"5":{"22":8,"33":14,"44":16,"55":20,"66":20,"77":20,"88":20,"99":20,"AA":20,"AKs":20,"AQs":20,"AJs":20,"ATs":20,"A9s":20,"A8s":19,"A7s":16,"A6s":13,"A5s":12,"A4s":11,"A3s":11,"A2s":10,"AKo":20,"KK":20,"KQs":20,"KJs":16,"KTs":12,"K9s":10,"K8s":8,"K7s":7,"K6s":7,"K5s":6,"K4s":6,"K3s":5,"K2s":5,"AQo":20,"KQo":16,"QQ":20,"QJs":10,"QTs":8,"Q9s":7,"Q8s":6,"Q7s":5,"Q6s":5,"Q5s":4,"Q4s":4,"Q3s":4,"Q2s":4,"AJo":20,"KJo":12,"QJo":8,"JJ":20,"JTs":7,"J9s":5,"J8s":5,"J7s":4,"J6s":3,"J5s":3,"J4s":3,"J3s":3,"J2s":3,"ATo":20,"KTo":11,"QTo":7,"JTo":5,"TT":20,"T9s":5,"T8s":4,"T7s":3,"T6s":3,"T5s":3,"T4s":3,"T3s":3,"T2s":2,"A9o":18,"K9o":9,"Q9o":6,"J9o":4,"T9o":4,"98s":4,"97s":3,"96s":3,"95s":3,"94s":2,"93s":2,"92s":2,"A8o":14,"K8o":7,"Q8o":5,"J8o":4,"T8o":3,"98o":3,"87s":3,"86s":3,"85s":2,"84s":2,"83s":2,"82s":2,"A7o":12,"K7o":6,"Q7o":4,"J7o":3,"T7o":3,"97o":3,"87o":3,"76s":3,"75s":2,"74s":2,"73s":2,"72s":1,"A6o":10,"K6o":5,"Q6o":4,"J6o":3,"T6o":3,"96o":2,"86o":2,"76o":2,"65s":2,"64s":2,"63s":1,"62s":1,"A5o":9,"K5o":5,"Q5o":3,"J5o":3,"T5o":2,"95o":2,"85o":2,"75o":2,"65o":1,"54s":2,"53s":1,"52s":1,"A4o":9,"K4o":4,"Q4o":3,"J4o":3,"T4o":2,"94o":2,"84o":1,"74o":1,"64o":1,"54o":1,"43s":1,"42s":1,"A3o":8,"K3o":4,"Q3o":3,"J3o":3,"T3o":2,"93o":2,"83o":1,"73o":1,"63o":1,"53o":1,"43o":1,"32s":1,"A2o":8,"K2o":4,"Q2o":3,"J2o":2,"T2o":2,"92o":1,"82o":1,"72o":1,"62o":1,"52o":1,"42o":1}};
+const CALL_MAX = {"1":{"22":15,"33":20,"44":20,"55":20,"66":20,"77":20,"88":20,"99":20,"AA":20,"AKs":20,"AQs":20,"AJs":20,"ATs":20,"A9s":20,"A8s":20,"A7s":20,"A6s":20,"A5s":20,"A4s":20,"A3s":20,"A2s":20,"AKo":20,"KK":20,"KQs":20,"KJs":20,"KTs":20,"K9s":20,"K8s":17,"K7s":15,"K6s":14,"K5s":12,"K4s":11,"K3s":11,"K2s":10,"AQo":20,"KQo":20,"QQ":20,"QJs":20,"QTs":20,"Q9s":16,"Q8s":12,"Q7s":10,"Q6s":9,"Q5s":8,"Q4s":8,"Q3s":7,"Q2s":6,"AJo":20,"KJo":20,"QJo":20,"JJ":20,"JTs":18,"J9s":12,"J8s":10,"J7s":8,"J6s":7,"J5s":6,"J4s":6,"J3s":5,"J2s":5,"ATo":20,"KTo":20,"QTo":16,"JTo":12,"TT":20,"T9s":11,"T8s":9,"T7s":7,"T6s":6,"T5s":5,"T4s":5,"T3s":4,"T2s":4,"A9o":20,"K9o":17,"Q9o":12,"J9o":10,"T9o":8,"98s":9,"97s":6,"96s":6,"95s":4,"94s":4,"93s":4,"92s":3,"A8o":20,"K8o":13,"Q8o":10,"J8o":7,"T8o":6,"98o":6,"87s":6,"86s":5,"85s":4,"84s":4,"83s":3,"82s":3,"A7o":20,"K7o":12,"Q7o":8,"J7o":6,"T7o":5,"97o":5,"87o":4,"76s":5,"75s":4,"74s":4,"73s":3,"72s":3,"A6o":20,"K6o":11,"Q6o":7,"J6o":5,"T6o":4,"96o":4,"86o":4,"76o":3,"65s":4,"64s":4,"63s":3,"62s":3,"A5o":19,"K5o":9,"Q5o":6,"J5o":5,"T5o":3,"95o":3,"85o":3,"75o":3,"65o":3,"54s":4,"53s":3,"52s":3,"A4o":16,"K4o":9,"Q4o":6,"J4o":4,"T4o":3,"94o":3,"84o":3,"74o":3,"64o":3,"54o":3,"43s":3,"42s":3,"A3o":14,"K3o":8,"Q3o":5,"J3o":4,"T3o":3,"93o":3,"83o":2,"73o":2,"63o":2,"53o":3,"43o":3,"32s":3,"A2o":14,"K2o":7,"Q2o":5,"J2o":4,"T2o":3,"92o":3,"82o":2,"72o":2,"62o":2,"52o":2,"42o":2,"32o":2},"2":{"22":11,"33":12,"44":15,"55":19,"66":20,"77":20,"88":20,"99":20,"AA":20,"AKs":20,"AQs":20,"AJs":20,"ATs":19,"A9s":16,"A8s":14,"A7s":12,"A6s":11,"A5s":11,"A4s":10,"A3s":10,"A2s":9,"AKo":20,"KK":20,"KQs":13,"KJs":12,"KTs":10,"K9s":8,"K8s":7,"K7s":7,"K6s":6,"K5s":6,"K4s":6,"K3s":6,"K2s":5,"AQo":20,"KQo":12,"QQ":20,"QJs":9,"QTs":7,"Q9s":6,"Q8s":5,"Q7s":5,"Q6s":5,"Q5s":5,"Q4s":4,"Q3s":4,"Q2s":4,"AJo":20,"KJo":10,"QJo":7,"JJ":20,"JTs":7,"J9s":6,"J8s":5,"J7s":4,"J6s":4,"J5s":4,"J4s":4,"J3s":4,"J2s":4,"ATo":17,"KTo":9,"QTo":6,"JTo":6,"TT":20,"T9s":6,"T8s":5,"T7s":5,"T6s":4,"T5s":4,"T4s":4,"T3s":4,"T2s":3,"A9o":14,"K9o":7,"Q9o":5,"J9o":5,"T9o":4,"98s":6,"97s":5,"96s":5,"95s":4,"94s":3,"93s":3,"92s":3,"A8o":12,"K8o":6,"Q8o":5,"J8o":4,"T8o":4,"98o":4,"87s":5,"86s":5,"85s":4,"84s":4,"83s":3,"82s":3,"A7o":11,"K7o":6,"Q7o":4,"J7o":4,"T7o":3,"97o":4,"87o":4,"76s":5,"75s":4,"74s":4,"73s":4,"72s":3,"A6o":9,"K6o":5,"Q6o":4,"J6o":3,"T6o":3,"96o":3,"86o":4,"76o":4,"65s":5,"64s":4,"63s":4,"62s":3,"A5o":9,"K5o":5,"Q5o":4,"J5o":3,"T5o":3,"95o":3,"85o":3,"75o":3,"65o":4,"54s":4,"53s":4,"52s":3,"A4o":8,"K4o":5,"Q4o":4,"J4o":3,"T4o":3,"94o":3,"84o":3,"74o":3,"64o":3,"54o":3,"43s":4,"42s":3,"A3o":7,"K3o":5,"Q3o":4,"J3o":3,"T3o":3,"93o":3,"83o":3,"73o":3,"63o":3,"53o":3,"43o":3,"32s":3,"A2o":7,"K2o":5,"Q2o":4,"J2o":3,"T2o":3,"92o":3,"82o":3,"72o":2,"62o":3,"52o":3,"42o":3,"32o":2},"3":{"22":9,"33":11,"44":13,"55":14,"66":17,"77":20,"88":20,"99":20,"AA":20,"AKs":20,"AQs":20,"AJs":20,"ATs":17,"A9s":13,"A8s":12,"A7s":11,"A6s":9,"A5s":9,"A4s":9,"A3s":9,"A2s":8,"AKo":20,"KK":20,"KQs":12,"KJs":10,"KTs":9,"K9s":7,"K8s":6,"K7s":6,"K6s":6,"K5s":6,"K4s":5,"K3s":5,"K2s":5,"AQo":20,"KQo":10,"QQ":20,"QJs":8,"QTs":7,"Q9s":6,"Q8s":5,"Q7s":5,"Q6s":5,"Q5s":4,"Q4s":4,"Q3s":4,"Q2s":4,"AJo":18,"KJo":9,"QJo":6,"JJ":20,"JTs":6,"J9s":5,"J8s":5,"J7s":4,"J6s":4,"J5s":4,"J4s":4,"J3s":4,"J2s":4,"ATo":14,"KTo":7,"QTo":6,"JTo":5,"TT":20,"T9s":6,"T8s":5,"T7s":5,"T6s":4,"T5s":4,"T4s":4,"T3s":3,"T2s":3,"A9o":12,"K9o":6,"Q9o":5,"J9o":4,"T9o":4,"98s":6,"97s":5,"96s":4,"95s":4,"94s":3,"93s":3,"92s":3,"A8o":10,"K8o":6,"Q8o":4,"J8o":4,"T8o":4,"98o":4,"87s":5,"86s":5,"85s":4,"84s":4,"83s":3,"82s":3,"A7o":9,"K7o":5,"Q7o":4,"J7o":4,"T7o":3,"97o":4,"87o":4,"76s":5,"75s":4,"74s":4,"73s":4,"72s":3,"A6o":8,"K6o":5,"Q6o":4,"J6o":3,"T6o":3,"96o":3,"86o":3,"76o":4,"65s":5,"64s":4,"63s":4,"62s":3,"A5o":8,"K5o":5,"Q5o":4,"J5o":3,"T5o":3,"95o":3,"85o":3,"75o":3,"65o":4,"54s":4,"53s":4,"52s":3,"A4o":7,"K4o":4,"Q4o":4,"J4o":3,"T4o":3,"94o":3,"84o":3,"74o":3,"64o":3,"54o":3,"43s":4,"42s":3,"A3o":7,"K3o":4,"Q3o":3,"J3o":3,"T3o":3,"93o":3,"83o":3,"73o":3,"63o":3,"53o":3,"43o":3,"32s":3,"A2o":7,"K2o":4,"Q2o":3,"J2o":3,"T2o":3,"92o":3,"82o":3,"72o":2,"62o":3,"52o":3,"42o":3,"32o":2},"4":{"22":9,"33":10,"44":12,"55":14,"66":16,"77":19,"88":20,"99":20,"AA":20,"AKs":20,"AQs":20,"AJs":19,"ATs":15,"A9s":12,"A8s":11,"A7s":10,"A6s":9,"A5s":9,"A4s":8,"A3s":8,"A2s":8,"AKo":20,"KK":20,"KQs":11,"KJs":10,"KTs":8,"K9s":7,"K8s":6,"K7s":6,"K6s":6,"K5s":5,"K4s":5,"K3s":5,"K2s":5,"AQo":20,"KQo":9,"QQ":20,"QJs":7,"QTs":7,"Q9s":5,"Q8s":5,"Q7s":5,"Q6s":5,"Q5s":4,"Q4s":4,"Q3s":4,"Q2s":4,"AJo":17,"KJo":8,"QJo":6,"JJ":20,"JTs":6,"J9s":5,"J8s":5,"J7s":4,"J6s":4,"J5s":4,"J4s":4,"J3s":4,"J2s":4,"ATo":13,"KTo":7,"QTo":6,"JTo":5,"TT":20,"T9s":6,"T8s":5,"T7s":5,"T6s":4,"T5s":4,"T4s":4,"T3s":3,"T2s":3,"A9o":11,"K9o":6,"Q9o":5,"J9o":4,"T9o":4,"98s":5,"97s":5,"96s":4,"95s":4,"94s":3,"93s":3,"92s":3,"A8o":9,"K8o":5,"Q8o":4,"J8o":4,"T8o":4,"98o":4,"87s":5,"86s":5,"85s":4,"84s":4,"83s":3,"82s":3,"A7o":9,"K7o":5,"Q7o":4,"J7o":4,"T7o":3,"97o":4,"87o":4,"76s":5,"75s":4,"74s":4,"73s":4,"72s":3,"A6o":8,"K6o":5,"Q6o":4,"J6o":3,"T6o":3,"96o":3,"86o":3,"76o":4,"65s":5,"64s":4,"63s":4,"62s":3,"A5o":7,"K5o":5,"Q5o":4,"J5o":3,"T5o":3,"95o":3,"85o":3,"75o":3,"65o":4,"54s":4,"53s":4,"52s":3,"A4o":7,"K4o":4,"Q4o":4,"J4o":3,"T4o":3,"94o":3,"84o":3,"74o":3,"64o":3,"54o":3,"43s":4,"42s":3,"A3o":7,"K3o":4,"Q3o":3,"J3o":3,"T3o":3,"93o":3,"83o":3,"73o":3,"63o":3,"53o":3,"43o":3,"32s":3,"A2o":6,"K2o":4,"Q2o":3,"J2o":3,"T2o":3,"92o":3,"82o":3,"72o":2,"62o":3,"52o":3,"42o":3,"32o":2},"5":{"22":9,"33":10,"44":11,"55":14,"66":16,"77":16,"88":20,"99":20,"AA":20,"AKs":20,"AQs":20,"AJs":18,"ATs":14,"A9s":12,"A8s":10,"A7s":10,"A6s":9,"A5s":8,"A4s":8,"A3s":8,"A2s":8,"AKo":20,"KK":20,"KQs":11,"KJs":9,"KTs":8,"K9s":7,"K8s":6,"K7s":6,"K6s":6,"K5s":5,"K4s":5,"K3s":5,"K2s":5,"AQo":20,"KQo":9,"QQ":20,"QJs":7,"QTs":7,"Q9s":5,"Q8s":5,"Q7s":4,"Q6s":4,"Q5s":4,"Q4s":4,"Q3s":4,"Q2s":4,"AJo":16,"KJo":8,"QJo":6,"JJ":20,"JTs":6,"J9s":5,"J8s":5,"J7s":4,"J6s":4,"J5s":4,"J4s":4,"J3s":4,"J2s":4,"ATo":12,"KTo":7,"QTo":6,"JTo":5,"TT":20,"T9s":6,"T8s":5,"T7s":5,"T6s":4,"T5s":4,"T4s":4,"T3s":3,"T2s":3,"A9o":10,"K9o":6,"Q9o":5,"J9o":4,"T9o":4,"98s":5,"97s":5,"96s":4,"95s":4,"94s":3,"93s":3,"92s":3,"A8o":9,"K8o":5,"Q8o":4,"J8o":4,"T8o":4,"98o":4,"87s":5,"86s":5,"85s":4,"84s":4,"83s":3,"82s":3,"A7o":8,"K7o":5,"Q7o":4,"J7o":4,"T7o":3,"97o":4,"87o":4,"76s":5,"75s":4,"74s":4,"73s":4,"72s":3,"A6o":8,"K6o":5,"Q6o":4,"J6o":3,"T6o":3,"96o":3,"86o":3,"76o":4,"65s":4,"64s":4,"63s":4,"62s":3,"A5o":7,"K5o":4,"Q5o":4,"J5o":3,"T5o":3,"95o":3,"85o":3,"75o":3,"65o":4,"54s":4,"53s":4,"52s":3,"A4o":7,"K4o":4,"Q4o":4,"J4o":3,"T4o":3,"94o":3,"84o":3,"74o":3,"64o":3,"54o":3,"43s":4,"42s":3,"A3o":7,"K3o":4,"Q3o":3,"J3o":3,"T3o":3,"93o":3,"83o":3,"73o":3,"63o":3,"53o":3,"43o":3,"32s":3,"A2o":6,"K2o":4,"Q2o":3,"J2o":3,"T2o":3,"92o":3,"82o":3,"72o":2,"62o":3,"52o":3,"42o":3,"32o":2}};
+
+// ===== Motor de Texas Hold'em No-Limit =====
 // Cartas: inteiros 0..51. rank = c>>2 (0 = 2 ... 12 = A), naipe = c&3 (0 ♠, 1 ♥, 2 ♦, 3 ♣)
 const RANK_CH = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 const SUIT_CH = ['♠','♥','♦','♣'];
@@ -628,7 +641,7 @@ class Game {
     this.handNo++;
     this.button = this.next(this.button);
     this.board = []; this.street = 'preflop'; this.handOver = false; this.result = null;
-    this.currentBet = 0; this.minRaise = this.bb; this.raises = 0; this.pfAgg = -1;
+    this.currentBet = 0; this.minRaise = this.bb; this.raises = 0; this.pfAgg = -1; this.pfOpener = -1;
     this.deck = shuffle([...Array(52).keys()], this.rng);
     for (const p of this.players) Object.assign(p, { hole: [], bet: 0, committed: 0, folded: p.out, allIn: false, hasActed: false, actedSinceFull: false, minChen: 0, reads: [], lastAction: p.out ? 'Fora' : '', startStack: p.stack });
     this.snaps = [];
@@ -694,6 +707,7 @@ class Game {
         // all-in de stack curto não indica mão premium: a faixa de quem empurra 8 BB é larga
         const shortShove = p.allIn && to <= 12 * this.bb;
         p.minChen = Math.max(p.minChen, shortShove ? (this.raises === 0 ? 4 : 7) : this.raises === 0 ? 7 : this.raises === 1 ? 10 : 12);
+        if (this.raises === 0) this.pfOpener = seat;
         this.pfAgg = seat;
       }
       this.raises++;
@@ -821,11 +835,11 @@ function equityKnown(hands, board, iters = 3000, rng = Math.random) {
 
 // ---------- Bots ----------
 const PROFILES = {
-  tag:     { label: 'Sólida',      open: 7,  call: 8,  rr: 12, limp: 99, aggr: 0.7,  bluff: 0.08, margin: 0.03,  bet: 0.62, raise: 0.78, size: 0.66, noise: 1 },
-  lag:     { label: 'Agressivo',   open: 6,  call: 7,  rr: 10, limp: 99, aggr: 0.85, bluff: 0.22, margin: 0.0,   bet: 0.55, raise: 0.68, size: 0.8,  noise: 2 },
-  station: { label: 'Paga tudo',   open: 11, call: 4,  rr: 14, limp: 4,  aggr: 0.25, bluff: 0.03, margin: -0.12, bet: 0.72, raise: 0.88, size: 0.5,  noise: 1.5 },
-  nit:     { label: 'Cautelosa',   open: 9,  call: 10, rr: 14, limp: 99, aggr: 0.6,  bluff: 0.02, margin: 0.08,  bet: 0.7,  raise: 0.84, size: 0.6,  noise: 0.5 },
-  bal:     { label: 'Equilibrado', open: 7,  call: 8,  rr: 11, limp: 99, aggr: 0.65, bluff: 0.12, margin: 0.02,  bet: 0.6,  raise: 0.75, size: 0.65, noise: 1.5 },
+  tag:     { label: 'Sólida',      open: 7,  call: 8,  rr: 12, limp: 99, aggr: 0.7,  bluff: 0.08, margin: 0.03,  bet: 0.62, raise: 0.78, size: 0.66, noise: 1,   dev: { open: 0, call: 0, raise: 0, push: 0 } },
+  lag:     { label: 'Agressivo',   open: 6,  call: 7,  rr: 10, limp: 99, aggr: 0.85, bluff: 0.22, margin: 0.0,   bet: 0.55, raise: 0.68, size: 0.8,  noise: 2,   dev: { open: 0.10, call: 0.03, raise: 0.06, push: 2 } },
+  station: { label: 'Paga tudo',   open: 11, call: 4,  rr: 14, limp: 4,  aggr: 0.25, bluff: 0.03, margin: -0.12, bet: 0.72, raise: 0.88, size: 0.5,  noise: 1.5, dev: { open: -0.03, call: 0.25, raise: -0.04, push: -1, callPush: 4 } },
+  nit:     { label: 'Cautelosa',   open: 9,  call: 10, rr: 14, limp: 99, aggr: 0.6,  bluff: 0.02, margin: 0.08,  bet: 0.7,  raise: 0.84, size: 0.6,  noise: 0.5, dev: { open: -0.06, call: -0.08, raise: -0.02, push: -2 } },
+  bal:     { label: 'Equilibrado', open: 7,  call: 8,  rr: 11, limp: 99, aggr: 0.65, bluff: 0.12, margin: 0.02,  bet: 0.6,  raise: 0.75, size: 0.65, noise: 1.5, dev: { open: 0.02, call: 0.03, raise: 0, push: 0 } },
 };
 const POS_BONUS = { UTG: -1, MP: -0.5, CO: 0.5, BTN: 1.5, SB: 0, BB: 0.5 };
 
@@ -872,29 +886,36 @@ function botDecide(g, seat, rng = Math.random) {
   const passive = () => L.canCheck ? { type: 'check' } : { type: 'fold' };
   const shove = () => L.canRaise ? { type: 'raise', to: L.maxTo } : L.toCall > 0 ? { type: 'call' } : { type: 'check' };
   if (g.street === 'preflop') {
-    const raw = chen(p.hole[0], p.hole[1]) + (rng() - 0.5) * pr.noise * sk.noise;
-    const depth = effBB(g, seat);
+    const cls = classOf(p.hole[0], p.hole[1]), dv = pr.dev || {}, depth = effBB(g, seat);
+    // erro de iniciante: às vezes paga ou desiste no automático
+    if (rng() < sk.mistake) return L.toCall > 0 ? (rng() < 0.6 ? { type: 'call' } : passive()) : { type: 'check' };
     if (depth <= PUSH_DEPTH) {
-      if (g.raises === 0) return raw >= pushThreshold(depth, pos, nAct) + (pr.open - 7) * 0.5 ? shove() : passive();
-      return raw >= callShoveThreshold(depth, nAct) + (pr.call - 8) * 0.4 ? shove() : passive();
+      const noise = (rng() - 0.5) * 2 * sk.noise;
+      if (g.raises === 0) { const r = pushFoldAdvice(cls, depth, behindOf(g, seat)); return r.max + (dv.push || 0) + noise >= depth ? shove() : passive(); }
+      const r = pushFoldAdvice(cls, depth, 0, g.pfAgg >= 0 ? behindOf(g, g.pfAgg) : 1);
+      return r.max + (dv.callPush || dv.push || 0) + noise >= depth ? shove() : passive();
     }
-    const widen = nAct === 2 ? 2.5 : nAct <= 4 ? 1 : 0;
-    const s = raw + (POS_BONUS[pos] || 0) + widen;
-    if (g.raises === 0) {
+    const { sc, f } = rangeDecision(g, seat);
+    // cada estilo se afasta da tabela: o agressivo abre mais, o "paga tudo" paga mais, a cautelosa aperta
+    const hp = HAND_POS[cls] + (rng() - 0.5) * 0.04 * sk.noise;
+    const shift = (base, set, d) => {
+      if (!d) return base;
+      const size = rangePct(set);
+      if (d > 0 && !base && hp < size + d) return 0.8;
+      if (d < 0 && base && hp > size + d) return base * 0.2;
+      return base;
+    };
+    const fr = shift(f.raise, sc.raise, g.raises === 0 ? dv.open : dv.raise);
+    const fc = g.raises === 0 ? 0 : shift(f.call, { ...sc.call, ...sc.raise }, dv.call);
+    const x = rng();
+    if (x < fr && L.canRaise) {
       const limpers = g.players.filter(q => q.seat !== seat && !q.folded && q.bet === g.bb && g.posOf(q.seat) !== 'BB').length;
-      const open = nAct === 2 ? 2.5 : 3 + limpers;
-      if (s >= pr.open && L.canRaise) return sizeRaise(g, p, L, g.bb * open);
-      if (L.canCheck) return { type: 'check' };
-      if (s >= pr.limp) return { type: 'call' };
-      if (['BTN', 'CO', 'SB'].includes(pos) && limpers === 0 && rng() < pr.bluff * sk.bluff * 0.6 && L.canRaise) return sizeRaise(g, p, L, g.bb * open);
-      return { type: 'fold' };
+      const to = g.raises === 0 ? g.bb * (nAct === 2 ? 2.5 : 3 + limpers) : g.currentBet * (g.raises >= 2 ? 2.3 : 3);
+      return sizeRaise(g, p, L, to);
     }
-    const cost = L.toCall / Math.max(1, p.stack + p.bet);
-    const needR = pr.rr + (g.raises >= 2 ? 2 : 0);
-    const needC = pr.call + (g.raises >= 2 ? 2.5 : 0) + (cost > 0.25 ? 2 : 0) - (pos === 'BB' ? 1 : 0);
-    if (s >= needR && L.canRaise) return sizeRaise(g, p, L, g.currentBet * (g.raises >= 2 ? 2.3 : 3));
-    if (s >= needC) return { type: 'call' };
-    if (g.raises === 1 && rng() < pr.bluff * sk.bluff * 0.3 && L.canRaise) return sizeRaise(g, p, L, g.currentBet * 3);
+    if (x < fr + fc || (x < fr && !L.canRaise)) return L.toCall ? { type: 'call' } : { type: 'check' };
+    // o "paga tudo" completa o blind em vez de desistir
+    if (g.raises === 0 && !L.canCheck && pr.limp < 99 && HAND_POS[cls] < 0.6) return { type: 'call' };
     return passive();
   }
   // Iniciante às vezes joga no automático: paga ou passa sem pensar
@@ -946,39 +967,58 @@ function preflopRule(s, pos, raises, canCheck, nAct = 6) {
   }
   return { rec, t, rr };
 }
+// Quantos jogadores agem depois de uma posição até o big blind (para push/fold)
+const ORDER_PRE = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
+function behindOf(g, seat) {
+  const order = ORDER_PRE.filter(x => g.players.some(q => !q.out && g.posOf(q.seat) === x));
+  const i = order.indexOf(g.posOf(seat));
+  return Math.max(1, order.length - 1 - i);
+}
+// Decisão pré-flop pelas tabelas de faixas: devolve as frequências de cada ação e a explicação
+function rangeDecision(g, seat) {
+  const p = g.players[seat], pos = g.posOf(seat), L = g.legal(seat), nAct = g.activeCount();
+  const cls = classOf(p.hole[0], p.hole[1]);
+  const opener = g.pfOpener >= 0 ? g.posOf(g.pfOpener) : null;
+  const sc = rangeScenario(pos, nAct, g.raises, opener, g.pfOpener === seat, L.canCheck);
+  const f = rangeFreq(sc, cls), fold = Math.max(0, 1 - f.raise - f.call);
+  return { sc, cls, f, fold };
+}
+const pct0 = x => Math.round(x * 100) + '%';
 function preflopAdvice(g, seat) {
   const p = g.players[seat], pos = g.posOf(seat), L = g.legal(seat), nAct = g.activeCount();
   const s = chen(p.hole[0], p.hole[1]);
-  const combo = comboName(p.hole[0], p.hole[1]);
+  const combo = comboName(p.hole[0], p.hole[1]), cls = classOf(p.hole[0], p.hole[1]);
   const depth = effBB(g, seat);
-  const D = Math.round(depth * 10) / 10;
+  const D = Math.round(depth * 10) / 10, Ds = D.toString().replace('.', ',');
   if (depth <= PUSH_DEPTH) {
-    // Stack curto: all-in ou desistir
-    let t, rec, why;
-    const Ds = D.toString().replace('.', ',');
+    // Stack curto: all-in ou desistir, pelas tabelas geradas
+    let rec, why, r;
     if (g.raises === 0) {
-      t = pushThreshold(depth, pos, nAct);
-      rec = s >= t ? 'raise' : L.canCheck ? 'check' : 'fold';
-      why = `Com ${Ds} BB, a jogada é all-in ou desistir: um aumento normal compromete quase tudo sem tirar ninguém da mão. Nesta posição, vá all-in com força ${t}+. ${combo} tem ${s}.`;
+      const k = behindOf(g, seat);
+      r = pushFoldAdvice(cls, depth, k);
+      rec = r.ok ? 'raise' : L.canCheck ? 'check' : 'fold';
+      why = `Com ${Ds} BB, a jogada é all-in ou desistir. Com ${k} ${k > 1 ? 'jogadores' : 'jogador'} ainda por agir, ${combo} ${r.ok ? 'entra na faixa de all-in' : 'fica de fora'}${r.max ? ` (vale all-in até ${r.max} BB)` : ''}.`;
     } else {
-      t = callShoveThreshold(depth, nAct);
-      rec = s >= t ? (L.canRaise ? 'raise' : 'call') : 'fold';
-      why = `Com ${Ds} BB contra um aumento, só continue all-in com força ${t}+. ${combo} tem ${s}.`;
+      const k = g.pfAgg >= 0 ? behindOf(g, g.pfAgg) : 1;
+      r = pushFoldAdvice(cls, depth, 0, k);
+      rec = r.ok ? (L.canRaise ? 'raise' : 'call') : 'fold';
+      why = `Com ${Ds} BB contra um aumento, continue só com as mãos da faixa de call contra all-in. ${combo} ${r.ok ? 'entra' : 'fica de fora'}${r.max ? ` (vale até ${r.max} BB)` : ''}.`;
     }
-    return { rec, why, s, t, combo, pos, push: true, depth: D };
+    return { rec, why, s, combo, cls, pos, push: true, depth: D, max: r.max, freq: null };
   }
-  const { rec, t, rr } = preflopRule(s, pos, g.raises, L.canCheck, nAct);
-  const hu = nAct === 2 ? ' No heads-up as faixas são bem mais largas: contra um rival só, mãos medianas ganham valor.' : '';
-  let why;
-  if (g.raises === 0) {
-    if (L.canCheck) why = s >= t ? `${combo} (força ${s}) é forte o bastante para aumentar do Big blind.` : `${combo} (força ${s}): passe de graça e veja o flop.`;
-    else why = `No ${POS_LABEL[pos]}, o padrão é abrir com força ${t} ou mais. ${combo} tem força ${s}.${hu}`;
-  } else if (g.raises === 1) {
-    why = s >= rr ? `${combo} (força ${s}) é forte: volte a aumentar (3-bet).` : `Contra um aumento, pague com força ${t}+ nesta posição e re-aumente com ${rr}+. ${combo} tem ${s}.${hu}`;
-  } else {
-    why = `Contra re-aumentos, continue só com mãos muito fortes (${t}+; re-aumente com ${rr}+). ${combo} tem ${s}.`;
-  }
-  return { rec, why, s, t, combo, pos, depth: D };
+  const { sc, f, fold } = rangeDecision(g, seat);
+  const passive = L.canCheck ? 'check' : 'fold';
+  const opts = [['raise', f.raise], ['call', f.call], [passive, fold]];
+  const rec = opts.reduce((a, b) => (b[1] > a[1] ? b : a))[0];
+  const mixed = Math.max(f.raise, f.call, fold) < 1;
+  const verbR = g.raises === 0 ? (L.canCheck ? 'aumentar' : 'abrir') : g.raises === 1 ? '3-bet' : '4-bet';
+  const parts = [];
+  if (f.raise) parts.push(`${verbR} ${f.raise < 1 ? pct0(f.raise) + ' das vezes' : ''}`.trim());
+  if (f.call) parts.push(`pagar ${f.call < 1 ? pct0(f.call) + ' das vezes' : ''}`.trim());
+  const what = parts.length ? parts.join(' ou ') : (L.canCheck ? 'passar' : 'desistir');
+  const size = g.raises === 0 ? `Essa faixa ${L.canCheck ? 'aumenta' : 'abre'} ${pct0(rangePct(sc.raise))} das mãos.` : `Essa faixa ${rangePct(sc.call) ? `paga ${pct0(rangePct(sc.call))} e ` : ''}${verbR === '3-bet' ? 'faz 3-bet' : 'faz 4-bet'} com ${pct0(rangePct(sc.raise))} das mãos.`;
+  const why = `${sc.txt}: com ${combo}, ${what}${mixed && parts.length ? ' (jogada mista)' : ''}. ${size}`;
+  return { rec, why, s, combo, cls, pos, depth: D, freq: { raise: f.raise, call: f.call, fold }, mixed, sc, scTxt: sc.txt };
 }
 
 // O que a ação de cada rival diz sobre a mão dele (texto para o coach)
@@ -1055,12 +1095,30 @@ const ACT_PT = { fold: 'desistir', check: 'passar', call: 'pagar', raise: 'aumen
 function gradePreflop(adv, action, L) {
   const a = action === 'check' && !L.canCheck ? 'call' : action;
   if (a === 'fold' && L.canCheck) return { grade: 'bad', title: 'Desistiu de graça', text: 'Você podia passar sem pagar nada. Desistir nunca é melhor que passar de graça.' };
-  if (a === adv.rec) return { grade: 'good', title: 'Boa decisão', text: adv.why };
-  const r = adv.rec, gap = adv.s - adv.t;
-  if ((r === 'raise' && a === 'call') || (r === 'call' && a === 'raise') || (r === 'check' && a === 'call')) return { grade: 'ok', title: `Aceitável; o ideal era ${ACT_PT[r]}`, text: adv.why };
-  if (r === 'check' && a === 'raise') return { grade: 'ok', title: 'Aumento leve', text: adv.why };
-  if (a === 'fold') return gap >= 2 ? { grade: 'bad', title: `Desistiu de mão boa; o ideal era ${ACT_PT[r]}`, text: adv.why } : { grade: 'ok', title: `Um pouco apertado; dava para ${ACT_PT[r]}`, text: adv.why };
-  return adv.s >= adv.t - 1 ? { grade: 'ok', title: 'Mão no limite', text: adv.why } : { grade: 'bad', title: `Mão fraca demais: o ideal era ${ACT_PT[r]}`, text: adv.why };
+  if (a === adv.rec || (a === 'check' && adv.rec === 'fold')) return { grade: 'good', title: 'Boa decisão', text: adv.why };
+  if (adv.push) {
+    const near = adv.max && Math.abs(adv.max - adv.depth) <= 2;
+    if (near) return { grade: 'ok', title: 'No limite', text: adv.why };
+    return { grade: 'bad', title: `O ideal era ${adv.rec === 'raise' ? 'all-in' : ACT_PT[adv.rec]}`, text: adv.why };
+  }
+  const f = adv.freq, fa = a === 'raise' ? f.raise : a === 'call' ? f.call : f.fold;
+  if (fa >= 0.25) return { grade: 'good', title: 'Jogada mista: também vale', text: adv.why };
+  if (fa > 0) return { grade: 'ok', title: 'Às vezes, mas não o mais comum', text: adv.why };
+  if (a === 'call' && f.raise > 0) return { grade: 'ok', title: 'Pagar em vez de aumentar', text: adv.why };
+  if (a === 'raise' && f.call > 0) return { grade: 'ok', title: 'Aumentou em vez de pagar', text: adv.why };
+  if (a === 'fold') return { grade: f.raise + f.call >= 1 ? 'bad' : 'ok', title: `Desistiu; o ideal era ${ACT_PT[adv.rec]}`, text: adv.why };
+  // jogou uma mão de fora da faixa: perto da borda é aceitável
+  const near = adv.cls && HAND_POS[adv.cls] !== undefined && f.raise + f.call === 0 && edgeNear(adv);
+  return near ? { grade: 'ok', title: 'Fora da faixa, mas perto da borda', text: adv.why } : { grade: 'bad', title: `Fora da faixa: o ideal era ${ACT_PT[adv.rec]}`, text: adv.why };
+}
+// A mão está a até 5% (na ordem de força) da mão mais fraca que a faixa joga?
+function edgeNear(adv) {
+  const sc = adv.sc;
+  if (!sc) return false;
+  const inRange = Object.keys({ ...sc.raise, ...sc.call });
+  if (!inRange.length) return false;
+  const pct = rangePct({ ...sc.call, ...sc.raise });
+  return HAND_POS[adv.cls] <= pct + 0.05;
 }
 
 // Projetos (draws) e outs, para o coach ensinar a regra do 2 e 4
@@ -1361,7 +1419,122 @@ function quizWinner(rng = Math.random) {
   return quizPotOdds(rng);
 }
 
-const Poker = { shortName, madeHand, heroDraws, boardRead, chenBreakdown, SKILLS, effBB, pushThreshold, callShoveThreshold, PUSH_DEPTH, BLIND_LEVELS, blindLevel, equityKnown, POS_BY_N, quizPotOdds, quizOuts, quizWinner, outsSets, best5, CAT_PT, drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
+// ---------- Faixas modernas (aproximações próprias, 6 jogadores e heads-up, 100 BB) ----------
+// Notação: 22+ (pares do 22 para cima), 77-JJ, A2s+ (A2s até AKs), KTs+ (KTs até KQs), ATo-AJo, KQo, AK (s e o).
+// ":0.5" no fim de um item = jogada mista (metade das vezes).
+const RC13 = 'AKQJT98765432';
+const rv = ch => 12 - RC13.indexOf(ch);
+const clsName = (hi, lo, kind) => hi === lo ? RC13[12 - hi] + RC13[12 - lo] : RC13[12 - hi] + RC13[12 - lo] + kind;
+function parseRange(str) {
+  const out = {};
+  const add = (n, f) => { out[n] = Math.max(out[n] || 0, f); };
+  for (let tok of str.split(',').map(t => t.trim()).filter(Boolean)) {
+    let f = 1;
+    if (tok.includes(':')) { const [a, b] = tok.split(':'); tok = a; f = parseFloat(b); }
+    const plus = tok.endsWith('+'); if (plus) tok = tok.slice(0, -1);
+    if (tok.includes('-')) {
+      const [a, b] = tok.split('-');
+      if (a[0] === a[1]) { const x = rv(a[0]), y = rv(b[0]); for (let r = Math.min(x, y); r <= Math.max(x, y); r++) add(clsName(r, r), f); }
+      else { const hi = rv(a[0]), k = a[2] || '', x = rv(a[1]), y = rv(b[1]); for (let r = Math.min(x, y); r <= Math.max(x, y); r++) for (const kk of k ? [k] : ['s', 'o']) add(clsName(hi, r, kk), f); }
+      continue;
+    }
+    if (tok.length === 2 && tok[0] === tok[1]) { const x = rv(tok[0]); for (let r = x; r <= (plus ? 12 : x); r++) add(clsName(r, r), f); continue; }
+    const hi = rv(tok[0]), lo = rv(tok[1]), kinds = tok[2] ? [tok[2]] : ['s', 'o'];
+    for (const kk of kinds) for (let r = lo; r <= (plus ? hi - 1 : lo); r++) add(clsName(hi, r, kk), f);
+  }
+  return out;
+}
+const CLASS_W = n => n.length === 2 ? 6 : n[2] === 's' ? 4 : 12;
+const rangePct = map => Object.entries(map).reduce((a, [n, f]) => a + CLASS_W(n) * f, 0) / 1326;
+function classOf(c1, c2) {
+  const a = rankOf(c1), b = rankOf(c2), hi = Math.max(a, b), lo = Math.min(a, b);
+  return clsName(hi, lo, suitOf(c1) === suitOf(c2) ? 's' : 'o');
+}
+
+// Abertura (ninguém entrou) por posição
+const RFI_SRC = {
+  UTG: '55+, A8s+, A5s-A3s, K9s+, Q9s+, J9s+, T9s, 98s, 87s:0.5, ATo+, KJo+, QJo:0.5',
+  MP: '33+, A2s+, K8s+, Q9s+, J9s+, T8s+, 98s, 87s, 76s:0.5, ATo+, KTo+, QTo+, JTo:0.5',
+  CO: '33+, A2s+, K7s+, Q9s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, A8o+, KTo+, QTo+, JTo, A5o:0.5',
+  BTN: '22+, A2s+, K2s+, Q5s+, J7s+, T7s+, 96s+, 85s+, 75s+, 64s+, 54s, 53s:0.5, A2o+, K8o+, Q9o+, J9o+, T8o+, 98o, 87o:0.5',
+  SB: '22+, A2s+, K5s+, Q7s+, J7s+, T7s+, 97s+, 86s+, 75s+, 65s, 54s, A4o+, K9o+, Q9o+, J9o+, T9o, 98o:0.5',
+  // heads-up: o botão (que é também o small blind) abre quase tudo
+  HU_BTN: '22+, A2+, K2+, Q2+, J2s+, J4o+, T2s+, T6o+, 92s+, 96o+, 82s+, 86o+, 72s+, 75o+, 62s+, 64o+, 52s+, 54o, 42s+, 32s',
+};
+// Respostas a uma abertura: { raise (3-bet), call }, por grupo de quem abriu e lugar de quem responde
+const VS_OPEN_SRC = {
+  // contra abertura de UTG/MP
+  early_ip: { raise: 'QQ+, AKs, AKo, A5s:0.5', call: 'JJ-77, AQs-ATs, KQs, KJs, QJs, JTs, T9s, AQo' },
+  early_sb: { raise: 'QQ+, AK, AQs, A5s:0.5', call: '' },
+  early_bb: { raise: 'QQ+, AKs, AKo, A5s:0.5', call: '22-JJ, A2s-AQs, K9s+, Q9s+, J9s+, T8s+, 98s, 87s, 76s, 65s, ATo+, KJo+, QJo' },
+  // contra abertura de CO/BTN/SB
+  late_ip: { raise: 'TT+, AJs+, KQs, AQo+, A5s-A4s:0.5', call: '22-99, A2s-ATs, K9s-KJs, Q9s+, J9s+, T8s+, 98s, 87s, 76s, ATo-AJo, KJo+, QJo' },
+  late_sb: { raise: '88+, ATs+, KJs+, QJs, JTs:0.5, AJo+, KQo, A5s-A2s:0.5', call: '' },
+  late_bb: { raise: 'TT+, AQs+, AKo, A5s-A4s, KQs:0.5', call: '22-99, A2s-AJs, K2s-KJs, Q5s+, J7s+, T7s+, 96s+, 86s+, 75s+, 64s+, 54s, A2o-AQo, K8o+, Q9o+, J9o+, T8o+, 98o, 87o' },
+  // heads-up: big blind contra abertura do botão
+  hu_bb: { raise: '88+, A8s+, A5s-A2s, KTs+, QJs, AJo+, KQo', call: '22-77, A2s-A7s, K2s-K9s, Q2s-QTs, J2s+, T3s+, 95s+, 85s+, 74s+, 63s+, 53s+, 43s, A2o-ATo, K2o-KJo, Q5o+, J7o+, T7o+, 97o+, 87o, 76o' },
+};
+// Quem abriu e levou 3-bet: { raise (4-bet), call }
+const VS_3BET_SRC = {
+  early: { raise: 'KK+, AKs, A5s:0.3', call: 'QQ-TT, AQs+, AKo, KQs' },
+  late: { raise: 'QQ+, AKs, AKo:0.5, A5s:0.4', call: 'JJ-77, ATs+, KJs+, QJs, JTs, T9s, AQo, AKo:0.5' },
+  hu: { raise: 'TT+, AQs+, AKo, A5s:0.4', call: '22-99, A2s-AJs, K8s+, Q9s+, J9s+, T8s+, 98s, A8o-AQo, KTo+, QJo' },
+  cold: { raise: 'KK+, AKs', call: 'QQ, AKo' }, // 3-bet na frente sem você ter aberto
+};
+const VS_4BET_SRC = { raise: 'QQ+, AK', call: '' };
+
+const RFI = Object.fromEntries(Object.entries(RFI_SRC).map(([k, v]) => [k, parseRange(v)]));
+const parsePair = o => ({ raise: parseRange(o.raise), call: parseRange(o.call) });
+const VS_OPEN = Object.fromEntries(Object.entries(VS_OPEN_SRC).map(([k, v]) => [k, parsePair(v)]));
+const VS_3BET = Object.fromEntries(Object.entries(VS_3BET_SRC).map(([k, v]) => [k, parsePair(v)]));
+const VS_4BET = parsePair(VS_4BET_SRC);
+
+// Em mesas com menos gente, as posições que existem pegam a faixa equivalente
+function posAlias(pos, nAct) {
+  if (nAct === 5 && pos === 'UTG') return 'MP';
+  return pos;
+}
+const EARLY = new Set(['UTG', 'MP']);
+const POS_TXT = { UTG: 'UTG', MP: 'Middle', CO: 'Cutoff', BTN: 'Botão', SB: 'Small blind', BB: 'Big blind' };
+
+// Cenário pré-flop para quem vai agir: qual tabela vale e como explicar
+// raises: aumentos até agora; opener: posição de quem abriu; heroOpened: se o próprio jogador abriu
+function rangeScenario(pos, nAct, raises, opener, heroOpened, canCheck) {
+  const hu = nAct === 2, p = posAlias(pos, nAct), op = opener ? posAlias(opener, nAct) : null;
+  if (raises === 0) {
+    if (hu) return pos === 'BB' ? { key: 'hu_bb_check', raise: VS_OPEN.hu_bb.raise, call: {}, txt: 'Big blind no heads-up, sem aumento: aumente com as mãos de 3-bet; senão passe de graça' }
+      : { key: 'HU_BTN', raise: RFI.HU_BTN, call: {}, txt: 'Abrir do botão no heads-up' };
+    if (pos === 'BB') return { key: 'bb_check', raise: VS_OPEN.late_bb.raise, call: {}, txt: 'Big blind sem aumento: aumente as melhores mãos; as outras passam de graça' };
+    return { key: 'RFI_' + p, raise: RFI[p] || RFI.CO, call: {}, txt: `Abrir do ${POS_TXT[p] || p}` };
+  }
+  if (raises === 1) {
+    if (hu) return { key: 'hu_bb', ...VS_OPEN.hu_bb, txt: 'Big blind contra abertura do botão no heads-up' };
+    const grp = op && EARLY.has(op) ? 'early' : 'late';
+    const seat = pos === 'BB' ? 'bb' : pos === 'SB' ? 'sb' : 'ip';
+    const where = { bb: 'do Big blind', sb: 'do Small blind', ip: 'em posição' }[seat];
+    return { key: `${grp}_${seat}`, ...VS_OPEN[`${grp}_${seat}`], txt: `Contra abertura do ${POS_TXT[op] || 'rival'}, ${where}` };
+  }
+  if (raises === 2) {
+    if (!heroOpened) return { key: 'cold', ...VS_3BET.cold, txt: 'Aumento e re-aumento na sua frente' };
+    if (hu) return { key: 'hu_3bet', ...VS_3BET.hu, txt: 'Você abriu e levou 3-bet no heads-up' };
+    const grp = EARLY.has(p) ? 'early' : 'late';
+    return { key: `3bet_${grp}`, ...VS_3BET[grp], txt: `Você abriu do ${POS_TXT[p] || p} e levou 3-bet` };
+  }
+  return { key: '4bet', ...VS_4BET, txt: 'Contra 4-bet ou mais' };
+}
+// Frequências da mão no cenário
+function rangeFreq(sc, cls) { return { raise: sc.raise[cls] || 0, call: sc.call[cls] || 0 }; }
+
+// Push/fold pelas tabelas geradas (00-dados.js)
+function pushFoldAdvice(cls, depth, kBehind, facingShoveFromK) {
+  const D = Math.max(1, Math.round(depth));
+  if (facingShoveFromK) { const m = (CALL_MAX[Math.min(5, facingShoveFromK)] || {})[cls] || 0; return { ok: m >= D, max: m }; }
+  const m = (PUSH_MAX[Math.min(5, Math.max(1, kBehind))] || {})[cls] || 0;
+  return { ok: m >= D, max: m };
+}
+const HAND_POS = Object.fromEntries(HAND_RANK.map((c, i) => [c, i / 168])); // 0 = melhor, 1 = pior
+
+const Poker = { parseRange, rangePct, classOf, rangeScenario, rangeFreq, pushFoldAdvice, HAND_RANK, HAND_POS, PUSH_MAX, CALL_MAX, RFI, VS_OPEN, VS_3BET, shortName, madeHand, heroDraws, boardRead, chenBreakdown, SKILLS, effBB, pushThreshold, callShoveThreshold, PUSH_DEPTH, BLIND_LEVELS, blindLevel, equityKnown, POS_BY_N, quizPotOdds, quizOuts, quizWinner, outsSets, best5, CAT_PT, drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
 if (typeof module !== 'undefined') module.exports = Poker;
 </script>
 <script>
@@ -1442,7 +1615,7 @@ document.addEventListener('pointerdown', () => sfx.unlock(), { capture: true });
 let game = null, tour = null;
 let decision = null, handFb = [], flags = {}, loopId = 0, counted = false, raiseTo = 0;
 let runout = null, anim = null, lastOut = [], strOpen = false, readCache = { key: '' };
-let studyTab = 'hands', replay = null, rangeSt = { pos: null, scn: 0, sel: null, hu: null };
+let studyTab = 'hands', replay = null, rangeSt = { pos: null, scn: 'open', sel: null, hu: null, opener: null, depth: 10 };
 let quiz = { cat: 'mix', q: null, picked: null };
 
 function newGame(c) {
@@ -1579,8 +1752,9 @@ function strengthHTML() {
   return left + right;
 }
 function forcePop(br, combo, top) {
-  const g = game, pos = g.posOf(0), nAct = g.activeCount(), t = E.preflopRule(br.total, pos, 0, pos === 'BB', nAct).t;
-  const ref = pos === 'BB' ? `No <b>Big blind</b>, se ninguém aumentar: aumente com força <b>${t}+</b>, senão passe de graça.` : `Para abrir no <b>${E.POS_LABEL[pos]}</b>${nAct === 2 ? ' (heads-up)' : ''}: força <b>${t}+</b>. Sua mão ${br.total >= t ? 'entra' : 'não entra'}.`;
+  const g = game, pos = g.posOf(0), nAct = g.activeCount(), h = g.players[0];
+  const sc = E.rangeScenario(pos, nAct, 0, null, false, pos === 'BB'), cls = E.classOf(h.hole[0], h.hole[1]), fr = sc.raise[cls] || 0;
+  const ref = `A força de Chen serve para ordenar mãos de cabeça; as dicas usam as tabelas de faixas. Pela tabela, ${pos === 'BB' ? `no <b>Big blind</b> sem aumento, ${combo} ${fr ? `é para aumentar${fr < 1 ? ` ${pct(fr)} das vezes` : ''}` : 'passa de graça'}` : `para abrir do <b>${E.POS_LABEL[pos]}</b>${nAct === 2 ? ' (heads-up)' : ''}, ${combo} ${fr ? `entra${fr < 1 ? ` ${pct(fr)} das vezes` : ''}` : 'fica de fora'}`}: a faixa ${pos === 'BB' ? 'aumenta' : 'abre'} ${pct(E.rangePct(sc.raise))} das mãos.`;
   return `<div class="str-pop" role="dialog" aria-label="Fórmula da força da mão">
     <div class="str-head">${top}${xBtn}</div>
     <ol class="str-steps">${br.steps.map(x => `<li>${x}</li>`).join('')}</ol>
@@ -1747,14 +1921,27 @@ function renderLive() {
   if (!liveHelp) { el.innerHTML = `<p class="muted">Ajuda ao vivo desligada: decida sozinho. A análise aparece depois da sua jogada.</p>`; return; }
   const d = decision;
   if (d.street === 'preflop') {
-    const a = d.adv, s = Math.max(0, a.s), w = Math.min(100, s / 20 * 100), m = Math.max(0, a.t) / 20 * 100;
-    const pushRow = a.push ? `<div class="kv"><span>Stack efetivo</span><b class="warn">${a.depth.toString().replace('.', ',')} BB · all-in ou desistir</b></div>` : '';
-    el.innerHTML = `<div class="kv"><span>Sua mão</span><b>${a.combo} · força ${a.s} de 20</b></div>
-      <div class="kv"><span>Posição</span><b>${E.POS_LABEL[a.pos]}${g.activeCount() < 6 ? ` · ${g.activeCount()} na mesa` : ''}</b></div>${pushRow}
-      <div class="meter"><div class="fill ${a.s < a.t ? 'low' : ''}" style="width:${w}%"></div><div class="mark ${m < 12 ? 'edge-l' : ''}" style="left:${m}%"><span>mínimo ${a.t}</span></div></div>
-      <div class="scale"><span>0</span><span>20</span></div>
-      <div class="rec-line">Sugestão: <b>${a.push && d.rec === 'raise' ? 'all-in' : REC_PT[d.rec]}</b>. ${a.why}${a.push ? '' : ` <button class="link" id="seeRange" type="button">Ver faixa</button>`}</div>`;
-    if (!a.push) $('seeRange').onclick = () => { rangeSt = { pos: a.pos, scn: Math.min(2, game.raises), sel: a.combo, hu: game.activeCount() === 2 }; openStudy('ranges'); };
+    const a = d.adv;
+    let viz;
+    if (a.push) {
+      const m = Math.min(20, a.max || 0), w = m / 20 * 100, dp = Math.min(20, a.depth) / 20 * 100;
+      viz = `<div class="kv"><span>Stack efetivo</span><b class="warn">${a.depth.toString().replace('.', ',')} BB · all-in ou desistir</b></div>
+      <div class="meter"><div class="fill ${a.max >= a.depth ? '' : 'low'}" style="width:${w}%"></div><div class="mark ${dp < 12 ? 'edge-l' : dp > 85 ? 'edge-r' : ''}" style="left:${dp}%"><span>seu stack</span></div></div>
+      <div class="scale"><span>0 BB</span><span>vale até ${a.max || 0} BB</span><span>20 BB</span></div>`;
+    } else {
+      const f = a.freq, vr = g.raises === 0 ? (d.L.canCheck ? 'Aumentar' : 'Abrir') : g.raises === 1 ? '3-bet' : '4-bet';
+      viz = `<div class="kv"><span>Situação</span><b>${a.scTxt}</b></div>
+      <div class="freqbar" role="img" aria-label="${vr} ${pct(f.raise)}, pagar ${pct(f.call)}, ${d.L.canCheck ? 'passar' : 'desistir'} ${pct(f.fold)}"><i style="width:${f.raise * 100}%;background:var(--brass)"></i><i style="width:${f.call * 100}%;background:var(--call)"></i></div>
+      <div class="freqleg"><span style="--c:var(--brass)">${vr} ${pct(f.raise)}</span>${g.raises ? `<span style="--c:var(--call)">Pagar ${pct(f.call)}</span>` : ''}<span style="--c:var(--line)">${d.L.canCheck ? 'Passar' : 'Desistir'} ${pct(f.fold)}</span></div>`;
+    }
+    el.innerHTML = `<div class="kv"><span>Sua mão</span><b>${a.combo} · ${E.POS_LABEL[a.pos]}${g.activeCount() < 6 ? ` · ${g.activeCount()} na mesa` : ''}</b></div>${viz}
+      <div class="rec-line">Sugestão: <b>${a.push && d.rec === 'raise' ? 'all-in' : REC_PT[d.rec]}</b>. ${a.why} <button class="link" id="seeRange" type="button">Ver faixa</button></div>`;
+    $('seeRange').onclick = () => {
+      const opener = game.pfOpener >= 0 ? game.posOf(game.pfOpener) : null, hu = game.activeCount() === 2;
+      const scn = a.push ? 'push' : game.raises === 0 ? 'open' : game.raises === 1 ? 'vsopen' : 'vs3bet';
+      rangeSt = { pos: a.push && game.raises ? 'BB' : a.pos, scn, sel: a.cls, hu, opener: a.push && game.raises && game.pfAgg >= 0 ? game.posOf(game.pfAgg) : opener, depth: [3, 5, 8, 10, 12, 15].reduce((x, y) => Math.abs(y - a.depth) < Math.abs(x - a.depth) ? y : x) };
+      openStudy('ranges');
+    };
   } else {
     const i = d.info, w = i.eq * 100;
     const markCls = i.need > .85 ? 'edge-r' : i.need < .12 ? 'edge-l' : '';
@@ -2031,10 +2218,8 @@ function renderReplay() {
 }
 
 
-// Faixas 13×13
+// Faixas 13×13, pelas tabelas modernas (e pelas tabelas de all-in com stack curto)
 const GR = 'AKQJT98765432';
-const ACT_LABEL = { 0: { raise: 'Abrir', call: 'Pagar', check: 'Passar', fold: 'Desistir' }, 1: { raise: '3-bet', call: 'Pagar', check: 'Passar', fold: 'Desistir' }, 2: { raise: '4-bet', call: 'Pagar', check: 'Passar', fold: 'Desistir' } };
-const SCN = ['Ninguém aumentou', 'Contra aumento', 'Contra re-aumento'];
 function cellOf(r, c) {
   const hi = 12 - Math.min(r, c), lo = 12 - Math.max(r, c);
   const suited = c > r, pair = r === c;
@@ -2043,48 +2228,82 @@ function cellOf(r, c) {
   return { name, s: E.chen(c1, c2), combos: pair ? 6 : suited ? 4 : 12 };
 }
 const normCombo = s => s.replace(/10/g, 'T');
+const RSCN = [['open', 'Abrir'], ['vsopen', 'Contra abertura'], ['vs3bet', 'Contra 3-bet'], ['push', 'All-in curto']];
+const PRE_ORDER = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
+const DEPTHS = [3, 5, 8, 10, 12, 15];
+// Monta o que a grade mostra: para cada mão, frequência de "aumentar" (r) e de "pagar" (c)
+function gridModel(st) {
+  const nAct = st.hu ? 2 : 6;
+  if (st.scn === 'push') {
+    const callMode = st.pos === 'BB';
+    const k = st.hu ? 1 : callMode ? Math.max(1, PRE_ORDER.length - 1 - PRE_ORDER.indexOf(st.opener)) : PRE_ORDER.length - 1 - PRE_ORDER.indexOf(st.pos);
+    const tab = callMode ? E.CALL_MAX[k] || {} : E.PUSH_MAX[k] || {};
+    const f = n => (tab[n] || 0) >= st.depth ? 1 : 0;
+    return { nAct, f: n => callMode ? { r: 0, c: f(n) } : { r: f(n), c: 0 }, labels: { r: 'All-in', c: 'Pagar o all-in' }, txt: callMode ? `Big blind pagando all-in do ${E.POS_LABEL[st.opener] || 'Botão'} com ${st.depth} BB` : `All-in com ${st.depth} BB, ${k} ${k > 1 ? 'jogadores' : 'jogador'} por agir`, max: n => tab[n] || 0 };
+  }
+  const raises = st.scn === 'open' ? 0 : st.scn === 'vsopen' ? 1 : 2;
+  const sc = E.rangeScenario(st.pos, nAct, raises, st.scn === 'vsopen' ? st.opener : st.pos, st.scn === 'vs3bet', st.pos === 'BB');
+  const verb = raises === 0 ? (st.pos === 'BB' ? 'Aumentar' : 'Abrir') : raises === 1 ? '3-bet' : '4-bet';
+  return { nAct, f: n => ({ r: sc.raise[n] || 0, c: sc.call[n] || 0 }), labels: { r: verb, c: 'Pagar' }, txt: sc.txt };
+}
+// Posições válidas e quem pode ter aberto antes de cada uma
+function gridPositions(st) {
+  if (st.hu) return st.scn === 'vsopen' ? ['BB'] : st.scn === 'vs3bet' ? ['BTN'] : st.scn === 'push' ? ['BTN', 'BB'] : ['BTN', 'BB'];
+  if (st.scn === 'open') return PRE_ORDER;
+  if (st.scn === 'vsopen') return PRE_ORDER.slice(1);
+  if (st.scn === 'vs3bet') return PRE_ORDER.slice(0, 5);
+  return PRE_ORDER;
+}
 function renderRanges() {
   const el = $('studyBody'), g = game;
-  if (rangeSt.hu == null) rangeSt.hu = g.activeCount() === 2;
-  const hu = rangeSt.hu, nAct = hu ? 2 : 6, positions = hu ? ['BTN', 'BB'] : ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
-  if (!rangeSt.pos || !positions.includes(rangeSt.pos)) rangeSt.pos = g.players[0].folded || !positions.includes(g.posOf(0)) ? 'BTN' : g.posOf(0);
-  const { pos, scn } = rangeSt;
-  const mine = !g.handOver && !g.players[0].folded ? normCombo(E.comboName(g.players[0].hole[0], g.players[0].hole[1])) : null;
-  const canCheck = scn === 0 && pos === 'BB';
-  const tally = { raise: 0, call: 0, check: 0, fold: 0 };
-  let cells = '';
+  const st = rangeSt;
+  if (st.hu == null) st.hu = g.activeCount() === 2;
+  if (!RSCN.some(([k]) => k === st.scn)) st.scn = 'open';
+  if (!st.depth) st.depth = 10;
+  const positions = gridPositions(st);
+  if (!positions.includes(st.pos)) st.pos = positions.includes(g.posOf(0)) ? g.posOf(0) : positions[positions.length > 2 ? 3 : 0];
+  const openers = st.hu ? ['BTN'] : PRE_ORDER.slice(0, PRE_ORDER.indexOf(st.pos === 'BB' && st.scn === 'push' ? 'BB' : st.pos)).filter(x => x !== 'BB');
+  if ((st.scn === 'vsopen' || (st.scn === 'push' && st.pos === 'BB')) && !openers.includes(st.opener)) st.opener = openers[openers.length - 1];
+  const M = gridModel(st);
+  const mine = !g.handOver && !g.players[0].folded ? E.classOf(g.players[0].hole[0], g.players[0].hole[1]) : null;
+  let rT = 0, cT = 0, cells = '';
   for (let r = 0; r < 13; r++) for (let c = 0; c < 13; c++) {
-    const x = cellOf(r, c), rule = E.preflopRule(x.s, pos, scn, canCheck, nAct);
-    tally[rule.rec] += x.combos;
-    cells += `<button type="button" class="cell ${rule.rec}${x.name === mine ? ' mine' : ''}${x.name === rangeSt.sel ? ' sel' : ''}" data-n="${x.name}" data-s="${x.s}" data-a="${rule.rec}" data-t="${rule.t}" data-rr="${rule.rr}">${x.name}</button>`;
+    const x = cellOf(r, c), f = M.f(x.name);
+    rT += f.r * x.combos; cT += f.c * x.combos;
+    const pure = f.r === 1 ? 'raise' : f.c === 1 ? 'call' : f.r + f.c === 0 ? 'fold' : 'mix';
+    const bg = pure === 'mix' ? ` style="background:linear-gradient(to right, var(--brass) 0 ${f.r * 100}%, var(--call) ${f.r * 100}% ${(f.r + f.c) * 100}%, var(--surface-2) ${(f.r + f.c) * 100}% 100%)"` : '';
+    cells += `<button type="button" class="cell ${pure}${x.name === mine ? ' mine' : ''}${x.name === st.sel ? ' sel' : ''}"${bg} data-n="${x.name}" data-s="${x.s}" data-r="${f.r}" data-c="${f.c}">${x.name}</button>`;
   }
-  const L = ACT_LABEL[scn];
-  const order = canCheck ? ['raise', 'check'] : ['raise', 'call', 'fold'].filter(k => k !== 'call' || scn > 0);
-  const colors = { raise: 'var(--brass)', call: 'var(--call)', check: 'var(--check)', fold: 'var(--surface-2)' };
+  const chips = (key, list, val, label = v => v) => `<div class="seg" role="group">${list.map(v => `<button type="button" class="chip" data-${key}="${v}" aria-pressed="${String(v) === String(val)}">${label(v)}</button>`).join('')}</div>`;
   el.innerHTML = `
-    <div class="seg" role="group" aria-label="Mesa"><button type="button" class="chip" data-hu="0" aria-pressed="${!hu}">6 jogadores</button><button type="button" class="chip" data-hu="1" aria-pressed="${hu}">Heads-up</button></div>
-    <div class="seg" role="group" aria-label="Situação">${SCN.map((t, k) => `<button type="button" class="chip" data-scn="${k}" aria-pressed="${k === scn}">${t}</button>`).join('')}</div>
-    <div class="seg" role="group" aria-label="Posição">${positions.map(p => `<button type="button" class="chip" data-pos="${p}" aria-pressed="${p === pos}">${p}</button>`).join('')}</div>
+    <div class="seg" role="group" aria-label="Mesa"><button type="button" class="chip" data-hu="0" aria-pressed="${!st.hu}">6 jogadores</button><button type="button" class="chip" data-hu="1" aria-pressed="${st.hu}">Heads-up</button></div>
+    ${chips('scn', RSCN.map(x => x[0]), st.scn, v => RSCN.find(x => x[0] === v)[1])}
+    <div class="field"><span class="field-label">${st.scn === 'push' && st.pos === 'BB' ? 'Você (pagando)' : 'Sua posição'}</span>${chips('pos', positions, st.pos)}</div>
+    ${(st.scn === 'vsopen' || (st.scn === 'push' && st.pos === 'BB')) && !st.hu ? `<div class="field"><span class="field-label">${st.scn === 'push' ? 'Quem foi all-in' : 'Quem abriu'}</span>${chips('op', openers, st.opener)}</div>` : ''}
+    ${st.scn === 'push' ? `<div class="field"><span class="field-label">Stack efetivo</span>${chips('dp', DEPTHS, st.depth, v => v + ' BB')}</div>` : ''}
     <div class="grid13" role="grid" aria-label="Grade de mãos iniciais">${cells}</div>
-    <div class="rlegend">${order.map(k => `<span style="--c:${colors[k]}">${L[k]} ${pct(tally[k] / 1326)}</span>`).join('')}${mine ? '<span class="mk">sua mão</span>' : ''}</div>
-    <div class="cell-info" id="cellInfo">Toque numa mão para ver a força e a decisão. Acima da diagonal: mesmo naipe (s); abaixo: naipes diferentes (o).</div>
-    <p class="muted">${E.POS_LABEL[pos]}${hu ? ' no heads-up' : ''}, ${SCN[scn].toLowerCase()}. Esta é a mesma regra que o coach usa nas dicas: um ponto de partida simples, não uma estratégia ótima. Com 12 BB ou menos, o coach troca para all-in ou desistir.</p>`;
-  const info = (n, s, a, t, rr) => {
-    const why = scn === 0 ? (canCheck ? `aumente com ${t}+, senão passe de graça` : `abra com ${t}+`) : scn === 1 ? `pague com ${t}+, 3-bet com ${rr}+` : `pague com ${t}+, 4-bet com ${rr}+`;
-    $('cellInfo').innerHTML = `<b>${n}</b> · força ${s}. No ${E.POS_LABEL[pos]}: <b>${L[a].toLowerCase()}</b> (regra: ${why}).`;
+    <div class="rlegend">${rT ? `<span style="--c:var(--brass)">${M.labels.r} ${pct(rT / 1326)}</span>` : ''}${cT ? `<span style="--c:var(--call)">${M.labels.c} ${pct(cT / 1326)}</span>` : ''}<span style="--c:linear-gradient(to right, var(--brass) 50%, var(--surface-2) 50%)">Mista</span>${mine ? '<span class="mk">sua mão</span>' : ''}</div>
+    <div class="cell-info" id="cellInfo">Toque numa mão para ver a decisão. Acima da diagonal: mesmo naipe (s); abaixo: naipes diferentes (o). Células divididas são jogadas mistas.</div>
+    <p class="muted">${M.txt}. Faixas aproximadas de 6 jogadores com 100 BB, no estilo das tabelas de solver; o all-in curto vem do equilíbrio calculado pelo próprio app. São a referência do coach e o ponto de partida dos bots.</p>`;
+  const info = b => {
+    const n = b.dataset.n, r = +b.dataset.r, c = +b.dataset.c, fold = Math.max(0, 1 - r - c);
+    const p = [r ? `${M.labels.r.toLowerCase()} ${r < 1 ? pct(r) : ''}`.trim() : '', c ? `${M.labels.c.toLowerCase()} ${c < 1 ? pct(c) : ''}`.trim() : '', fold && (r || c) ? `desistir ${pct(fold)}` : ''].filter(Boolean);
+    const extra = M.max ? ` Vale até ${M.max(n) || 0} BB.` : '';
+    $('cellInfo').innerHTML = `<b>${n}</b> · força de Chen ${b.dataset.s}. ${p.length ? p.join(', ').replace(/^./, x => x.toUpperCase()) : 'Desistir'}.${extra}`;
   };
-  el.querySelectorAll('[data-hu]').forEach(b => b.onclick = () => { rangeSt.hu = b.dataset.hu === '1'; renderRanges(); });
-  el.querySelectorAll('[data-scn]').forEach(b => b.onclick = () => { rangeSt.scn = +b.dataset.scn; renderRanges(); });
-  el.querySelectorAll('[data-pos]').forEach(b => b.onclick = () => { rangeSt.pos = b.dataset.pos; renderRanges(); });
+  el.querySelectorAll('[data-hu]').forEach(b => b.onclick = () => { st.hu = b.dataset.hu === '1'; renderRanges(); });
+  el.querySelectorAll('[data-scn]').forEach(b => b.onclick = () => { st.scn = b.dataset.scn; renderRanges(); });
+  el.querySelectorAll('[data-pos]').forEach(b => b.onclick = () => { st.pos = b.dataset.pos; renderRanges(); });
+  el.querySelectorAll('[data-op]').forEach(b => b.onclick = () => { st.opener = b.dataset.op; renderRanges(); });
+  el.querySelectorAll('[data-dp]').forEach(b => b.onclick = () => { st.depth = +b.dataset.dp; renderRanges(); });
   el.querySelectorAll('.cell').forEach(b => b.onclick = () => {
-    rangeSt.sel = b.dataset.n;
+    st.sel = b.dataset.n;
     el.querySelectorAll('.cell.sel').forEach(x => x.classList.remove('sel')); b.classList.add('sel');
-    info(b.dataset.n, b.dataset.s, b.dataset.a, b.dataset.t, b.dataset.rr);
+    info(b);
   });
-  const sel = rangeSt.sel && el.querySelector(`.cell[data-n="${normCombo(rangeSt.sel)}"]`);
-  if (sel) { sel.classList.add('sel'); info(sel.dataset.n, sel.dataset.s, sel.dataset.a, sel.dataset.t, sel.dataset.rr); }
+  const sel = st.sel && el.querySelector(`.cell[data-n="${normCombo(st.sel)}"]`);
+  if (sel) { sel.classList.add('sel'); info(sel); }
 }
-
 
 // Quiz
 const QCATS = [['mix', 'Misturado'], ['pot', 'Pot odds'], ['outs', 'Outs'], ['win', 'Qual ganha']];

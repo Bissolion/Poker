@@ -272,6 +272,11 @@ details[open] summary { margin-bottom: 8px; }
 .cell.call { background: var(--call); color: var(--call-ink); }
 .cell.check { background: var(--check); color: var(--ink); }
 .cell.fold { background: var(--surface-2); color: var(--faint); }
+.cell.mix { color: var(--ink); text-shadow: 0 0 3px var(--bg), 0 0 2px var(--bg); }
+.freqbar { display: flex; height: 12px; border-radius: 999px; overflow: hidden; background: var(--line); margin-top: 4px; }
+.freqbar i { display: block; height: 100%; }
+.freqleg { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.freqleg span::before { content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; background: var(--c); }
 .cell.mine { box-shadow: inset 0 0 0 2px var(--ink); }
 .cell.sel { outline: 2px solid var(--ink); outline-offset: 1px; position: relative; z-index: 1; }
 .rlegend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }

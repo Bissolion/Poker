@@ -1,10 +1,10 @@
 // ---------- Bots ----------
 const PROFILES = {
-  tag:     { label: 'Sólida',      open: 7,  call: 8,  rr: 12, limp: 99, aggr: 0.7,  bluff: 0.08, margin: 0.03,  bet: 0.62, raise: 0.78, size: 0.66, noise: 1 },
-  lag:     { label: 'Agressivo',   open: 6,  call: 7,  rr: 10, limp: 99, aggr: 0.85, bluff: 0.22, margin: 0.0,   bet: 0.55, raise: 0.68, size: 0.8,  noise: 2 },
-  station: { label: 'Paga tudo',   open: 11, call: 4,  rr: 14, limp: 4,  aggr: 0.25, bluff: 0.03, margin: -0.12, bet: 0.72, raise: 0.88, size: 0.5,  noise: 1.5 },
-  nit:     { label: 'Cautelosa',   open: 9,  call: 10, rr: 14, limp: 99, aggr: 0.6,  bluff: 0.02, margin: 0.08,  bet: 0.7,  raise: 0.84, size: 0.6,  noise: 0.5 },
-  bal:     { label: 'Equilibrado', open: 7,  call: 8,  rr: 11, limp: 99, aggr: 0.65, bluff: 0.12, margin: 0.02,  bet: 0.6,  raise: 0.75, size: 0.65, noise: 1.5 },
+  tag:     { label: 'Sólida',      open: 7,  call: 8,  rr: 12, limp: 99, aggr: 0.7,  bluff: 0.08, margin: 0.03,  bet: 0.62, raise: 0.78, size: 0.66, noise: 1,   dev: { open: 0, call: 0, raise: 0, push: 0 } },
+  lag:     { label: 'Agressivo',   open: 6,  call: 7,  rr: 10, limp: 99, aggr: 0.85, bluff: 0.22, margin: 0.0,   bet: 0.55, raise: 0.68, size: 0.8,  noise: 2,   dev: { open: 0.10, call: 0.03, raise: 0.06, push: 2 } },
+  station: { label: 'Paga tudo',   open: 11, call: 4,  rr: 14, limp: 4,  aggr: 0.25, bluff: 0.03, margin: -0.12, bet: 0.72, raise: 0.88, size: 0.5,  noise: 1.5, dev: { open: -0.03, call: 0.25, raise: -0.04, push: -1, callPush: 4 } },
+  nit:     { label: 'Cautelosa',   open: 9,  call: 10, rr: 14, limp: 99, aggr: 0.6,  bluff: 0.02, margin: 0.08,  bet: 0.7,  raise: 0.84, size: 0.6,  noise: 0.5, dev: { open: -0.06, call: -0.08, raise: -0.02, push: -2 } },
+  bal:     { label: 'Equilibrado', open: 7,  call: 8,  rr: 11, limp: 99, aggr: 0.65, bluff: 0.12, margin: 0.02,  bet: 0.6,  raise: 0.75, size: 0.65, noise: 1.5, dev: { open: 0.02, call: 0.03, raise: 0, push: 0 } },
 };
 const POS_BONUS = { UTG: -1, MP: -0.5, CO: 0.5, BTN: 1.5, SB: 0, BB: 0.5 };
 
@@ -51,29 +51,36 @@ function botDecide(g, seat, rng = Math.random) {
   const passive = () => L.canCheck ? { type: 'check' } : { type: 'fold' };
   const shove = () => L.canRaise ? { type: 'raise', to: L.maxTo } : L.toCall > 0 ? { type: 'call' } : { type: 'check' };
   if (g.street === 'preflop') {
-    const raw = chen(p.hole[0], p.hole[1]) + (rng() - 0.5) * pr.noise * sk.noise;
-    const depth = effBB(g, seat);
+    const cls = classOf(p.hole[0], p.hole[1]), dv = pr.dev || {}, depth = effBB(g, seat);
+    // erro de iniciante: às vezes paga ou desiste no automático
+    if (rng() < sk.mistake) return L.toCall > 0 ? (rng() < 0.6 ? { type: 'call' } : passive()) : { type: 'check' };
     if (depth <= PUSH_DEPTH) {
-      if (g.raises === 0) return raw >= pushThreshold(depth, pos, nAct) + (pr.open - 7) * 0.5 ? shove() : passive();
-      return raw >= callShoveThreshold(depth, nAct) + (pr.call - 8) * 0.4 ? shove() : passive();
+      const noise = (rng() - 0.5) * 2 * sk.noise;
+      if (g.raises === 0) { const r = pushFoldAdvice(cls, depth, behindOf(g, seat)); return r.max + (dv.push || 0) + noise >= depth ? shove() : passive(); }
+      const r = pushFoldAdvice(cls, depth, 0, g.pfAgg >= 0 ? behindOf(g, g.pfAgg) : 1);
+      return r.max + (dv.callPush || dv.push || 0) + noise >= depth ? shove() : passive();
     }
-    const widen = nAct === 2 ? 2.5 : nAct <= 4 ? 1 : 0;
-    const s = raw + (POS_BONUS[pos] || 0) + widen;
-    if (g.raises === 0) {
+    const { sc, f } = rangeDecision(g, seat);
+    // cada estilo se afasta da tabela: o agressivo abre mais, o "paga tudo" paga mais, a cautelosa aperta
+    const hp = HAND_POS[cls] + (rng() - 0.5) * 0.04 * sk.noise;
+    const shift = (base, set, d) => {
+      if (!d) return base;
+      const size = rangePct(set);
+      if (d > 0 && !base && hp < size + d) return 0.8;
+      if (d < 0 && base && hp > size + d) return base * 0.2;
+      return base;
+    };
+    const fr = shift(f.raise, sc.raise, g.raises === 0 ? dv.open : dv.raise);
+    const fc = g.raises === 0 ? 0 : shift(f.call, { ...sc.call, ...sc.raise }, dv.call);
+    const x = rng();
+    if (x < fr && L.canRaise) {
       const limpers = g.players.filter(q => q.seat !== seat && !q.folded && q.bet === g.bb && g.posOf(q.seat) !== 'BB').length;
-      const open = nAct === 2 ? 2.5 : 3 + limpers;
-      if (s >= pr.open && L.canRaise) return sizeRaise(g, p, L, g.bb * open);
-      if (L.canCheck) return { type: 'check' };
-      if (s >= pr.limp) return { type: 'call' };
-      if (['BTN', 'CO', 'SB'].includes(pos) && limpers === 0 && rng() < pr.bluff * sk.bluff * 0.6 && L.canRaise) return sizeRaise(g, p, L, g.bb * open);
-      return { type: 'fold' };
+      const to = g.raises === 0 ? g.bb * (nAct === 2 ? 2.5 : 3 + limpers) : g.currentBet * (g.raises >= 2 ? 2.3 : 3);
+      return sizeRaise(g, p, L, to);
     }
-    const cost = L.toCall / Math.max(1, p.stack + p.bet);
-    const needR = pr.rr + (g.raises >= 2 ? 2 : 0);
-    const needC = pr.call + (g.raises >= 2 ? 2.5 : 0) + (cost > 0.25 ? 2 : 0) - (pos === 'BB' ? 1 : 0);
-    if (s >= needR && L.canRaise) return sizeRaise(g, p, L, g.currentBet * (g.raises >= 2 ? 2.3 : 3));
-    if (s >= needC) return { type: 'call' };
-    if (g.raises === 1 && rng() < pr.bluff * sk.bluff * 0.3 && L.canRaise) return sizeRaise(g, p, L, g.currentBet * 3);
+    if (x < fr + fc || (x < fr && !L.canRaise)) return L.toCall ? { type: 'call' } : { type: 'check' };
+    // o "paga tudo" completa o blind em vez de desistir
+    if (g.raises === 0 && !L.canCheck && pr.limp < 99 && HAND_POS[cls] < 0.6) return { type: 'call' };
     return passive();
   }
   // Iniciante às vezes joga no automático: paga ou passa sem pensar

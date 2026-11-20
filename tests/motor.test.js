@@ -316,3 +316,28 @@ for (let t = 0; t < 2000; t++) {
   assert(P.boardRead(H('Ah Kh Qh Jh Th'), H('5h 4h')).heroNuts, 'royal na mesa: todos empatam no nuts');
 }
 console.log('leitura da mão e da mesa ok');
+
+// ---- Faixas modernas ----
+{
+  const pr = P.parseRange('22+, A2s+, KTs+, ATo-AJo, AK, 98s:0.5');
+  assert.strictEqual(pr['22'], 1); assert.strictEqual(pr.AA, 1); assert.strictEqual(pr.A2s, 1); assert.strictEqual(pr.KQs, 1);
+  assert.strictEqual(pr.K9s, undefined); assert.strictEqual(pr.ATo, 1); assert.strictEqual(pr.AQo, undefined); assert.strictEqual(pr.AKo, 1); assert.strictEqual(pr['98s'], 0.5);
+  const pc = k => P.rangePct(P.RFI[k]);
+  assert(pc('UTG') >= 0.15 && pc('UTG') <= 0.18, 'UTG abre 15–18%: ' + pc('UTG'));
+  assert(pc('BTN') >= 0.40 && pc('BTN') <= 0.45, 'botão abre 40–45%: ' + pc('BTN'));
+  const bb = P.VS_OPEN.late_bb, def = P.rangePct({ ...bb.call, ...bb.raise });
+  assert(def >= 0.38 && def <= 0.48, 'BB defende ~40% contra o botão: ' + def);
+  assert(P.HAND_RANK[0] === 'AA' && P.HAND_RANK.indexOf('72o') > 160, 'ordem de força');
+  // push/fold: AA sempre; 72o nunca do UTG; heads-up 10 BB perto de 58% (Nash publicado ~57,7%)
+  assert(P.PUSH_MAX[5].AA >= 20 && !(P.PUSH_MAX[5]['72o'] >= 3));
+  const hu10 = Object.entries(P.PUSH_MAX[1]).reduce((a, [n, m]) => a + (m >= 10 ? (n.length === 2 ? 6 : n[2] === 's' ? 4 : 12) : 0), 0) / 1326;
+  assert(Math.abs(hu10 - 0.577) < 0.03, 'push heads-up 10 BB: ' + hu10);
+  // coach usa a tabela
+  const g = new P.Game([0, 1, 2, 3, 4, 5].map(i => ({ name: 'F' + i, profile: P.PROFILES.bal })));
+  g.button = 1; g.startHand(); // botão = 2 → UTG = seat 5
+  const utg = [0, 1, 2, 3, 4, 5].find(s => g.posOf(s) === 'UTG');
+  g.players[utg].hole = H('As Kd'); assert.strictEqual(P.preflopAdvice(g, utg).rec, 'raise');
+  g.players[utg].hole = H('7s 2d'); assert.strictEqual(P.preflopAdvice(g, utg).rec, 'fold');
+  g.players[utg].hole = H('Ks 9d'); assert.strictEqual(P.preflopAdvice(g, utg).rec, 'fold', 'K9o não abre do UTG');
+}
+console.log('faixas modernas ok');

@@ -17,39 +17,58 @@ function preflopRule(s, pos, raises, canCheck, nAct = 6) {
   }
   return { rec, t, rr };
 }
+// Quantos jogadores agem depois de uma posição até o big blind (para push/fold)
+const ORDER_PRE = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
+function behindOf(g, seat) {
+  const order = ORDER_PRE.filter(x => g.players.some(q => !q.out && g.posOf(q.seat) === x));
+  const i = order.indexOf(g.posOf(seat));
+  return Math.max(1, order.length - 1 - i);
+}
+// Decisão pré-flop pelas tabelas de faixas: devolve as frequências de cada ação e a explicação
+function rangeDecision(g, seat) {
+  const p = g.players[seat], pos = g.posOf(seat), L = g.legal(seat), nAct = g.activeCount();
+  const cls = classOf(p.hole[0], p.hole[1]);
+  const opener = g.pfOpener >= 0 ? g.posOf(g.pfOpener) : null;
+  const sc = rangeScenario(pos, nAct, g.raises, opener, g.pfOpener === seat, L.canCheck);
+  const f = rangeFreq(sc, cls), fold = Math.max(0, 1 - f.raise - f.call);
+  return { sc, cls, f, fold };
+}
+const pct0 = x => Math.round(x * 100) + '%';
 function preflopAdvice(g, seat) {
   const p = g.players[seat], pos = g.posOf(seat), L = g.legal(seat), nAct = g.activeCount();
   const s = chen(p.hole[0], p.hole[1]);
-  const combo = comboName(p.hole[0], p.hole[1]);
+  const combo = comboName(p.hole[0], p.hole[1]), cls = classOf(p.hole[0], p.hole[1]);
   const depth = effBB(g, seat);
-  const D = Math.round(depth * 10) / 10;
+  const D = Math.round(depth * 10) / 10, Ds = D.toString().replace('.', ',');
   if (depth <= PUSH_DEPTH) {
-    // Stack curto: all-in ou desistir
-    let t, rec, why;
-    const Ds = D.toString().replace('.', ',');
+    // Stack curto: all-in ou desistir, pelas tabelas geradas
+    let rec, why, r;
     if (g.raises === 0) {
-      t = pushThreshold(depth, pos, nAct);
-      rec = s >= t ? 'raise' : L.canCheck ? 'check' : 'fold';
-      why = `Com ${Ds} BB, a jogada é all-in ou desistir: um aumento normal compromete quase tudo sem tirar ninguém da mão. Nesta posição, vá all-in com força ${t}+. ${combo} tem ${s}.`;
+      const k = behindOf(g, seat);
+      r = pushFoldAdvice(cls, depth, k);
+      rec = r.ok ? 'raise' : L.canCheck ? 'check' : 'fold';
+      why = `Com ${Ds} BB, a jogada é all-in ou desistir. Com ${k} ${k > 1 ? 'jogadores' : 'jogador'} ainda por agir, ${combo} ${r.ok ? 'entra na faixa de all-in' : 'fica de fora'}${r.max ? ` (vale all-in até ${r.max} BB)` : ''}.`;
     } else {
-      t = callShoveThreshold(depth, nAct);
-      rec = s >= t ? (L.canRaise ? 'raise' : 'call') : 'fold';
-      why = `Com ${Ds} BB contra um aumento, só continue all-in com força ${t}+. ${combo} tem ${s}.`;
+      const k = g.pfAgg >= 0 ? behindOf(g, g.pfAgg) : 1;
+      r = pushFoldAdvice(cls, depth, 0, k);
+      rec = r.ok ? (L.canRaise ? 'raise' : 'call') : 'fold';
+      why = `Com ${Ds} BB contra um aumento, continue só com as mãos da faixa de call contra all-in. ${combo} ${r.ok ? 'entra' : 'fica de fora'}${r.max ? ` (vale até ${r.max} BB)` : ''}.`;
     }
-    return { rec, why, s, t, combo, pos, push: true, depth: D };
+    return { rec, why, s, combo, cls, pos, push: true, depth: D, max: r.max, freq: null };
   }
-  const { rec, t, rr } = preflopRule(s, pos, g.raises, L.canCheck, nAct);
-  const hu = nAct === 2 ? ' No heads-up as faixas são bem mais largas: contra um rival só, mãos medianas ganham valor.' : '';
-  let why;
-  if (g.raises === 0) {
-    if (L.canCheck) why = s >= t ? `${combo} (força ${s}) é forte o bastante para aumentar do Big blind.` : `${combo} (força ${s}): passe de graça e veja o flop.`;
-    else why = `No ${POS_LABEL[pos]}, o padrão é abrir com força ${t} ou mais. ${combo} tem força ${s}.${hu}`;
-  } else if (g.raises === 1) {
-    why = s >= rr ? `${combo} (força ${s}) é forte: volte a aumentar (3-bet).` : `Contra um aumento, pague com força ${t}+ nesta posição e re-aumente com ${rr}+. ${combo} tem ${s}.${hu}`;
-  } else {
-    why = `Contra re-aumentos, continue só com mãos muito fortes (${t}+; re-aumente com ${rr}+). ${combo} tem ${s}.`;
-  }
-  return { rec, why, s, t, combo, pos, depth: D };
+  const { sc, f, fold } = rangeDecision(g, seat);
+  const passive = L.canCheck ? 'check' : 'fold';
+  const opts = [['raise', f.raise], ['call', f.call], [passive, fold]];
+  const rec = opts.reduce((a, b) => (b[1] > a[1] ? b : a))[0];
+  const mixed = Math.max(f.raise, f.call, fold) < 1;
+  const verbR = g.raises === 0 ? (L.canCheck ? 'aumentar' : 'abrir') : g.raises === 1 ? '3-bet' : '4-bet';
+  const parts = [];
+  if (f.raise) parts.push(`${verbR} ${f.raise < 1 ? pct0(f.raise) + ' das vezes' : ''}`.trim());
+  if (f.call) parts.push(`pagar ${f.call < 1 ? pct0(f.call) + ' das vezes' : ''}`.trim());
+  const what = parts.length ? parts.join(' ou ') : (L.canCheck ? 'passar' : 'desistir');
+  const size = g.raises === 0 ? `Essa faixa ${L.canCheck ? 'aumenta' : 'abre'} ${pct0(rangePct(sc.raise))} das mãos.` : `Essa faixa ${rangePct(sc.call) ? `paga ${pct0(rangePct(sc.call))} e ` : ''}${verbR === '3-bet' ? 'faz 3-bet' : 'faz 4-bet'} com ${pct0(rangePct(sc.raise))} das mãos.`;
+  const why = `${sc.txt}: com ${combo}, ${what}${mixed && parts.length ? ' (jogada mista)' : ''}. ${size}`;
+  return { rec, why, s, combo, cls, pos, depth: D, freq: { raise: f.raise, call: f.call, fold }, mixed, sc, scTxt: sc.txt };
 }
 
 // O que a ação de cada rival diz sobre a mão dele (texto para o coach)

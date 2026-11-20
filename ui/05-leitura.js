@@ -47,8 +47,9 @@ function strengthHTML() {
   return left + right;
 }
 function forcePop(br, combo, top) {
-  const g = game, pos = g.posOf(0), nAct = g.activeCount(), t = E.preflopRule(br.total, pos, 0, pos === 'BB', nAct).t;
-  const ref = pos === 'BB' ? `No <b>Big blind</b>, se ninguém aumentar: aumente com força <b>${t}+</b>, senão passe de graça.` : `Para abrir no <b>${E.POS_LABEL[pos]}</b>${nAct === 2 ? ' (heads-up)' : ''}: força <b>${t}+</b>. Sua mão ${br.total >= t ? 'entra' : 'não entra'}.`;
+  const g = game, pos = g.posOf(0), nAct = g.activeCount(), h = g.players[0];
+  const sc = E.rangeScenario(pos, nAct, 0, null, false, pos === 'BB'), cls = E.classOf(h.hole[0], h.hole[1]), fr = sc.raise[cls] || 0;
+  const ref = `A força de Chen serve para ordenar mãos de cabeça; as dicas usam as tabelas de faixas. Pela tabela, ${pos === 'BB' ? `no <b>Big blind</b> sem aumento, ${combo} ${fr ? `é para aumentar${fr < 1 ? ` ${pct(fr)} das vezes` : ''}` : 'passa de graça'}` : `para abrir do <b>${E.POS_LABEL[pos]}</b>${nAct === 2 ? ' (heads-up)' : ''}, ${combo} ${fr ? `entra${fr < 1 ? ` ${pct(fr)} das vezes` : ''}` : 'fica de fora'}`}: a faixa ${pos === 'BB' ? 'aumenta' : 'abre'} ${pct(E.rangePct(sc.raise))} das mãos.`;
   return `<div class="str-pop" role="dialog" aria-label="Fórmula da força da mão">
     <div class="str-head">${top}${xBtn}</div>
     <ol class="str-steps">${br.steps.map(x => `<li>${x}</li>`).join('')}</ol>
@@ -215,14 +216,27 @@ function renderLive() {
   if (!liveHelp) { el.innerHTML = `<p class="muted">Ajuda ao vivo desligada: decida sozinho. A análise aparece depois da sua jogada.</p>`; return; }
   const d = decision;
   if (d.street === 'preflop') {
-    const a = d.adv, s = Math.max(0, a.s), w = Math.min(100, s / 20 * 100), m = Math.max(0, a.t) / 20 * 100;
-    const pushRow = a.push ? `<div class="kv"><span>Stack efetivo</span><b class="warn">${a.depth.toString().replace('.', ',')} BB · all-in ou desistir</b></div>` : '';
-    el.innerHTML = `<div class="kv"><span>Sua mão</span><b>${a.combo} · força ${a.s} de 20</b></div>
-      <div class="kv"><span>Posição</span><b>${E.POS_LABEL[a.pos]}${g.activeCount() < 6 ? ` · ${g.activeCount()} na mesa` : ''}</b></div>${pushRow}
-      <div class="meter"><div class="fill ${a.s < a.t ? 'low' : ''}" style="width:${w}%"></div><div class="mark ${m < 12 ? 'edge-l' : ''}" style="left:${m}%"><span>mínimo ${a.t}</span></div></div>
-      <div class="scale"><span>0</span><span>20</span></div>
-      <div class="rec-line">Sugestão: <b>${a.push && d.rec === 'raise' ? 'all-in' : REC_PT[d.rec]}</b>. ${a.why}${a.push ? '' : ` <button class="link" id="seeRange" type="button">Ver faixa</button>`}</div>`;
-    if (!a.push) $('seeRange').onclick = () => { rangeSt = { pos: a.pos, scn: Math.min(2, game.raises), sel: a.combo, hu: game.activeCount() === 2 }; openStudy('ranges'); };
+    const a = d.adv;
+    let viz;
+    if (a.push) {
+      const m = Math.min(20, a.max || 0), w = m / 20 * 100, dp = Math.min(20, a.depth) / 20 * 100;
+      viz = `<div class="kv"><span>Stack efetivo</span><b class="warn">${a.depth.toString().replace('.', ',')} BB · all-in ou desistir</b></div>
+      <div class="meter"><div class="fill ${a.max >= a.depth ? '' : 'low'}" style="width:${w}%"></div><div class="mark ${dp < 12 ? 'edge-l' : dp > 85 ? 'edge-r' : ''}" style="left:${dp}%"><span>seu stack</span></div></div>
+      <div class="scale"><span>0 BB</span><span>vale até ${a.max || 0} BB</span><span>20 BB</span></div>`;
+    } else {
+      const f = a.freq, vr = g.raises === 0 ? (d.L.canCheck ? 'Aumentar' : 'Abrir') : g.raises === 1 ? '3-bet' : '4-bet';
+      viz = `<div class="kv"><span>Situação</span><b>${a.scTxt}</b></div>
+      <div class="freqbar" role="img" aria-label="${vr} ${pct(f.raise)}, pagar ${pct(f.call)}, ${d.L.canCheck ? 'passar' : 'desistir'} ${pct(f.fold)}"><i style="width:${f.raise * 100}%;background:var(--brass)"></i><i style="width:${f.call * 100}%;background:var(--call)"></i></div>
+      <div class="freqleg"><span style="--c:var(--brass)">${vr} ${pct(f.raise)}</span>${g.raises ? `<span style="--c:var(--call)">Pagar ${pct(f.call)}</span>` : ''}<span style="--c:var(--line)">${d.L.canCheck ? 'Passar' : 'Desistir'} ${pct(f.fold)}</span></div>`;
+    }
+    el.innerHTML = `<div class="kv"><span>Sua mão</span><b>${a.combo} · ${E.POS_LABEL[a.pos]}${g.activeCount() < 6 ? ` · ${g.activeCount()} na mesa` : ''}</b></div>${viz}
+      <div class="rec-line">Sugestão: <b>${a.push && d.rec === 'raise' ? 'all-in' : REC_PT[d.rec]}</b>. ${a.why} <button class="link" id="seeRange" type="button">Ver faixa</button></div>`;
+    $('seeRange').onclick = () => {
+      const opener = game.pfOpener >= 0 ? game.posOf(game.pfOpener) : null, hu = game.activeCount() === 2;
+      const scn = a.push ? 'push' : game.raises === 0 ? 'open' : game.raises === 1 ? 'vsopen' : 'vs3bet';
+      rangeSt = { pos: a.push && game.raises ? 'BB' : a.pos, scn, sel: a.cls, hu, opener: a.push && game.raises && game.pfAgg >= 0 ? game.posOf(game.pfAgg) : opener, depth: [3, 5, 8, 10, 12, 15].reduce((x, y) => Math.abs(y - a.depth) < Math.abs(x - a.depth) ? y : x) };
+      openStudy('ranges');
+    };
   } else {
     const i = d.info, w = i.eq * 100;
     const markCls = i.need > .85 ? 'edge-r' : i.need < .12 ? 'edge-l' : '';

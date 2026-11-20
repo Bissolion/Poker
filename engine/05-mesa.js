@@ -39,7 +39,7 @@ class Game {
     this.handNo++;
     this.button = this.next(this.button);
     this.board = []; this.street = 'preflop'; this.handOver = false; this.result = null;
-    this.currentBet = 0; this.minRaise = this.bb; this.raises = 0; this.pfAgg = -1;
+    this.currentBet = 0; this.minRaise = this.bb; this.raises = 0; this.pfAgg = -1; this.pfOpener = -1;
     this.deck = shuffle([...Array(52).keys()], this.rng);
     for (const p of this.players) Object.assign(p, { hole: [], bet: 0, committed: 0, folded: p.out, allIn: false, hasActed: false, actedSinceFull: false, minChen: 0, reads: [], lastAction: p.out ? 'Fora' : '', startStack: p.stack });
     this.snaps = [];
@@ -105,6 +105,7 @@ class Game {
         // all-in de stack curto não indica mão premium: a faixa de quem empurra 8 BB é larga
         const shortShove = p.allIn && to <= 12 * this.bb;
         p.minChen = Math.max(p.minChen, shortShove ? (this.raises === 0 ? 4 : 7) : this.raises === 0 ? 7 : this.raises === 1 ? 10 : 12);
+        if (this.raises === 0) this.pfOpener = seat;
         this.pfAgg = seat;
       }
       this.raises++;

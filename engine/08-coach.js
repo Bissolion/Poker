@@ -55,12 +55,30 @@ const ACT_PT = { fold: 'desistir', check: 'passar', call: 'pagar', raise: 'aumen
 function gradePreflop(adv, action, L) {
   const a = action === 'check' && !L.canCheck ? 'call' : action;
   if (a === 'fold' && L.canCheck) return { grade: 'bad', title: 'Desistiu de graça', text: 'Você podia passar sem pagar nada. Desistir nunca é melhor que passar de graça.' };
-  if (a === adv.rec) return { grade: 'good', title: 'Boa decisão', text: adv.why };
-  const r = adv.rec, gap = adv.s - adv.t;
-  if ((r === 'raise' && a === 'call') || (r === 'call' && a === 'raise') || (r === 'check' && a === 'call')) return { grade: 'ok', title: `Aceitável; o ideal era ${ACT_PT[r]}`, text: adv.why };
-  if (r === 'check' && a === 'raise') return { grade: 'ok', title: 'Aumento leve', text: adv.why };
-  if (a === 'fold') return gap >= 2 ? { grade: 'bad', title: `Desistiu de mão boa; o ideal era ${ACT_PT[r]}`, text: adv.why } : { grade: 'ok', title: `Um pouco apertado; dava para ${ACT_PT[r]}`, text: adv.why };
-  return adv.s >= adv.t - 1 ? { grade: 'ok', title: 'Mão no limite', text: adv.why } : { grade: 'bad', title: `Mão fraca demais: o ideal era ${ACT_PT[r]}`, text: adv.why };
+  if (a === adv.rec || (a === 'check' && adv.rec === 'fold')) return { grade: 'good', title: 'Boa decisão', text: adv.why };
+  if (adv.push) {
+    const near = adv.max && Math.abs(adv.max - adv.depth) <= 2;
+    if (near) return { grade: 'ok', title: 'No limite', text: adv.why };
+    return { grade: 'bad', title: `O ideal era ${adv.rec === 'raise' ? 'all-in' : ACT_PT[adv.rec]}`, text: adv.why };
+  }
+  const f = adv.freq, fa = a === 'raise' ? f.raise : a === 'call' ? f.call : f.fold;
+  if (fa >= 0.25) return { grade: 'good', title: 'Jogada mista: também vale', text: adv.why };
+  if (fa > 0) return { grade: 'ok', title: 'Às vezes, mas não o mais comum', text: adv.why };
+  if (a === 'call' && f.raise > 0) return { grade: 'ok', title: 'Pagar em vez de aumentar', text: adv.why };
+  if (a === 'raise' && f.call > 0) return { grade: 'ok', title: 'Aumentou em vez de pagar', text: adv.why };
+  if (a === 'fold') return { grade: f.raise + f.call >= 1 ? 'bad' : 'ok', title: `Desistiu; o ideal era ${ACT_PT[adv.rec]}`, text: adv.why };
+  // jogou uma mão de fora da faixa: perto da borda é aceitável
+  const near = adv.cls && HAND_POS[adv.cls] !== undefined && f.raise + f.call === 0 && edgeNear(adv);
+  return near ? { grade: 'ok', title: 'Fora da faixa, mas perto da borda', text: adv.why } : { grade: 'bad', title: `Fora da faixa: o ideal era ${ACT_PT[adv.rec]}`, text: adv.why };
+}
+// A mão está a até 5% (na ordem de força) da mão mais fraca que a faixa joga?
+function edgeNear(adv) {
+  const sc = adv.sc;
+  if (!sc) return false;
+  const inRange = Object.keys({ ...sc.raise, ...sc.call });
+  if (!inRange.length) return false;
+  const pct = rangePct({ ...sc.call, ...sc.raise });
+  return HAND_POS[adv.cls] <= pct + 0.05;
 }
 
 // Projetos (draws) e outs, para o coach ensinar a regra do 2 e 4

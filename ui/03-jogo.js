@@ -2,7 +2,7 @@
 let game = null, tour = null;
 let decision = null, handFb = [], flags = {}, loopId = 0, counted = false, raiseTo = 0;
 let runout = null, anim = null, lastOut = [], strOpen = false, readCache = { key: '' };
-let studyTab = 'hands', replay = null, rangeSt = { pos: null, scn: 0, sel: null, hu: null };
+let studyTab = 'hands', replay = null, rangeSt = { pos: null, scn: 'open', sel: null, hu: null, opener: null, depth: 10 };
 let quiz = { cat: 'mix', q: null, picked: null };
 
 function newGame(c) {
