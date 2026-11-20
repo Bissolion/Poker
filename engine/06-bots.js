@@ -1,10 +1,10 @@
 // ---------- Bots ----------
 const PROFILES = {
-  tag:     { label: tx`Sólida`,      open: 7,  call: 8,  rr: 12, limp: 99, aggr: 0.7,  bluff: 0.08, margin: 0.03,  bet: 0.62, raise: 0.78, size: 0.66, noise: 1,   dev: { open: 0, call: 0, raise: 0, push: 0 } },
-  lag:     { label: tx`Agressivo`,   open: 6,  call: 7,  rr: 10, limp: 99, aggr: 0.85, bluff: 0.22, margin: 0.0,   bet: 0.55, raise: 0.68, size: 0.8,  noise: 2,   dev: { open: 0.10, call: 0.03, raise: 0.06, push: 2 } },
-  station: { label: tx`Paga tudo`,   open: 11, call: 4,  rr: 14, limp: 4,  aggr: 0.25, bluff: 0.03, margin: -0.12, bet: 0.72, raise: 0.88, size: 0.5,  noise: 1.5, dev: { open: -0.03, call: 0.25, raise: -0.04, push: -1, callPush: 4 } },
-  nit:     { label: tx`Cautelosa`,   open: 9,  call: 10, rr: 14, limp: 99, aggr: 0.6,  bluff: 0.02, margin: 0.08,  bet: 0.7,  raise: 0.84, size: 0.6,  noise: 0.5, dev: { open: -0.06, call: -0.08, raise: -0.02, push: -2 } },
-  bal:     { label: tx`Equilibrado`, open: 7,  call: 8,  rr: 11, limp: 99, aggr: 0.65, bluff: 0.12, margin: 0.02,  bet: 0.6,  raise: 0.75, size: 0.65, noise: 1.5, dev: { open: 0.02, call: 0.03, raise: 0, push: 0 } },
+  tag:     { label: tx`Sólida`,      open: 7,  call: 8,  rr: 12, limp: 99, aggr: 0.7,  bluff: 0.08, margin: 0.03,  bet: 0.62, raise: 0.78, size: 0.66, noise: 1,   dev: { open: 0, call: 0, raise: 0, push: 0 }, post: { cbet: 0, fold: 0, raise: 0 } },
+  lag:     { label: tx`Agressivo`,   open: 6,  call: 7,  rr: 10, limp: 99, aggr: 0.85, bluff: 0.22, margin: 0.0,   bet: 0.55, raise: 0.68, size: 0.8,  noise: 2,   dev: { open: 0.10, call: 0.03, raise: 0.06, push: 2 }, post: { cbet: 0.4, fold: -0.15, raise: 0.6 } },
+  station: { label: tx`Paga tudo`,   open: 11, call: 4,  rr: 14, limp: 4,  aggr: 0.25, bluff: 0.03, margin: -0.12, bet: 0.72, raise: 0.88, size: 0.5,  noise: 1.5, dev: { open: -0.03, call: 0.25, raise: -0.04, push: -1, callPush: 4 }, post: { cbet: -0.3, fold: -0.6, raise: -0.5 } },
+  nit:     { label: tx`Cautelosa`,   open: 9,  call: 10, rr: 14, limp: 99, aggr: 0.6,  bluff: 0.02, margin: 0.08,  bet: 0.7,  raise: 0.84, size: 0.6,  noise: 0.5, dev: { open: -0.06, call: -0.08, raise: -0.02, push: -2 }, post: { cbet: -0.35, fold: 0.35, raise: -0.3 } },
+  bal:     { label: tx`Equilibrado`, open: 7,  call: 8,  rr: 11, limp: 99, aggr: 0.65, bluff: 0.12, margin: 0.02,  bet: 0.6,  raise: 0.75, size: 0.65, noise: 1.5, dev: { open: 0.02, call: 0.03, raise: 0, push: 0 }, post: { cbet: 0.05, fold: 0, raise: 0 } },
 };
 const POS_BONUS = { UTG: -1, MP: -0.5, CO: 0.5, BTN: 1.5, SB: 0, BB: 0.5 };
 
@@ -105,6 +105,14 @@ function botDecide(g, seat, rng = Math.random) {
     const fr = rivals[0].tend.folded / rivals[0].tend.faced;
     if (fr > 0.55) bluffMul *= 2.2;
     else if (fr < 0.3) { bluffMul *= 0.3; betT -= 0.06; sizeMul = 1.2; }
+  }
+  // flop mano a mano: frequências do solver, com o desvio do estilo e a leitura do Difícil
+  const sp = solverSpot(g, seat);
+  if (sp && sp.freq) {
+    const post = { ...(pr.post || {}) };
+    if (bluffMul > sk.bluff) post.cbet = (post.cbet || 0) + 0.5;
+    else if (bluffMul < sk.bluff) { post.cbet = (post.cbet || 0) - 0.3; post.fold = (post.fold || 0) - 0.3; }
+    return solverAction(g, seat, sp, { ...pr, post }, sk, rng);
   }
   if (L.toCall === 0) {
     if (st >= betT && rng() < pr.aggr + 0.2 && L.canRaise) return sizeRaise(g, p, L, pot * pr.size * sizeMul * (0.85 + rng() * 0.3));

@@ -1,0 +1,12 @@
+[package]
+name = "gerar-posflop"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Solver usado só para gerar dados (AGPL). O app não inclui o código dele, só as tabelas resultantes.
+[dependencies]
+postflop-solver = { git = "https://github.com/b-inary/postflop-solver", default-features = false, features = ["rayon"] }
+
+[profile.release]
+opt-level = 3
