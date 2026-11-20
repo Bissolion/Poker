@@ -13,7 +13,10 @@ Texas Hold'em No-Limit contra 5 bots com estilos diferentes, com um coach que ex
 - **Mesa:** 6 jogadores ou heads-up contra o bot que você escolher. As posições, a ordem de ação e as faixas do coach se ajustam ao número de jogadores.
 - **Dificuldade:** Iniciante (bots erram e pagam no automático), Normal e Difícil (continuation bet, leitura das suas tendências, blefes ajustados contra quem desiste demais).
 - **Bots com personalidade:** Marta (sólida), Diego (agressivo), Seu Zé (paga tudo), Helena (cautelosa) e Rafa (equilibrado).
-- **Força da mão sempre visível:** canto superior esquerdo da mesa, com a conta da fórmula de Chen; um toque abre o passo a passo e a regra completa (dá para esconder em Jogo → Preferências).
+- **Leitura da mão e da mesa, sempre visível (sem precisar do coach):**
+  - *Canto esquerdo:* antes do flop, a força da mão com a conta da fórmula de Chen; depois do flop, a sua combinação (par, dois pares, trinca…) e seus projetos (flush draw, straight draw, gutshot) com os outs. As cartas que formam a combinação ficam com contorno dourado na mesa.
+  - *Canto direito:* o que a mesa permite (flush, sequência, full house, draws possíveis), se ela é seca, molhada, perigosa ou pareada, e a melhor mão possível.
+  - Um toque em cada quadro abre a explicação completa. Dá para esconder em Jogo → Preferências.
 - **Coach ao vivo:** força da mão pré-flop por posição, push/fold com 12 BB ou menos, equity por simulação Monte Carlo, pot odds, projetos e outs (regra do 2 e 4), com sugestão de jogada.
 - **Leitura dos rivais:** a equity estreita a faixa de cada rival pela ação pré-flop e pelas apostas e calls depois do flop (com margem para blefes).
 - **Feedback por decisão:** cada jogada recebe nota (Boa / Ok / Erro) e explicação; apostas e aumentos também recebem nota de tamanho.

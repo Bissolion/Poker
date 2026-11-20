@@ -289,3 +289,30 @@ for (let a = 0; a < 52; a++) for (let b = a + 1; b < 52; b++) {
   assert(br.calc.replace(/−/g, '-').endsWith(String(br.total)) || br.calc.endsWith('mín. 5'), br.calc);
 }
 console.log('força passo a passo ok');
+
+// ---- Leitura da mão e da mesa ----
+for (let t = 0; t < 2000; t++) {
+  const d = P.shuffle([...Array(52).keys()]);
+  for (const n of [5, 6, 7]) { const cs = d.slice(0, n); assert.strictEqual(P.evalHand(P.best5(cs)), P.evalHand(cs), 'best5 com ' + n + ' cartas'); }
+}
+{
+  const m = P.madeHand(H('Ac Kd'), H('7s 7c 2d'));
+  assert.strictEqual(m.short, 'Par de 7'); assert(m.boardOnly, 'par da mesa');
+  const k = P.madeHand(H('Kc Kd'), H('Ks 9h 4c'));
+  assert.strictEqual(k.short, 'Trinca de K'); assert.strictEqual(k.core.length, 3); assert(!k.boardOnly);
+  assert.strictEqual(P.madeHand(H('Ah 2h'), H('Kh 7h 9h')).core.length, 5, 'flush usa 5 cartas');
+  const dr = P.heroDraws(H('9h 8h'), H('7h 6c 2h'));
+  assert.strictEqual(dr.outs, 15); assert.strictEqual(dr.name, 'Flush draw + Straight draw');
+  assert.strictEqual(P.heroDraws(H('9h 8h'), H('7h 6c 2h 3d 4s')), null, 'sem projeto no river');
+  const r = P.boardRead(H('Qh 7h 2c'), H('Ah Kh'));
+  assert.deepStrictEqual(r.tags, ['Flush draw']); assert.strictEqual(r.label, 'Molhada');
+  const r2 = P.boardRead(H('Ks 9h 4c Jd'), H('Kc Kd'));
+  assert(r2.tags.includes('Sequência possível') && r2.label === 'Perigosa');
+  assert(/Q-T/.test(r2.items.find(x => x.tag === 'Sequência possível').text));
+  assert.strictEqual(r2.nuts.name, 'Sequência até o K');
+  const r3 = P.boardRead(H('Kd 8s 3c'), H('Ah Qh'));
+  assert.strictEqual(r3.label, 'Seca'); assert.deepStrictEqual(r3.tags, []);
+  assert.strictEqual(P.boardRead(H('7s 7c 2d'), H('Ac Kd')).label, 'Pareada');
+  assert(P.boardRead(H('Ah Kh Qh Jh Th'), H('5h 4h')).heroNuts, 'royal na mesa: todos empatam no nuts');
+}
+console.log('leitura da mão e da mesa ok');

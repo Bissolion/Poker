@@ -124,6 +124,24 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 .str-rules { margin: 0; line-height: 1.45; }
 .str-rules b, .str-ref b { color: var(--ink); }
 .str-ref { border-top: 1px solid var(--line); padding-top: 8px; }
+#table .seat.p2, #table .seat.p4 { top: 16%; }
+.str { max-width: calc(50% - 52px); }
+.str.right { left: auto; right: 0; align-items: flex-end; text-align: right; }
+.str-top.wrap { white-space: normal; display: block; line-height: 1.2; }
+.str-hand { font-size: 13.5px; font-weight: 700; color: var(--ink); text-transform: none; letter-spacing: 0; }
+.str-lbl { font-size: 13px; font-weight: 800; text-transform: none; letter-spacing: 0; }
+.lbl-Seca { color: var(--good); } .lbl-Molhada, .lbl-Pareada { color: var(--ok); } .lbl-Perigosa { color: var(--bad); }
+.str-pop.right { left: auto; right: 0; }
+.str-cards { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.str-note { margin: 0; padding: 6px 9px; border-radius: 8px; background: var(--surface-2); color: var(--ink); }
+.str-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.str-list li { display: grid; grid-template-columns: 10px 1fr; gap: 8px; align-items: baseline; color: var(--ink); }
+.str-list li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); transform: translateY(-1px); }
+.str-list li.made::before { background: var(--bad); } .str-list li.draw::before { background: var(--ok); }
+.str-order { margin: 0; font-size: 12.5px; line-height: 1.5; }
+.str-order b { color: var(--brass); }
+.str-link { background: none; border: 0; padding: 0; color: var(--brass); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.card.made { box-shadow: 0 0 0 2px var(--brass), 0 2px 5px rgba(0,0,0,.35); }
 .card.flip { animation: flip .45s ease-out; }
 @keyframes flip { 0% { transform: rotateY(90deg) scale(.9); } 100% { transform: none; } }
 
@@ -356,6 +374,9 @@ details[open] summary { margin-bottom: 8px; }
       <dt>Posição</dt><dd>Quem age por último tem mais informação. No Botão (BTN) dá para jogar mais mãos; no UTG, primeiro a falar, só as fortes. No heads-up o botão também é o small blind.</dd>
       <dt>Força pré-flop</dt><dd>Nota de −1 a 20 pela fórmula de Chen: AA vale 20, AKs 12, 72o −1. Nas siglas, T é o 10, “s” é mesmo naipe e “o” é naipes diferentes: TT é um par de 10.</dd>
       <dt>Outs</dt><dd>Cartas que completam sua mão. Regra do 2 e 4: multiplique os outs por 4 no flop (duas cartas por vir) ou por 2 no turn para ter a chance aproximada em %.</dd>
+      <dt>Flush draw, straight draw, gutshot</dt><dd>Projetos: falta uma carta para completar. Flush draw (4 do mesmo naipe) tem 9 outs; straight draw aberto (4 seguidas, completa nas duas pontas) tem 8; gutshot (falta uma do meio) tem 4.</dd>
+      <dt>Mesa seca, molhada, perigosa</dt><dd>Seca tem poucos projetos possíveis; molhada tem flush draw ou straight draw possíveis; perigosa já permite flush ou sequência feitos. Pareada tem par na mesa, o que abre caminho para full house e quadra.</dd>
+      <dt>Nuts</dt><dd>A melhor mão possível com as cartas da mesa naquele momento.</dd>
       <dt>Push/fold</dt><dd>Com 12 big blinds ou menos, a decisão pré-flop vira all-in ou desistir: um aumento normal compromete metade do stack sem tirar ninguém da mão.</dd>
       <dt>VPIP / PFR</dt><dd>% das mãos em que você colocou fichas por vontade própria / em que aumentou antes do flop. Iniciantes costumam ter VPIP alto demais.</dd>
     </dl>
@@ -1124,15 +1145,121 @@ function choices(correct, pool, rng, n = 4, minGap = 1) {
 }
 // Melhores 5 cartas (para destacar na explicação)
 function best5(cards) {
+  if (cards.length <= 5) return cards.slice();
   let best = -1, bc = null;
-  const n = cards.length;
-  for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) {
-    const five = cards.filter((_, i) => i !== a && i !== b);
-    if (n === 6 && b !== n - 1) continue;
-    const sc = evalHand(n === 5 ? cards : five);
-    if (sc > best) { best = sc; bc = n === 5 ? cards.slice() : five; }
-  }
+  const pick = [], n = cards.length;
+  const rec = from => {
+    if (pick.length === 5) { const sc = evalHand(pick); if (sc > best) { best = sc; bc = pick.slice(); } return; }
+    for (let i = from; i <= n - (5 - pick.length); i++) { pick.push(cards[i]); rec(i + 1); pick.pop(); }
+  };
+  rec(0);
   return bc;
+}
+
+// ---------- Leitura da mão e da mesa ----------
+// Nome curto da mão para o quadro da mesa
+function shortName(score) {
+  const c = catOf(score), R = i => RANK_CH[kOf(score, i)];
+  switch (c) {
+    case 8: return 'Straight flush';
+    case 7: return `Quadra de ${R(0)}`;
+    case 6: return 'Full house';
+    case 5: return 'Flush';
+    case 4: return 'Sequência';
+    case 3: return `Trinca de ${R(0)}`;
+    case 2: return `Dois pares, ${R(0)} e ${R(1)}`;
+    case 1: return `Par de ${R(0)}`;
+    default: return `Carta alta ${R(0)}`;
+  }
+}
+// O que você tem: categoria, melhores 5 cartas e as cartas que formam a combinação
+function madeHand(hole, board) {
+  const all = [...hole, ...board], score = evalHand(all), cat = catOf(score);
+  const b5 = best5(all);
+  const cnt = {}; for (const c of b5) cnt[rankOf(c)] = (cnt[rankOf(c)] || 0) + 1;
+  const core = [4, 5, 8].includes(cat) ? b5.slice() : cat === 0 ? [] : b5.filter(c => cnt[rankOf(c)] >= 2);
+  const boardOnly = core.length > 0 && core.every(c => board.includes(c));
+  // cartas da combinação primeiro, depois as demais, da maior para a menor
+  const inCore = new Set(core), byRank = (x, y) => rankOf(y) - rankOf(x);
+  const ordered = [...b5.filter(c => inCore.has(c)).sort(byRank), ...b5.filter(c => !inCore.has(c)).sort(byRank)];
+  return { score, cat, name: handName(score), short: shortName(score), best5: ordered, core, boardOnly };
+}
+// Seus projetos (flush draw, straight draw, gutshot) com outs exatos
+const DRAW_EN = { 'Projeto de flush': 'Flush draw', 'Sequência aberta': 'Straight draw', 'Gutshot (sequência por dentro)': 'Gutshot' };
+function heroDraws(hole, board) {
+  if (board.length < 3 || board.length >= 5) return null;
+  if (catOf(evalHand([...hole, ...board])) >= 5) return null;
+  const d = drawsOf(hole, board), o = outsSets(hole, board);
+  if (!d.length || !o.all.length) return null;
+  const n = o.all.length, left = 5 - board.length, unseen = 52 - 2 - board.length;
+  const exact = left === 2 ? 1 - ((unseen - n) * (unseen - n - 1)) / (unseen * (unseen - 1)) : n / unseen;
+  return { name: d.map(x => DRAW_EN[x.name] || x.name).join(' + '), outs: n, flush: o.F.length, straight: o.S.length, approx: n * (left === 2 ? 4 : 2), exact, left };
+}
+// O que a mesa permite: flush, sequência, full house, draws e a melhor mão possível
+function boardRead(board, hole) {
+  const n = board.length, RC = '23456789TJQKA', S = SUIT_CH;
+  const items = [];
+  // Flush
+  const sc = [0, 0, 0, 0]; board.forEach(c => sc[suitOf(c)]++);
+  const ms = Math.max(...sc), su = sc.indexOf(ms);
+  if (ms >= 5) items.push({ tag: 'Flush na mesa', lv: 'made', text: `Cinco cartas de ${S[su]} na mesa: todos têm flush, e ganha quem tiver a ${S[su]} mais alta.` });
+  else if (ms === 4) items.push({ tag: 'Flush possível', lv: 'made', text: `Quatro cartas de ${S[su]}: quem tem uma ${S[su]} já fez flush.` });
+  else if (ms === 3) items.push({ tag: 'Flush possível', lv: 'made', text: `Três cartas de ${S[su]}: quem tem duas ${S[su]} já fez flush.${n < 5 ? ` Quem tem uma ${S[su]} tem flush draw.` : ''}` });
+  if (n < 5) {
+    const two = [0, 1, 2, 3].filter(k => sc[k] === 2);
+    if (two.length) items.push({ tag: 'Flush draw', lv: 'draw', text: `${two.map(k => `Duas de ${S[k]}`).join(' e ')} na mesa: quem tem duas cartas do naipe tem flush draw (9 outs).` });
+  }
+  // Sequência
+  const bm = board.reduce((m, c) => m | (1 << rankOf(c)), 0);
+  const has = r => (bm >> r) & 1;
+  const completes = m => straightHigh(m) >= 0;
+  if (completes(bm)) items.push({ tag: 'Sequência na mesa', lv: 'made', text: 'A mesa já forma uma sequência: todos têm pelo menos ela.' });
+  else {
+    const singles = [], pairs = [];
+    for (let a = 0; a < 13; a++) if (!has(a) && completes(bm | (1 << a))) singles.push(a);
+    for (let a = 0; a < 13; a++) for (let b = a + 1; b < 13; b++) {
+      if (has(a) || has(b) || singles.includes(a) || singles.includes(b)) continue;
+      if (completes(bm | (1 << a) | (1 << b))) pairs.push([b, a]);
+    }
+    if (singles.length || pairs.length) {
+      const ex = [...singles.sort((x, y) => y - x).map(a => `um ${RC[a]}`), ...pairs.sort((x, y) => y[0] - x[0] || y[1] - x[1]).map(([b, a]) => `${RC[b]}-${RC[a]}`)];
+      items.push({ tag: 'Sequência possível', lv: 'made', text: `Faz sequência quem tem ${ex.slice(0, 5).join(', ')}${ex.length > 5 ? ' e outras' : ''}.` });
+    }
+    if (n < 5) {
+      // quantos valores completam a sequência para cada mão possível
+      const outsRanks = m => { let k = 0; for (let r = 0; r < 13; r++) if (!((m >> r) & 1) && completes(m | (1 << r))) k++; return k; };
+      const open = [], gut = [];
+      for (let a = 0; a < 13; a++) for (let b = a; b < 13; b++) {
+        const m = bm | (1 << a) | (1 << b);
+        if (completes(m) || (has(a) && has(b))) continue;
+        const k = outsRanks(m);
+        if (!k || k <= outsRanks(bm)) continue; // o projeto precisa usar carta da mão
+        (k >= 2 ? open : gut).push(a === b ? `${RC[b]}${RC[a]}` : `${RC[b]}-${RC[a]}`);
+      }
+      if (open.length) items.push({ tag: 'Straight draw', lv: 'draw', text: `Straight draw aberto (8 outs) para quem tem ${open.reverse().slice(0, 4).join(', ')}${open.length > 4 ? ' e outras' : ''}; gutshot (4 outs) para várias outras.` });
+      else if (gut.length) items.push({ tag: 'Gutshot', lv: 'draw', text: `Só gutshot (sequência por dentro, 4 outs), por exemplo com ${gut.reverse().slice(0, 3).join(', ')}.` });
+    }
+  }
+  // Pares na mesa
+  const rc = {}; board.forEach(c => { rc[rankOf(c)] = (rc[rankOf(c)] || 0) + 1; });
+  const trips = Object.keys(rc).filter(r => rc[r] >= 3).map(Number);
+  const prs = Object.keys(rc).filter(r => rc[r] === 2).map(Number).sort((a, b) => b - a);
+  if (trips.length) items.push({ tag: 'Trinca na mesa', lv: 'made', text: `Trinca de ${RANK_CH[trips[0]]} na mesa: quem tiver o último ${RANK_CH[trips[0]]} faz quadra, e qualquer par faz full house.` });
+  else if (prs.length) items.push({ tag: 'Mesa pareada', lv: 'made', text: `${prs.map(r => `Par de ${RANK_CH[r]}`).join(' e ')} na mesa: quem tem ${prs.map(r => `um ${RANK_CH[r]}`).join(' ou ')} fez trinca; full house e quadra ficam possíveis.` });
+  else items.push({ tag: null, lv: 'info', text: 'Sem par na mesa: trinca só com par na mão (set); full house e quadra ainda não são possíveis.' });
+  // Melhor mão possível e quantas mãos ganham da sua
+  const used = new Set([...board, ...(hole || [])]);
+  const rest = []; for (let c = 0; c < 52; c++) if (!used.has(c)) rest.push(c);
+  const hs = hole ? evalHand([...hole, ...board]) : null;
+  let nuts = -1, ex = null, beat = 0, tie = 0, tot = 0;
+  for (let i = 0; i < rest.length; i++) for (let j = i + 1; j < rest.length; j++) {
+    const s2 = evalHand([rest[i], rest[j], ...board]); tot++;
+    if (s2 > nuts) { nuts = s2; ex = [rest[i], rest[j]]; }
+    if (hs != null) { if (s2 > hs) beat++; else if (s2 === hs) tie++; }
+  }
+  const madeDanger = items.some(x => x.lv === 'made' && /Flush|Sequência/.test(x.tag || ''));
+  const label = madeDanger ? 'Perigosa' : (trips.length || prs.length) ? 'Pareada' : items.some(x => x.lv === 'draw') ? 'Molhada' : 'Seca';
+  return { items, label, tags: items.filter(x => x.tag).map(x => x.tag), nuts: { name: handName(nuts), ex }, beat, tie, tot, heroNuts: hs != null && hs >= nuts };
 }
 
 function quizPotOdds(rng = Math.random) {
@@ -1232,7 +1359,7 @@ function quizWinner(rng = Math.random) {
   return quizPotOdds(rng);
 }
 
-const Poker = { chenBreakdown, SKILLS, effBB, pushThreshold, callShoveThreshold, PUSH_DEPTH, BLIND_LEVELS, blindLevel, equityKnown, POS_BY_N, quizPotOdds, quizOuts, quizWinner, outsSets, best5, CAT_PT, drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
+const Poker = { shortName, madeHand, heroDraws, boardRead, chenBreakdown, SKILLS, effBB, pushThreshold, callShoveThreshold, PUSH_DEPTH, BLIND_LEVELS, blindLevel, equityKnown, POS_BY_N, quizPotOdds, quizOuts, quizWinner, outsSets, best5, CAT_PT, drawsOf, handLevel, preflopRule, readNote, gradeSizing, boardWet, OPEN_T, RANK_CH, SUIT_CH, rankOf, suitOf, cardStr, shuffle, evalHand, handName, catOf, chen, comboName, equity, Game, PROFILES, botDecide, preflopAdvice, gradePreflop, postflopInfo, postflopRec, gradePostflop, POS_LABEL, STREET_LABEL, strengthOf };
 if (typeof module !== 'undefined') module.exports = Poker;
 </script>
 <script>
@@ -1310,7 +1437,7 @@ document.addEventListener('pointerdown', () => sfx.unlock(), { capture: true });
 // ---- jogo ----
 let game = null, tour = null;
 let decision = null, handFb = [], flags = {}, loopId = 0, counted = false, raiseTo = 0;
-let runout = null, anim = null, lastOut = [], strOpen = false;
+let runout = null, anim = null, lastOut = [], strOpen = false, readCache = { key: '' };
 let studyTab = 'hands', replay = null, rangeSt = { pos: null, scn: 0, sel: null, hu: null };
 let quiz = { cat: 'mix', q: null, picked: null };
 
@@ -1353,7 +1480,8 @@ function tableHTML(v, heroSize) {
       ${s.bet ? `<div class="bet">${s.bet}</div>` : ''}
     </div>`;
   }
-  let b = v.board.map((c, k) => card(c, 'md', (v.hl.has(c) ? 'hl' : '') + (v.newFrom != null && k >= v.newFrom ? ' flip' : ''))).join('');
+  const mk = c => v.made && v.made.has(c) ? 'made' : '';
+  let b = v.board.map((c, k) => card(c, 'md', (v.hl.has(c) ? 'hl' : mk(c)) + (v.newFrom != null && k >= v.newFrom ? ' flip' : ''))).join('');
   for (let k = v.board.length; k < 5; k++) b += slot();
   html += `<div class="center">
     ${v.pot ? `<div class="potline">Pote <span>${v.pot}</span></div>` : ''}
@@ -1363,7 +1491,7 @@ function tableHTML(v, heroSize) {
   const h = v.seats[0];
   html += `<div class="hero${h.folded && !h.out ? ' folded' : ''}${h.turn ? ' turn' : ''}${h.win ? ' win' : ''}">
     ${h.bet ? `<div class="bet">${h.bet}</div>` : ''}
-    <div class="cards">${h.hole.map(c => card(c, heroSize, v.hl.has(c) && h.win ? 'hl' : '')).join('')}</div>
+    <div class="cards">${h.hole.map(c => card(c, heroSize, v.hl.has(c) && h.win ? 'hl' : mk(c))).join('')}</div>
     <div class="plate"><span class="nm">Você${h.pos ? ` <span class="pos${h.pos === 'BTN' ? ' btn' : ''}">${h.pos}</span>` : ''}</span><span class="stk">${h.stack}</span></div>
     <div class="tag${h.allIn ? ' allin' : ''}${h.eq != null ? ' eq' : ''}">${h.eq != null ? pct(h.eq) : h.tag || ''}</div>
   </div>`;
@@ -1384,7 +1512,8 @@ function liveView() {
   }));
   const board = anim ? g.board.slice(0, anim.len) : g.board;
   const street = anim ? 'All-in' : g.handOver ? (r.showdown ? 'Showdown' : 'Fim da mão') : E.STREET_LABEL[g.street];
-  return { seats, board, pot: g.handOver ? g.result.pot : g.potCollected(), street, hl: winningCards(), newFrom: anim ? anim.newFrom : null };
+  const rd = !anim && !g.handOver && !g.players[0].folded && prefs.showStrength ? reading() : null;
+  return { seats, board, pot: g.handOver ? g.result.pot : g.potCollected(), street, hl: winningCards(), newFrom: anim ? anim.newFrom : null, made: rd ? new Set(rd.made.core) : null };
 }
 
 // ---- render principal ----
@@ -1395,21 +1524,91 @@ function render() {
 }
 function renderTable() { $('table').innerHTML = tableHTML(liveView(), 'lg') + strengthHTML(); }
 const fmtN = x => String(x).replace('.', ',').replace('-', '−');
-// Força da mão (fórmula de Chen), sempre visível, independente do coach
+// Leitura da mão e da mesa, sempre visível, independente do coach
+function reading() {
+  const g = game, h = g.players[0];
+  const board = anim ? g.board.slice(0, anim.len) : g.board;
+  if (board.length < 3 || h.hole.length < 2) return null;
+  const key = h.hole.join(',') + '|' + board.join(',');
+  if (readCache.key !== key) readCache = { key, board, made: E.madeHand(h.hole, board), draws: E.heroDraws(h.hole, board), read: E.boardRead(board, h.hole) };
+  return readCache;
+}
+const xBtn = '<button type="button" class="str-x" data-str="close" aria-label="Fechar">×</button>';
+const ORDER = ['Carta alta', 'Par', 'Dois pares', 'Trinca', 'Sequência', 'Flush', 'Full house', 'Quadra', 'Straight flush'];
+const LABEL_TIP = {
+  Seca: 'Poucos projetos possíveis: quem tem a melhor mão agora tende a continuar na frente, e apostas pequenas bastam.',
+  Molhada: 'Muitos projetos possíveis: com mão feita, aposte mais para cobrar caro de quem quer completar.',
+  Perigosa: 'Já existem mãos fortes possíveis: um par ou dois pares valem bem menos aqui.',
+  Pareada: 'Com par na mesa, trinca, full house e quadra ficam possíveis: cuidado com apostas grandes.',
+};
 function strengthHTML() {
   const g = game, h = g.players[0];
   if (!prefs.showStrength || h.out || h.hole.length < 2) return '';
   const [a, b] = h.hole, br = E.chenBreakdown(a, b), combo = E.comboName(a, b);
-  const top = `<span class="str-top">Força <b class="str-n">${fmtN(br.total)}</b><span class="str-combo">${combo}</span></span>`;
-  if (!strOpen) return `<button type="button" class="str" data-str="open" aria-expanded="false" aria-label="Força da mão ${combo}: ${br.total} de 20. Toque para ver a fórmula">${top}<span class="str-calc">${br.calc}</span></button>`;
-  const pos = g.posOf(0), nAct = g.activeCount(), t = E.preflopRule(br.total, pos, 0, pos === 'BB', nAct).t;
+  const rd = reading();
+  // quadro da esquerda: força antes do flop, sua combinação depois
+  let left;
+  if (!rd || h.folded) {
+    const top = `<span class="str-top">Força <b class="str-n">${fmtN(br.total)}</b><span class="str-combo">${combo}</span></span>`;
+    left = strOpen === 'force' || (strOpen === 'hand' && (!rd || h.folded)) ? forcePop(br, combo, top)
+      : `<button type="button" class="str" data-str="force" aria-expanded="false" aria-label="Força da mão ${combo}: ${br.total} de 20. Toque para ver a fórmula">${top}<span class="str-calc">${br.calc}</span></button>`;
+  } else {
+    const m = rd.made, d = rd.draws, r = rd.read;
+    const ahead = (r.tot - r.beat - r.tie) / r.tot;
+    const sub = d ? `${d.name} · ${d.outs} outs` : m.boardOnly ? 'Está na mesa: vale para todos' : r.heroNuts ? 'Melhor mão possível' : `À frente de ${pct(ahead)} das mãos`;
+    left = strOpen === 'hand' ? handPop(rd, br, combo)
+      : strOpen === 'force' ? forcePop(br, combo, `<span class="str-top">Força <b class="str-n">${fmtN(br.total)}</b><span class="str-combo">${combo}</span></span>`)
+      : `<button type="button" class="str" data-str="hand" aria-expanded="false" aria-label="Sua mão: ${m.name}. Toque para detalhes"><span class="str-top wrap">Você <b class="str-hand">${m.short}</b></span><span class="str-calc">${sub}</span></button>`;
+  }
+  // quadro da direita: o que a mesa permite
+  let right = '';
+  if (rd) {
+    const r = rd.read;
+    right = strOpen === 'board' ? boardPop(rd)
+      : `<button type="button" class="str right" data-str="board" aria-expanded="false" aria-label="Mesa ${r.label}. Toque para ver as mãos possíveis"><span class="str-top">Mesa <b class="str-lbl lbl-${r.label}">${r.label}</b></span><span class="str-calc">${r.tags.slice(0, 2).join(' · ') || 'Sem projetos'}</span></button>`;
+  }
+  // um popover aberto cobre o outro quadro
+  if (strOpen === 'board') return right;
+  if (strOpen) return left;
+  return left + right;
+}
+function forcePop(br, combo, top) {
+  const g = game, pos = g.posOf(0), nAct = g.activeCount(), t = E.preflopRule(br.total, pos, 0, pos === 'BB', nAct).t;
   const ref = pos === 'BB' ? `No <b>Big blind</b>, se ninguém aumentar: aumente com força <b>${t}+</b>, senão passe de graça.` : `Para abrir no <b>${E.POS_LABEL[pos]}</b>${nAct === 2 ? ' (heads-up)' : ''}: força <b>${t}+</b>. Sua mão ${br.total >= t ? 'entra' : 'não entra'}.`;
   return `<div class="str-pop" role="dialog" aria-label="Fórmula da força da mão">
-    <div class="str-head">${top}<button type="button" class="str-x" data-str="close" aria-label="Fechar">×</button></div>
+    <div class="str-head">${top}${xBtn}</div>
     <ol class="str-steps">${br.steps.map(x => `<li>${x}</li>`).join('')}</ol>
     <div class="str-sum">${br.calc} <span style="color:var(--muted);font-weight:500">de 20</span></div>
     <p class="str-rules"><b>Fórmula de Chen.</b> Carta mais alta: A = 10, K = 8, Q = 7, J = 6, 10 a 2 valem metade do número. Par: dobra (mínimo 5). Mesmo naipe: +2. Buraco entre as cartas: 1 → −1, 2 → −2, 3 → −4, 4 ou mais → −5. Bônus +1 se seguidas ou com 1 de buraco e as duas abaixo da Q. Arredonde para cima.</p>
     <div class="str-ref">${ref}</div>
+  </div>`;
+}
+function handPop(rd, br, combo) {
+  const m = rd.made, d = rd.draws, r = rd.read, core = new Set(m.core);
+  const ahead = (r.tot - r.beat - r.tie) / r.tot;
+  const cards = m.best5.map(c => card(c, 'sm', core.has(c) ? 'made' : 'dim')).join('');
+  const drawHTML = d ? `<p class="str-note"><b>${d.name}: ${d.outs} outs</b>${d.flush && d.straight ? ` (${d.flush} para flush + ${d.straight} para sequência, sem contar as repetidas)` : ''}. Regra do 2 e 4: ${d.outs} × ${d.left === 2 ? 4 : 2} ≈ ${d.approx}% de completar ${d.left === 2 ? 'até o river' : 'no river'} (exato: ${pct(d.exact)}).</p>` : '';
+  const boardNote = m.boardOnly ? `<p class="str-note">Essa combinação está toda na mesa, então todo mundo tem. Quem decide é a carta mais alta fora dela (o kicker).</p>` : '';
+  const vs = r.heroNuts ? '<b>Você tem a melhor mão possível agora (nuts).</b>' : `Contra uma mão qualquer, você está à frente de <b>${pct(ahead)}</b>: ${r.beat} de ${r.tot} combinações ganham de você${r.tie ? ` e ${r.tie} empatam` : ''}. Isso não leva em conta como os rivais jogaram.`;
+  const order = ORDER.map((x, i) => i === m.cat ? `<b>${x}</b>` : x).join(' < ');
+  return `<div class="str-pop" role="dialog" aria-label="Sua mão">
+    <div class="str-head"><span class="str-top wrap">Você <b class="str-hand">${m.name}</b></span>${xBtn}</div>
+    <div class="str-cards">${cards}</div>
+    ${boardNote}${drawHTML}
+    <p class="str-rules">${vs}</p>
+    <p class="str-order">${order}</p>
+    <div class="str-ref">Força pré-flop de ${combo}: <b>${fmtN(br.total)}</b> (${br.calc}). <button type="button" class="str-link" data-str="force">Ver a fórmula</button></div>
+  </div>`;
+}
+function boardPop(rd) {
+  const r = rd.read;
+  const ex = r.nuts.ex ? r.nuts.ex.map(c => card(c, 'sm')).join('') : '';
+  return `<div class="str-pop right" role="dialog" aria-label="O que a mesa permite">
+    <div class="str-head"><span class="str-top">Mesa <b class="str-lbl lbl-${r.label}">${r.label}</b></span>${xBtn}</div>
+    <p class="str-rules">${LABEL_TIP[r.label]}</p>
+    <ul class="str-list">${r.items.map(x => `<li class="${x.lv}">${x.text}</li>`).join('')}</ul>
+    <div class="str-cards"><span>Melhor mão possível: <b style="color:var(--ink)">${r.nuts.name}</b>, por exemplo com</span>${ex}</div>
+    <div class="str-ref">Você: <b>${rd.made.name}</b>${rd.draws ? ` + ${rd.draws.name}` : ''}${r.heroNuts ? ' (a melhor possível)' : ''}.</div>
   </div>`;
 }
 const skillLabel = () => (E.SKILLS[cfg.skill] || E.SKILLS.normal).label;
@@ -1739,7 +1938,7 @@ function renderSetup() {
       <h3>Preferências</h3>
       <div class="field"><span class="field-label">Velocidade dos bots</span>${segHTML('speed', Object.entries(SPEEDS).map(([k, v]) => [k, v.label]), prefs.speed)}</div>
       <label class="switch" for="soundOn">Sons <input type="checkbox" id="soundOn" ${prefs.sound ? 'checked' : ''}></label>
-      <label class="switch" for="strOn">Mostrar a força da mão no canto da mesa <input type="checkbox" id="strOn" ${prefs.showStrength ? 'checked' : ''}></label>
+      <label class="switch" for="strOn">Mostrar a leitura da mão e da mesa (força, combinação, projetos) <input type="checkbox" id="strOn" ${prefs.showStrength ? 'checked' : ''}></label>
     </div>
     <div class="setup-block install"><h3>App no celular</h3>${installHTML}</div>`;
   $('setupBody').querySelectorAll('[data-k]').forEach(b => b.onclick = () => {
@@ -1964,7 +2163,7 @@ function renderSession() {
 $('table').addEventListener('click', e => {
   const t = e.target.closest('[data-str]');
   if (!t) return;
-  strOpen = t.dataset.str === 'open'; renderTable();
+  strOpen = t.dataset.str === 'close' ? false : t.dataset.str; renderTable();
   const f = $('table').querySelector(strOpen ? '.str-x' : '.str'); if (f) f.focus();
 });
 $('btnGame').onclick = openSetup;
