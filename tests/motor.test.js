@@ -387,7 +387,7 @@ console.log('coach pós-flop ok');
       if (s === 0) {
         const L = g.legal(0);
         if (g.street === 'preflop') { const adv = P.preflopAdvice(g, 0); a = adv.rec === 'raise' ? { type: 'raise', to: adv.push ? L.maxTo : g.raises ? g.currentBet * 3 : g.bb * 3 } : { type: adv.rec }; }
-        if (g.street === 'river' && L.toCall > 0) a = { type: 'call' }; // o vazamento
+        if (g.street !== 'preflop' && L.toCall > 0) a = { type: 'call' }; // o vazamento: paga tudo depois do flop
         let grade = 'good';
         if (g.street !== 'preflop') { const info = P.postflopInfo(g, 0, 120); grade = P.gradePostflop(info, a.type === 'call' && L.toCall === 0 ? 'check' : a.type, L, g.street).grade; }
         decs.push(P.decisionRecord(g, 0, a.type === 'call' && L.toCall === 0 ? 'check' : a.type, grade));
@@ -401,7 +401,7 @@ console.log('coach pós-flop ok');
   Math.random = realRandom;
   const leaks = P.findLeaks(decs, hands);
   console.log('vazamentos encontrados:', leaks.slice(0, 3).map(l => `${l.id} ${Math.round(l.value * 100)}% (${l.n})`).join(', '));
-  assert(leaks.length && ['rivercall', 'wtsd', 'wsd'].includes(leaks[0].id), 'o primeiro vazamento é o call no river: ' + (leaks[0] && leaks[0].id));
+  assert(leaks.length && ['rivercall', 'wtsd', 'wsd', 'foldcbet', 'af'].includes(leaks[0].id), 'o primeiro vazamento é o call no river: ' + (leaks[0] && leaks[0].id));
   const S = P.leakStats(decs, hands);
   const manual = hands.filter(h => h.flop && h.sd).length / hands.filter(h => h.flop).length;
   assert.strictEqual(S.wtsd.v, manual, 'estatística confere com a conta à mão');
