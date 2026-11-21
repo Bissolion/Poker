@@ -751,7 +751,6 @@
  "{0} {1}, pagar {2}, {3} {4}": "{0} {1}, call {2}, {3} {4}",
  "{0} · você: {1}": "{0} · you: {1}",
  "{0}. Faixas aproximadas de 6 jogadores com 100 BB, no estilo das tabelas de solver; o all-in curto vem do equilíbrio calculado pelo próprio app. São a referência do coach e o ponto de partida dos bots.": "{0}. Approximate 6-max ranges at 100 BB, in the style of solver charts; the short-stack all-in comes from the equilibrium computed by the app itself. They are the coach's reference and the bots' starting point.",
- "{0}: com {1}, {2}{3}. {4}": "{0}: with {1}, {2}{3}. {4}",
  "{0}: {1} {2}{3}.": "{0}: {1} {2}{3}.",
  "{0}: {1} · faixa {2}–{3} · {4} situações": "{0}: {1} · range {2}–{3} · {4} spots",
  "{0}{1} Regra do 2 e 4: {2} × {3} ≈ {4}% de completar {5} (exato: {6}%).": "{0}{1} Rule of 2 and 4: {2} × {3} ≈ {4}% to hit {5} (exact: {6}%).",
