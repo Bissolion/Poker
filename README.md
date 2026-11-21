@@ -63,6 +63,6 @@ Os ícones já estão em `docs/icons/`. Para refazê-los: `python3 tools/make-ic
 
 1. No GitHub, abra **Settings → Pages** e escolha **Source: GitHub Actions**.
 2. Na aba **Actions**, rode o workflow **Publicar** (por enquanto ele só roda manualmente).
-3. O app fica em `https://bissolion.github.io/poker/`.
+3. O app fica em `https://bissolion.github.io/Poker/`.
 
 O GitHub Pages em repositório privado exige um plano pago (Pro, Team ou Enterprise), e o site publicado fica público. Sem plano pago, é preciso tornar o repositório público.
