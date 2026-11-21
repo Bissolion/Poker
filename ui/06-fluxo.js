@@ -82,6 +82,7 @@ function heroAct(type) {
   const actPt = type === 'fold' ? tx`desistiu` : type === 'check' ? tx`passou` : type === 'call' ? tx`pagou ${L.toCall}` : (to >= L.maxTo ? `all-in ${L.maxTo}` : (L.isBet ? tx`apostou ${to}` : tx`aumentou p/ ${to}`));
   const item = Object.assign({ street: E.STREET_LABEL[d.street], act: actPt, sizing }, fb);
   handFb.push(item);
+  flashGrade(fb);
   stats[fb.grade]++;
   stats.recent.unshift({ h: g.handNo, street: item.street, combo: E.comboName(g.players[0].hole[0], g.players[0].hole[1]), act: actPt, grade: fb.grade, title: fb.title });
   stats.recent = stats.recent.slice(0, 20);
@@ -140,3 +141,16 @@ function nextHand() {
   loop();
 }
 
+
+// Aviso rápido na tela com a nota da decisão
+function flashGrade(fb) {
+  let el = document.getElementById('gradeFlash');
+  if (!el) { el = document.createElement('div'); el.id = 'gradeFlash'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); document.body.appendChild(el); }
+  const word = { good: tx`Boa!`, ok: 'Ok', bad: tx`Ruim` }[fb.grade];
+  el.className = '';
+  el.innerHTML = `<b>${word}</b><span>${fb.title || ''}</span>`;
+  void el.offsetWidth;
+  el.className = 'show ' + fb.grade;
+  clearTimeout(flashGrade.t);
+  flashGrade.t = setTimeout(() => { el.className = fb.grade; }, 1700);
+}

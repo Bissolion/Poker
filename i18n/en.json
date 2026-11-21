@@ -786,5 +786,8 @@
  "{0}: com {1}, {2}{3}. {4} {5}": "{0}: with {1}, {2}{3}. {4} {5}",
  "Voz anunciando cada ação (fold, call, raise, all-in)": "Voice announcing each action (fold, call, raise, all-in)",
  "Paga": "Call",
- "Aposta": "Bet"
+ "Aposta": "Bet",
+ "Boa!": "Good!",
+ "Ruim": "Bad",
+ "Aumenta": "Raise"
 }

@@ -1,3 +1,20 @@
+// Classe visual da última ação (pílula colorida para pagar, apostar, aumentar, all-in)
+const lastTag = {};
+function actKind(t, i) {
+  const fresh = t && lastTag[i] !== t; lastTag[i] = t;
+  const k = actKindOf(t);
+  return k && fresh && k !== ' k-fold' && k !== ' k-check' ? k + ' new' : k;
+}
+function actKindOf(t) {
+  if (!t) return '';
+  if (t === 'All-in') return ' k-allin';
+  if (t === tx`Desiste`) return ' k-fold';
+  if (t === tx`Passa`) return ' k-check';
+  if (t.startsWith(tx`Paga`)) return ' k-call';
+  if (t.startsWith(tx`Aposta`)) return ' k-bet';
+  if (t.startsWith(tx`Aumenta`)) return ' k-raise';
+  return '';
+}
 // ---- jogo ----
 let game = null, tour = null, gameId = 0;
 const handKey = () => `${gameId}:${game.handNo}`;
@@ -45,7 +62,7 @@ function tableHTML(v, heroSize) {
         <div class="sty">${s.label}</div>
         <div class="stk">${s.out ? '–' : s.stack}</div>
       </div>
-      <div class="tag${s.allIn ? ' allin' : ''}${s.eq != null ? ' eq' : ''}">${s.eq != null ? pct(s.eq) : s.tag || ''}</div>
+      <div class="tag${s.allIn ? ' allin' : ''}${s.eq != null ? ' eq' : actKind(s.tag, i)}">${s.eq != null ? pct(s.eq) : s.tag || ''}</div>
       ${s.bet ? `<div class="bet">${s.bet}</div>` : ''}
     </div>`;
   }
@@ -62,7 +79,7 @@ function tableHTML(v, heroSize) {
     ${h.bet ? `<div class="bet">${h.bet}</div>` : ''}
     <div class="cards">${h.hole.map(c => card(c, heroSize, v.hl.has(c) && h.win ? 'hl' : mk(c))).join('')}</div>
     <div class="plate"><span class="nm">Você${h.pos ? ` <span class="pos${h.pos === 'BTN' ? ' btn' : ''}">${h.pos}</span>` : ''}</span><span class="stk">${h.stack}</span></div>
-    <div class="tag${h.allIn ? ' allin' : ''}${h.eq != null ? ' eq' : ''}">${h.eq != null ? pct(h.eq) : h.tag || ''}</div>
+    <div class="tag${h.allIn ? ' allin' : ''}${h.eq != null ? ' eq' : actKind(h.tag, 0)}">${h.eq != null ? pct(h.eq) : h.tag || ''}</div>
   </div>`;
   return html;
 }
