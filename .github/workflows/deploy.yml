@@ -1,11 +1,9 @@
-# Publica docs/ no GitHub Pages. Por enquanto só roda manualmente (aba Actions → Publicar → Run workflow).
-# Para publicar a cada push na main, troque o bloco "on" por:
-#   on:
-#     push:
-#       branches: [main]
-# Antes, ative em Settings → Pages → Source: GitHub Actions (exige repositório público ou plano pago).
+# Publica docs/ no GitHub Pages a cada push na main (e manualmente pela aba Actions).
+# Requer Settings → Pages → Source: GitHub Actions (repositório público ou plano pago).
 name: Publicar
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
