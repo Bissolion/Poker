@@ -1,5 +1,5 @@
 // Service worker da Mesa de Treino (gerado por build.js)
-const CACHE = 'mesa-app-3f01aaefb5';
+const CACHE = 'mesa-app-8dd7fdf195';
 const FONTS = 'mesa-fonts';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
 

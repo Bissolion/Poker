@@ -34,6 +34,39 @@ function rangeDecision(g, seat) {
   return { sc, cls, f, fold };
 }
 const pct0 = x => Math.round(x * 100) + '%';
+// O porquê da decisão em conceitos (posição, pot odds, mão dominada, jogabilidade), não só a tabela
+const ORDER_POST = ['SB', 'BB', 'UTG', 'MP', 'CO', 'BTN'];
+function preflopReason(g, seat, cls, rec) {
+  const L = g.legal(seat), pos = g.posOf(seat), out = [];
+  const hi = cls[0], lo = cls[1], pair = cls.length === 2, suited = cls[2] === 's';
+  const H = rv(hi), Lo = rv(lo), gap = H - Lo;
+  const cont = rec !== 'fold' && rec !== 'check';
+  // posição depois do flop
+  const opp = g.players.filter(q => q.seat !== seat && !q.folded && !q.out);
+  const ip = g.raises === 0 ? pos === 'BTN' : opp.every(q => ORDER_POST.indexOf(g.posOf(q.seat)) < ORDER_POST.indexOf(pos));
+  if (g.raises === 0) {
+    const k = behindOf(g, seat);
+    if (pos === 'BB' && L.canCheck) out.push(tx`Ninguém aumentou: passar não custa nada, e aumentar só vale com mão forte, porque você joga sem posição.`);
+    else if (k >= 4) out.push(tx`Ainda faltam ${k} jogadores para falar: quanto mais gente depois de você, maior a chance de alguém ter mão melhor, então a abertura é mais fechada.`);
+    else if (pos === 'BTN') out.push(tx`No botão você age por último depois do flop (posição) e só os blinds falam depois: dá para abrir muitas mãos.`);
+    else if (pos === 'SB') out.push(tx`Do small blind só o big blind fala depois, mas você joga sem posição no resto da mão.`);
+    else out.push(tx`Faltam ${k} jogadores para falar depois de você.`);
+  } else {
+    const pot = g.pot(), need = L.toCall / (pot + L.toCall);
+    if (L.toCall > 0) out.push(tx`Pagar custa ${L.toCall} para um pote de ${pot + L.toCall}: você precisa ganhar ${pct0(need)} das vezes só para empatar a conta.`);
+    if (g.raises >= 2) out.push(tx`Duas pessoas já mostraram força (aumento e re-aumento), então as mãos delas são fortes e quem ainda vai falar pode aumentar de novo.`);
+    out.push(ip ? tx`Você terá posição (age por último depois do flop), o que permite jogar mais mãos.` : tx`Você jogará sem posição (age primeiro depois do flop), o que pede mãos mais fortes.`);
+  }
+  // a mão
+  const higher = RC13.slice(0, RC13.indexOf(lo)).replace(hi, '').split('').filter(c => rv(c) > Lo && rv(c) < H);
+  if (pair) out.push(H >= 8 ? tx`${cls} é um par alto: já começa na frente da maioria das mãos.` : tx`Pares pequenos ganham quase sempre fazendo trinca, o que acontece em cerca de 1 a cada 8 flops; precisam de pote barato e fichas atrás para valer.`);
+  else if ((!suited || !cont) && H >= 8 && gap >= 2 && g.raises >= 1 && higher.length) out.push(tx`${cls} costuma estar dominada contra quem mostrou força: quando acerta o ${hi}, perde para ${hi}${higher[0]} e mãos parecidas, com a mesma carta e kicker maior. Você ganha potes pequenos e perde potes grandes.`);
+  else if (suited && gap <= 2 && H < 12) out.push(tx`Naipadas e próximas fazem flush e sequência: jogam bem com posição e fichas atrás, mas raramente fazem um par forte.`);
+  else if (hi === 'A' && suited) out.push(tx`Ás naipado tem o projeto de flush mais forte e bloqueia AA e AK do rival.`);
+  else if (cont && H >= 9 && Lo >= 8) out.push(tx`Duas cartas altas fazem top pair com bom kicker.`);
+  else if (!cont) out.push(tx`Cartas ${suited ? tx`baixas` : tx`desconectadas e sem naipe`}: raramente fazem uma mão boa o bastante para ganhar um pote grande.`);
+  return out.join(' ');
+}
 function preflopAdvice(g, seat) {
   const p = g.players[seat], pos = g.posOf(seat), L = g.legal(seat), nAct = g.activeCount();
   const s = chen(p.hole[0], p.hole[1]);
@@ -83,8 +116,9 @@ function preflopAdvice(g, seat) {
   if (f.raise) parts.push(`${verbR} ${f.raise < 1 ? pct0(f.raise) + tx` das vezes` : ''}`.trim());
   if (f.call) parts.push(tx`pagar ${f.call < 1 ? pct0(f.call) + tx` das vezes` : ''}`.trim());
   const what = parts.length ? parts.join(tx` ou `) : (L.canCheck ? tx`passar` : tx`desistir`);
-  const size = g.raises === 0 ? tx`Essa faixa ${L.canCheck ? tx`aumenta` : tx`abre`} ${pct0(rangePct(sc.raise))} das mãos.` : tx`Essa faixa ${rangePct(sc.call) ? tx`paga ${pct0(rangePct(sc.call))} e ` : ''}${verbR === '3-bet' ? tx`faz 3-bet` : tx`faz 4-bet`} com ${pct0(rangePct(sc.raise))} das mãos.`;
-  const why = tx`${sc.txt}: com ${combo}, ${what}${mixed && parts.length ? tx` (jogada mista)` : ''}. ${size}`;
+  const cont = rangePct(sc.raise) + rangePct(sc.call);
+  const size = tx`Nessa situação, só ${pct0(cont)} das mãos continuam.`;
+  const why = tx`${sc.txt}: com ${combo}, ${what}${mixed && parts.length ? tx` (jogada mista)` : ''}. ${preflopReason(g, seat, cls, rec)} ${size}`;
   return { rec, why, s, combo, cls, pos, depth: D, freq: { raise: f.raise, call: f.call, fold }, mixed, sc, scTxt: sc.txt };
 }
 
