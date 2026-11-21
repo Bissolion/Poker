@@ -2,6 +2,7 @@
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function soundFor(p, prevLen) {
   const a = p.lastAction || '';
+  voice.say(a === tx`Desiste` ? 'Fold' : a === tx`Passa` ? 'Check' : a === 'All-in' ? 'All in' : a.startsWith(tx`Paga`) ? 'Call' : a.startsWith(tx`Aposta`) ? 'Bet' : a ? 'Raise' : '');
   if (a === tx`Desiste`) sfx.fold(); else if (a === tx`Passa`) sfx.check(); else if (a === 'All-in') sfx.allin(); else if (a) sfx.chip();
   if (!game.handOver && game.board.length > prevLen) setTimeout(() => sfx.card(game.board.length - prevLen), 160);
 }

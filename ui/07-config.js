@@ -34,6 +34,7 @@ function renderSetup() {
       <div class="field"><span class="field-label">Idioma · Language</span>${segHTML('lang', [['pt', 'Português'], ['en', 'English']], E.LANG)}</div>
       <div class="field"><span class="field-label">Velocidade dos bots</span>${segHTML('speed', Object.entries(SPEEDS).map(([k, v]) => [k, v.label]), prefs.speed)}</div>
       <label class="switch" for="soundOn">Sons <input type="checkbox" id="soundOn" ${prefs.sound ? 'checked' : ''}></label>
+      ${voice.available ? `<label class="switch" for="voiceOn">Voz anunciando cada ação (fold, call, raise, all-in) <input type="checkbox" id="voiceOn" ${prefs.voice ? 'checked' : ''}></label>` : ''}
       <label class="switch" for="strOn">Mostrar a leitura da mão e da mesa (força, combinação, projetos) <input type="checkbox" id="strOn" ${prefs.showStrength ? 'checked' : ''}></label>
     </div>
     <div class="setup-block install"><h3>App no celular</h3>${installHTML}</div>`;
@@ -45,6 +46,7 @@ function renderSetup() {
   });
   $('strOn').onchange = e => { prefs.showStrength = e.target.checked; saveCfg(); renderTable(); };
   $('soundOn').onchange = e => { prefs.sound = e.target.checked; saveCfg(); sfx.unlock(); setTimeout(() => sfx.chip(), 60); };
+  if ($('voiceOn')) $('voiceOn').onchange = e => { prefs.voice = e.target.checked; saveCfg(); voice.say('Raise'); };
   $('btnStart').onclick = () => { closeSetup(); newGame(draft); };
   const bi = $('btnInstall');
   if (bi) bi.onclick = async () => { try { deferredInstall.prompt(); await deferredInstall.userChoice; } catch (e) {} deferredInstall = null; renderSetup(); };

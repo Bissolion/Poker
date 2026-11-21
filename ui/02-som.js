@@ -36,3 +36,21 @@ const sfx = (() => {
 })();
 document.addEventListener('pointerdown', () => sfx.unlock(), { capture: true });
 
+// ---- voz: anuncia cada ação ("Raise", "Call"...) com a síntese de fala do navegador ----
+const voice = (() => {
+  const ok = () => prefs.voice && 'speechSynthesis' in window;
+  let v = null;
+  const pick = () => { try { const all = speechSynthesis.getVoices(); v = all.find(x => /^en(-|_)US/i.test(x.lang)) || all.find(x => /^en/i.test(x.lang)) || null; } catch (e) {} };
+  if ('speechSynthesis' in window) { pick(); try { speechSynthesis.onvoiceschanged = pick; } catch (e) {} }
+  const say = word => {
+    if (!word) return;
+    if (!ok()) return;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(word);
+      if (v) u.voice = v; u.lang = v ? v.lang : 'en-US'; u.rate = 1.05; u.volume = 0.9;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  };
+  return { say, available: 'speechSynthesis' in window };
+})();

@@ -783,5 +783,8 @@
  "baixas": "Low",
  "desconectadas e sem naipe": "Unconnected, offsuit",
  "Nessa situação, só {0} das mãos continuam.": "In this spot, only {0} of hands continue.",
- "{0}: com {1}, {2}{3}. {4} {5}": "{0}: with {1}, {2}{3}. {4} {5}"
+ "{0}: com {1}, {2}{3}. {4} {5}": "{0}: with {1}, {2}{3}. {4} {5}",
+ "Voz anunciando cada ação (fold, call, raise, all-in)": "Voice announcing each action (fold, call, raise, all-in)",
+ "Paga": "Call",
+ "Aposta": "Bet"
 }
