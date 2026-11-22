@@ -411,11 +411,14 @@ console.log('vazamentos ok');
 // ---- Treinos e quiz novos ----
 {
   const expect = { abrir: g => g.street === 'preflop' && g.raises === 0, defesa: g => g.posOf(0) === 'BB' && g.raises === 1, pushfold: g => P.effBB(g, 0) <= 15,
-    projetos: g => g.street !== 'preflop' && g.legal(0).toCall > 0 && P.heroDraws(g.players[0].hole, g.board), cbet: g => g.street === 'flop' && g.legal(0).toCall === 0 && g.pfAgg === 0, river: g => g.street === 'river' && g.legal(0).toCall > 0 };
+    projetos: g => g.street !== 'preflop' && g.legal(0).toCall > 0 && P.heroDraws(g.players[0].hole, g.board), cbet: g => g.street === 'flop' && g.legal(0).toCall === 0 && g.pfAgg === 0, river: g => g.street === 'river' && g.legal(0).toCall > 0,
+    hu_abrir: g => g.players.length === 2 && g.posOf(0) === 'BTN' && g.raises === 0, hu_defesa: g => g.players.length === 2 && g.posOf(0) === 'BB' && g.raises === 1,
+    hu_push: g => g.players.length === 2 && P.effBB(g, 0) <= 12 && P.preflopAdvice(g, 0).push, spin_push: g => g.players.length === 3 && P.effBB(g, 0) <= 12 && P.preflopAdvice(g, 0).push,
+    spin_call: g => g.players.length === 3 && g.legal(0).toCall > 0 && g.players.some(p => p.allIn) };
   for (const t of Object.keys(P.DRILLS)) for (let i = 0; i < 100; i++) {
     const d = P.makeDrill(t, i % 3), g = d.g;
     assert(g.toAct === 0 && !g.handOver && g.players.every(p => p.stack >= 0), `treino ${t} válido`);
-    assert.strictEqual(new Set([...g.board, ...g.players.flatMap(p => p.hole)]).size, g.board.length + 12, `treino ${t} sem carta repetida`);
+    assert.strictEqual(new Set([...g.board, ...g.players.flatMap(p => p.hole)]).size, g.board.length + 2 * g.players.length, `treino ${t} sem carta repetida`);
     assert(expect[t](g), `treino ${t} monta a situação certa`);
   }
   for (let i = 0; i < 300; i++) for (const q of [P.quizOpen(), P.quizTexture(), P.quizNuts(), P.quizCombos(), P.quizMDF()]) {

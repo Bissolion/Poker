@@ -16,13 +16,14 @@ function renderDrills() {
     const L = E.findLeaks(reg.decs, reg.hands), sug = L.length ? E.LEAK_DRILL[L[0].id] : null;
     el.innerHTML = `${tx`<p class="muted">Séries de ${DRILL_N} decisões do mesmo tipo, montadas direto no ponto da decisão. A cada 3 acertos seguidos, as mãos ficam mais perto da borda das faixas, onde a dúvida é real.</p>`}
       ${sug ? tx`<p class="muted">Sugerido para você: <b style="color:var(--ink)">${E.DRILLS[sug].name}</b>, pelo seu maior vazamento (${L[0].title.toLowerCase()}).</p>` : ''}
-      <div class="dlist">${Object.entries(E.DRILLS).map(([k, v]) => { const st = stats.drills[k]; return `<button class="drow${k === sug ? ' sug' : ''}" type="button" data-dr="${k}"><b>${v.name}</b><span>${v.desc}</span><span class="best">${st ? st.best + '/' + DRILL_N : '–'}<small>${st ? 'recorde' : 'novo'}</small></span></button>`; }).join('')}</div>`;
+      ${E.DRILL_GROUPS.map(([gk, gname]) => `<h3 class="dgroup">${gname}</h3>${gk === 'hu' ? tx`<p class="muted">Um contra um: o botão também é o small blind e age primeiro antes do flop. Quase toda mão vale abrir, e all-ins pequenos se pagam com quase tudo.</p>` : gk === 'spin' ? tx`<p class="muted">Três jogadores, 25 BB e blinds subindo rápido: quase todo o jogo acontece com menos de 15 BB, decidindo all-in ou desistir.</p>` : ''}<div class="dlist">${Object.entries(E.DRILLS).filter(([, v]) => (v.group || 'mesa') === gk).map(([k, v]) => { const st = stats.drills[k]; return `<button class="drow${k === sug ? ' sug' : ''}" type="button" data-dr="${k}"><b>${v.name}</b><span>${v.desc}</span><span class="best">${st ? st.best + '/' + DRILL_N : '–'}<small>${st ? tx`recorde` : tx`novo`}</small></span></button>`; }).join('')}</div>`).join('')}
+      <p class="muted">${tx`Para jogar partidas inteiras desses formatos, escolha <b>Heads-up</b> ou <b>Spin & Go</b> em Jogo.`}</p>`;
     el.querySelectorAll('[data-dr]').forEach(b => b.onclick = () => { drill = { type: b.dataset.dr, i: 0, res: [], streak: 0 }; nextDrill(); renderDrills(); });
     return;
   }
   if (drill.i >= DRILL_N) return renderDrillEnd();
   const { d, fb, picked } = drill.cur, g = d.g, L = g.legal(0), pre = g.street === 'preflop';
-  const push = d.type === 'pushfold';
+  const push = d.type === 'pushfold' || d.type === 'hu_push' || d.type === 'spin_push' || d.type === 'spin_call';
   const prog = Array.from({ length: DRILL_N }, (_, k) => `<i class="${drill.res[k] || (k === drill.i ? 'cur' : '')}"></i>`).join('');
   const callTxt = L.canCheck ? tx`Passar` : `Pagar<small>${L.toCall}</small>`;
   const raiseTxt = push || !L.canRaise ? 'All-in' : pre ? (g.raises ? '3-bet' : tx`Aumentar`) : L.isBet ? tx`Apostar` : tx`Aumentar`;

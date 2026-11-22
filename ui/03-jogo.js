@@ -24,16 +24,19 @@ let studyTab = 'hands', replay = null, rangeSt = { pos: null, scn: 'open', sel: 
 let handFilter = null;
 let quiz = { cat: 'mix', q: null, picked: null };
 
+// Spin & Go: o prêmio é sorteado antes do jogo, como nos sites (o mais comum é 2x o buy-in)
+function spinMultiplier() { const r = Math.random(); return r < 0.75 ? 2 : r < 0.9 ? 3 : r < 0.97 ? 5 : r < 0.995 ? 10 : 100; }
 function newGame(c) {
   cfg = { ...c }; saveCfg();
   gameId = Date.now();
-  const roster = c.table === 'hu' ? [BOTS.find(b => b.k === c.rival) || BOTS[1]] : BOTS;
-  const tourney = c.format === 'tourney';
+  const spin = c.table === 'spin';
+  const roster = c.table === 'hu' ? [BOTS.find(b => b.k === c.rival) || BOTS[1]] : spin ? E.shuffle(BOTS.slice()).slice(0, 2) : BOTS;
+  const tourney = spin || c.format === 'tourney';
   game = new E.Game([{ name: tx`Você`, isHuman: true }, ...roster.map(b => ({ name: b.name, profile: E.PROFILES[b.k] }))],
-    { stack: tourney ? 1500 : 1000, skill: c.skill, sb: tourney ? E.BLIND_LEVELS[0][0] : 5, bb: tourney ? E.BLIND_LEVELS[0][1] : 10 });
-  const payouts = tourney ? E.PAYOUTS[c.table === 'hu' ? 'vencedor' : (c.prize || '65/35')] : null;
+    { stack: spin ? 500 : tourney ? 1500 : 1000, skill: c.skill, sb: tourney ? E.BLIND_LEVELS[0][0] : 5, bb: tourney ? E.BLIND_LEVELS[0][1] : 10 });
+  const payouts = tourney ? E.PAYOUTS[c.table === 'hu' || spin ? 'vencedor' : (c.prize || '65/35')] : null;
   if (payouts) game.payouts = payouts;
-  tour = tourney ? { per: c.per, hands: 0, level: 0, over: false, place: null, n: game.n, flash: false, payouts } : null;
+  tour = tourney ? { per: spin ? (c.spinPer || 4) : c.per, hands: 0, level: 0, over: false, place: null, n: game.n, flash: false, payouts, mult: spin ? spinMultiplier() : null } : null;
   replay = null; lastOut = []; rangeSt.hu = null;
   nextHand();
 }
@@ -48,7 +51,7 @@ const ordinal = n => E.LANG === 'en' ? n + (n % 10 === 1 && n % 100 !== 11 ? 'st
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 // ---- mesa (compartilhada entre jogo e replay) ----
-const SLOTS = { 2: ['p3'], 6: ['p1', 'p2', 'p3', 'p4', 'p5'] };
+const SLOTS = { 2: ['p3'], 3: ['p2', 'p4'], 6: ['p1', 'p2', 'p3', 'p4', 'p5'] };
 function tableHTML(v, heroSize) {
   let html = '<div class="felt"></div>';
   const slots = SLOTS[v.seats.length] || SLOTS[6];

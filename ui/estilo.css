@@ -372,3 +372,5 @@ details[open] summary { margin-bottom: 8px; }
 #gradeFlash.show { opacity: 1; transform: translate(-50%, -50%) scale(1); animation: flashIn .5s ease-out; }
 @keyframes flashIn { 0% { transform: translate(-50%, -50%) scale(.6); opacity: 0; } 60% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); } }
 @media (prefers-reduced-motion: reduce) { #gradeFlash.show, .tag.new { animation: none; } }
+
+.dgroup { margin: 18px 0 6px; font-size: 15px; letter-spacing: .02em; color: var(--ink); }

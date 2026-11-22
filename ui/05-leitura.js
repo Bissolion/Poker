@@ -89,7 +89,7 @@ function boardPop(rd) {
 const skillLabel = () => (E.SKILLS[cfg.skill] || E.SKILLS.normal).label;
 function renderStatus() {
   const g = game, el = $('statusbar');
-  const opp = cfg.table === 'hu' ? `Heads-up vs <b>${g.players[1].name}</b>` : tx`<b>${g.activeCount()}</b> na mesa`;
+  const opp = cfg.table === 'spin' ? tx`Spin & Go ${tour.mult}x · <b>${g.activeCount()}</b> na mesa` : cfg.table === 'hu' ? `Heads-up vs <b>${g.players[1].name}</b>` : tx`<b>${g.activeCount()}</b> na mesa`;
   const me = g.players[0];
   const heroBB = me.out ? '' : `Você: <b>${Math.round((anim ? me.startStack - me.committed + me.bet : me.stack + me.bet) / g.bb)} BB</b>`;
   if (tour) {
@@ -146,6 +146,7 @@ function renderActions() {
       sub = tx`${tour.place === 1 ? tx`Campeão entre ${tour.n} jogadores em ${plural(tour.hands, tx`mão`, tx`mãos`)}.` : tx`De ${tour.n} jogadores, depois de ${plural(tour.hands, tx`mão`, tx`mãos`)}.`} Na última mão: ${meWin ? tx`você levou ` + meWin.amount : g.players[top.seat].name + tx` levou ` + top.amount}.`;
       const pts = tour.payouts && tour.payouts[tour.place - 1] ? Math.round(tour.payouts[tour.place - 1] * 100) : 0;
       if (tour.payouts && tour.payouts.length > 1) sub += tx` Prêmio: <b>${pts} pontos</b>${pts ? '' : tx` (fora dos premiados)`}.`;
+      if (tour.mult) sub += tour.place === 1 ? tx` Prêmio do Spin: <b>${tour.mult}x o buy-in</b>.` : tx` No Spin só o campeão leva o prêmio (${tour.mult}x).`;
       nextLabel = tx`Novo torneio`;
     }
     el.innerHTML = `<div class="result">
