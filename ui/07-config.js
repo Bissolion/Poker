@@ -19,8 +19,8 @@ function renderSetup() {
   $('setupBody').innerHTML = `
     <div class="setup-block">
       <h3>Novo jogo</h3>
-      <div class="field"><span class="field-label">${tx`[[jogo]]Mesa`}</span>${segHTML('table', [['6', tx`6 jogadores`], ['hu', 'Heads-up'], ['spin', 'Spin & Go']], d.table)}
-        ${d.table === 'spin' ? tx`<p class="field-hint">3 jogadores, 500 fichas (25 BB), blinds subindo rápido e só o campeão leva o prêmio sorteado (2x a 100x). Treina o jogo de stack curto e o heads-up final.</p>` : ''}</div>
+      <div class="field"><span class="field-label">${tx`[[jogo]]Mesa`}</span>${segHTML('table', [['6', tx`6 jogadores`], ['9', tx`9 jogadores`], ['hu', 'Heads-up'], ['spin', 'Spin & Go']], d.table)}
+        ${d.table === '9' ? tx`<p class="field-hint">Mesa cheia, como nos torneios grandes: as três primeiras posições (UTG, UTG+1, UTG+2) jogam ainda mais fechado, e os seis últimos lugares usam as faixas da mesa de 6. No torneio, pagam 3 lugares (50/30/20).</p>` : ''}${d.table === 'spin' ? tx`<p class="field-hint">3 jogadores, 500 fichas (25 BB), blinds subindo rápido e só o campeão leva o prêmio sorteado (2x a 100x). Treina o jogo de stack curto e o heads-up final.</p>` : ''}</div>
       ${d.table !== 'spin' ? `<div class="field"><span class="field-label">Formato</span>${segHTML('format', [['cash', 'Cash'], ['tourney', tx`Torneio`]], d.format)}
         <p class="field-hint">${d.format === 'cash' ? tx`Blinds fixos de 5/10 e recompra quando as fichas acabam.` : tx`Começa com 1.500 fichas, os blinds sobem e quem zera está fora. Ganha quem ficar com tudo.`}</p></div>` : ''}
       ${d.table === 'hu' ? `<div class="field"><span class="field-label">Rival</span>${segHTML('rival', BOTS.map(b => [b.k, `${b.name} · ${E.PROFILES[b.k].label}`]), d.rival)}</div>` : ''}

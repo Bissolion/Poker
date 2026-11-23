@@ -1,7 +1,8 @@
 // ---------- Mesa ----------
 // Nomes de posição a partir do botão, conforme o número de jogadores na mesa
-const POS_BY_N = { 2: ['BTN', 'BB'], 3: ['BTN', 'SB', 'BB'], 4: ['BTN', 'SB', 'BB', 'CO'], 5: ['BTN', 'SB', 'BB', 'UTG', 'CO'], 6: ['BTN', 'SB', 'BB', 'UTG', 'MP', 'CO'] };
-const POS_LABEL = { BTN: tx`Botão`, SB: 'Small blind', BB: 'Big blind', UTG: tx`UTG (primeiro)`, MP: 'Middle', CO: 'Cutoff' };
+const POS_BY_N = { 2: ['BTN', 'BB'], 3: ['BTN', 'SB', 'BB'], 4: ['BTN', 'SB', 'BB', 'CO'], 5: ['BTN', 'SB', 'BB', 'UTG', 'CO'], 6: ['BTN', 'SB', 'BB', 'UTG', 'MP', 'CO'],
+  7: ['BTN', 'SB', 'BB', 'UTG', 'LJ', 'HJ', 'CO'], 8: ['BTN', 'SB', 'BB', 'UTG', 'UTG1', 'LJ', 'HJ', 'CO'], 9: ['BTN', 'SB', 'BB', 'UTG', 'UTG1', 'UTG2', 'LJ', 'HJ', 'CO'] };
+const POS_LABEL = { BTN: tx`Botão`, SB: 'Small blind', BB: 'Big blind', UTG: tx`UTG (primeiro)`, MP: 'Middle', CO: 'Cutoff', UTG1: 'UTG+1', UTG2: 'UTG+2', LJ: 'Lojack', HJ: 'Hijack' };
 const STREET_LABEL = { preflop: tx`Pré-flop`, flop: 'Flop', turn: 'Turn', river: 'River' };
 
 class Game {

@@ -18,7 +18,7 @@ function preflopRule(s, pos, raises, canCheck, nAct = 6) {
   return { rec, t, rr };
 }
 // Quantos jogadores agem depois de uma posição até o big blind (para push/fold)
-const ORDER_PRE = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
+const ORDER_PRE = ['UTG', 'UTG1', 'UTG2', 'LJ', 'HJ', 'MP', 'CO', 'BTN', 'SB', 'BB'];
 function behindOf(g, seat) {
   const order = ORDER_PRE.filter(x => g.players.some(q => !q.out && g.posOf(q.seat) === x));
   const i = order.indexOf(g.posOf(seat));
@@ -35,7 +35,7 @@ function rangeDecision(g, seat) {
 }
 const pct0 = x => Math.round(x * 100) + '%';
 // O porquê da decisão em conceitos (posição, pot odds, mão dominada, jogabilidade), não só a tabela
-const ORDER_POST = ['SB', 'BB', 'UTG', 'MP', 'CO', 'BTN'];
+const ORDER_POST = ['SB', 'BB', 'UTG', 'UTG1', 'UTG2', 'LJ', 'HJ', 'MP', 'CO', 'BTN'];
 function preflopReason(g, seat, cls, rec) {
   const L = g.legal(seat), pos = g.posOf(seat), out = [];
   const hi = cls[0], lo = cls[1], pair = cls.length === 2, suited = cls[2] === 's';

@@ -3,6 +3,7 @@ const SYM = E.SUIT_CH;
 const BOTS = [
   { name: 'Marta', k: 'tag' }, { name: 'Diego', k: 'lag' }, { name: 'Seu Zé', k: 'station' },
   { name: 'Helena', k: 'nit' }, { name: 'Rafa', k: 'bal' },
+  { name: 'Bia', k: 'tag' }, { name: 'Caio', k: 'lag' }, { name: 'Dona Lu', k: 'station' },
 ];
 const $ = id => document.getElementById(id);
 const IS_PWA = !!window.__MESA_PWA;

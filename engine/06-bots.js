@@ -35,7 +35,7 @@ function effBB(g, seat) {
 // Força mínima (Chen) para ir all-in quando ninguém aumentou, conforme o stack
 function pushThreshold(depth, pos, nAct) {
   let t = depth <= 4 ? 2 : depth <= 7 ? 4 : depth <= 10 ? 6 : 7;
-  if (pos === 'UTG' || pos === 'MP') t += 1.5;
+  if (['UTG', 'MP', 'UTG1', 'UTG2', 'LJ'].includes(pos)) t += 1.5;
   else if (pos === 'BTN' || pos === 'SB') t -= 1;
   if (nAct === 2) t -= 2; else if (nAct <= 4) t -= 1;
   return t;

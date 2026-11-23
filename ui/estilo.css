@@ -374,3 +374,12 @@ details[open] summary { margin-bottom: 8px; }
 @media (prefers-reduced-motion: reduce) { #gradeFlash.show, .tag.new { animation: none; } }
 
 .dgroup { margin: 18px 0 6px; font-size: 15px; letter-spacing: .02em; color: var(--ink); }
+
+/* mesa de 9: oito rivais ao redor do feltro, lugares mais estreitos */
+.seat.q1 { left: 0; top: 72%; } .seat.q2 { left: 0; top: 45%; } .seat.q3 { left: 0; top: 18%; }
+.seat.q4 { left: 40%; top: 0; transform: translateX(-50%); } .seat.q5 { left: 68%; top: 0; transform: translateX(-50%); }
+.seat.q6 { right: 0; top: 18%; } .seat.q7 { right: 0; top: 45%; } .seat.q8 { right: 0; top: 72%; }
+.seat.q1, .seat.q2, .seat.q3, .seat.q4, .seat.q5, .seat.q6, .seat.q7, .seat.q8 { width: 74px; }
+.seat[class*=" q"] .nm { font-size: 11.5px; } .seat[class*=" q"] .cards { transform: scale(.82); transform-origin: bottom center; }
+@media (min-width: 520px) { .seat[class*=" q"] { width: 84px; } }
+.table.nine .str { max-width: 104px; padding: 2px 7px 3px; } .table.nine .str-calc { display: none; }

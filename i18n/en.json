@@ -816,5 +816,8 @@
  "ou": "or",
  "Spin & Go": "Spin & Go",
  "recorde": "best",
- "novo": "new"
+ "novo": "new",
+ "9 jogadores": "9 players",
+ "Mesa cheia, como nos torneios grandes: as três primeiras posições (UTG, UTG+1, UTG+2) jogam ainda mais fechado, e os seis últimos lugares usam as faixas da mesa de 6. No torneio, pagam 3 lugares (50/30/20).": "Full ring, like big tournaments: the first three positions (UTG, UTG+1, UTG+2) play even tighter, and the last six seats use the 6-max ranges. In tournaments, 3 places are paid (50/30/20).",
+ "<p class=\"field-hint\">Mesa cheia, como nos torneios grandes: as três primeiras posições (UTG, UTG+1, UTG+2) jogam ainda mais fechado, e os seis últimos lugares usam as faixas da mesa de 6. No torneio, pagam 3 lugares (50/30/20).</p>": "<p class=\"field-hint\">Full ring, like big tournaments: the first three positions (UTG, UTG+1, UTG+2) play even tighter, and the last six seats use the 6-max ranges. In tournaments, 3 places are paid (50/30/20).</p>"
 }
