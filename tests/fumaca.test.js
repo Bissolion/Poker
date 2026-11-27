@@ -22,6 +22,7 @@ async function run(browser, lang) {
   await page.goto('file://' + path.join(__dirname, '..', 'mesa-de-treino.html'));
   const largura = async () => page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   let maos = 0, lateral = false;
+  await page.click('[data-go=table]');
   for (let i = 0; i < 3000 && maos < 10; i++) {
     if (await largura()) lateral = true;
     if (await page.locator('#btnNext').count()) { maos++; await page.click('#btnNext'); continue; }
@@ -38,9 +39,12 @@ async function run(browser, lang) {
   const coleta = async () => { if (lang !== 'en') return; const xs = await page.evaluate(() => { const out = []; const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); for (let n = w.nextNode(); n; n = w.nextNode()) { const el = n.parentElement; if (!el || el.closest('[hidden],script,style')) continue; const v = n.nodeValue.trim(); if (v) out.push(v); } document.querySelectorAll('[aria-label]').forEach(e => out.push(e.getAttribute('aria-label'))); return out; }); xs.forEach(x => { if (PT.test(x.replace(/Seu Zé|Português/g, ''))) resto.add(x); }); };
   await coleta();
   await page.click('#btnGame'); await coleta(); await page.click('#btnSetupClose');
-  await page.click('#btnStudy');
-  for (const aba of ['hands', 'ranges', 'quiz', 'drills', 'session']) {
-    await page.click(`[data-tab=${aba}]`); if (await largura()) lateral = true; await coleta();
+  await page.click('#btnPrefs'); await coleta(); await page.click('#btnSetupClose');
+  await page.click('[data-go=home]'); if (await largura()) lateral = true; await coleta();
+  for (const aba of ['hands', 'ranges', 'quiz', 'drills', 'session', 'terms', 'real', 'bank']) {
+    const grupo = ['ranges', 'quiz', 'drills', 'terms'].includes(aba) ? 'train' : 'mine';
+    await page.click(`[data-go=${grupo}]`);
+    await page.click(`[data-tab=${aba}]`); await page.waitForTimeout(150); if (await largura()) lateral = true; await coleta();
     if (aba === 'quiz') for (let q = 0; q < 12; q++) { await page.locator('[data-qo]').first().click(); await coleta(); await page.click('#qNext'); }
     if (aba === 'hands' && await page.locator('[data-h]').count()) { await page.locator('[data-h]').first().click(); for (let k = 0; k < 6; k++) { await coleta(); if (await page.locator('#rpNext:not([disabled])').count()) await page.click('#rpNext'); } await page.click('#rpBack'); }
     if (aba === 'ranges') for (const scn of ['open', 'vsopen', 'vs3bet', 'push']) { const b = page.locator(`[data-scn=${scn}]`); if (await b.count()) { await b.click(); await page.locator('[data-n]').nth(30).click(); await coleta(); } }

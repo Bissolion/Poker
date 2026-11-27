@@ -1,11 +1,19 @@
 
-<div class="app">
-  <header class="top">
-    <div class="brand"><span class="mark">♠</span> Mesa de Treino</div>
-    <button class="ghost" id="btnGame" type="button">Jogo</button>
-    <button class="ghost" id="btnStudy" type="button">Estudo</button>
-  </header>
-  <div class="statusbar" id="statusbar"></div>
+<header class="top">
+  <div class="brand"><span class="mark">♠</span> Mesa de Treino</div>
+  <nav class="dock" id="dock" aria-label="Seções">
+    <button class="dk" type="button" data-go="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z"/></svg><span>Início</span></button>
+    <button class="dk" type="button" data-go="table"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="9.5" ry="6.5"/><ellipse cx="12" cy="12" rx="6" ry="3.6"/></svg><span>Mesa</span></button>
+    <button class="dk" type="button" data-go="train"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" class="fill"/></svg><span>Treinar</span></button>
+    <button class="dk" type="button" data-go="mine"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M7 16v-4M12 16V7M17 16v-6"/></svg><span>Meu jogo</span></button>
+  </nav>
+  <button class="ghost icon-btn" id="btnPrefs" type="button" aria-label="Ajustes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+</header>
+
+<section class="view home" id="vHome" aria-label="Início" hidden></section>
+
+<div class="app view" id="vTable" hidden>
+  <div class="tbar"><div class="statusbar" id="statusbar"></div><button class="ghost" id="btnGame" type="button">Novo jogo</button></div>
 
   <section class="table" id="table" aria-label="Mesa"></section>
 
@@ -38,9 +46,30 @@
     </div>
   </details>
 
-  <details>
-    <summary>Termos</summary>
-    <dl class="gloss">
+</div>
+
+<div class="sheet" id="setup" hidden>
+  <div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+    <div class="coach-head"><h2 id="setupTitle">Novo jogo</h2><button class="ghost" id="btnSetupClose" type="button">Fechar</button></div>
+    <div id="setupBody" class="study"></div>
+  </div>
+</div>
+
+<section class="view pages" id="vStudy" hidden>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="drills" data-group="train" type="button">Treinos</button>
+    <button class="tab" role="tab" data-tab="quiz" data-group="train" type="button">Quiz</button>
+    <button class="tab" role="tab" data-tab="ranges" data-group="train" type="button">Faixas</button>
+    <button class="tab" role="tab" data-tab="terms" data-group="train" type="button">Termos</button>
+    <button class="tab" role="tab" data-tab="real" data-group="mine" type="button">Minhas mãos</button>
+    <button class="tab" role="tab" data-tab="bank" data-group="mine" type="button">Banca</button>
+    <button class="tab" role="tab" data-tab="session" data-group="mine" type="button">Evolução</button>
+    <button class="tab" role="tab" data-tab="hands" data-group="mine" type="button">Mãos na mesa</button>
+  </div>
+  <div class="study" id="studyBody"></div>
+</section>
+
+<template id="tplGloss"><dl class="gloss">
       <dt>Equity</dt><dd>Sua chance de ganhar o pote se a mão for até o fim. O coach estima simulando milhares de mãos com as faixas prováveis dos rivais, ajustadas pelo que cada um apostou ou pagou.</dd>
       <dt>Pot odds</dt><dd>Quanto você precisa vencer para pagar valer a pena: valor a pagar ÷ (pote + valor a pagar). Pagar 50 num pote de 150 exige 25%.</dd>
       <dt>Faixa (range)</dt><dd>O conjunto de mãos que um jogador pode ter, dada a forma como jogou. Quem aposta forte no river tem uma faixa mais forte do que quem só pagou no flop.</dd>
@@ -52,30 +81,4 @@
       <dt>Nuts</dt><dd>A melhor mão possível com as cartas da mesa naquele momento.</dd>
       <dt>Push/fold</dt><dd>Com 12 big blinds ou menos, a decisão pré-flop vira all-in ou desistir: um aumento normal compromete metade do stack sem tirar ninguém da mão.</dd>
       <dt>VPIP / PFR</dt><dd>% das mãos em que você colocou fichas por vontade própria / em que aumentou antes do flop. Iniciantes costumam ter VPIP alto demais.</dd>
-    </dl>
-  </details>
-</div>
-
-<div class="sheet" id="setup" hidden>
-  <div class="sheet-in" role="dialog" aria-modal="true" aria-label="Jogo">
-    <div class="coach-head"><h2>Jogo</h2><button class="ghost" id="btnSetupClose" type="button">Fechar</button></div>
-    <div id="setupBody" class="study"></div>
-  </div>
-</div>
-
-<div class="sheet" id="study" hidden>
-  <div class="sheet-in" role="dialog" aria-modal="true" aria-label="Estudo">
-    <div class="coach-head"><h2>Estudo</h2><button class="ghost" id="btnClose" type="button">Fechar</button></div>
-    <div class="tabs" role="tablist">
-      <button class="tab" role="tab" data-tab="hands" type="button">Mãos</button>
-      <button class="tab" role="tab" data-tab="real" type="button">Minhas mãos</button>
-      <button class="tab" role="tab" data-tab="bank" type="button">Banca</button>
-      <button class="tab" role="tab" data-tab="ranges" type="button">Faixas</button>
-      <button class="tab" role="tab" data-tab="drills" type="button">Treinos</button>
-      <button class="tab" role="tab" data-tab="quiz" type="button">Quiz</button>
-      <button class="tab" role="tab" data-tab="session" type="button">Sessão</button>
-    </div>
-    <div class="study" id="studyBody"></div>
-  </div>
-</div>
-
+    </dl></template>

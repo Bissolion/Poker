@@ -17,7 +17,7 @@ function renderDrills() {
     el.innerHTML = `${tx`<p class="muted">Séries de ${DRILL_N} decisões do mesmo tipo, montadas direto no ponto da decisão. A cada 3 acertos seguidos, as mãos ficam mais perto da borda das faixas, onde a dúvida é real.</p>`}
       ${sug ? tx`<p class="muted">Sugerido para você: <b style="color:var(--ink)">${E.DRILLS[sug].name}</b>, pelo seu maior vazamento (${L[0].title.toLowerCase()}).</p>` : ''}
       ${E.DRILL_GROUPS.map(([gk, gname]) => `<h3 class="dgroup">${gname}</h3>${gk === 'hu' ? tx`<p class="muted">Um contra um: o botão também é o small blind e age primeiro antes do flop. Quase toda mão vale abrir, e all-ins pequenos se pagam com quase tudo.</p>` : gk === 'spin' ? tx`<p class="muted">Três jogadores, 25 BB e blinds subindo rápido: quase todo o jogo acontece com menos de 15 BB, decidindo all-in ou desistir.</p>` : ''}<div class="dlist">${Object.entries(E.DRILLS).filter(([, v]) => (v.group || 'mesa') === gk).map(([k, v]) => { const st = stats.drills[k]; return `<button class="drow${k === sug ? ' sug' : ''}" type="button" data-dr="${k}"><b>${v.name}</b><span>${v.desc}</span><span class="best">${st ? st.best + '/' + DRILL_N : '–'}<small>${st ? tx`recorde` : tx`novo`}</small></span></button>`; }).join('')}</div>`).join('')}
-      <p class="muted">${tx`Para jogar partidas inteiras desses formatos, escolha <b>Heads-up</b> ou <b>Spin & Go</b> em Jogo.`}</p>`;
+      <p class="muted">${tx`Para jogar partidas inteiras desses formatos, use <b>Heads-up</b> ou <b>Spin & Go</b> em Jogo rápido, no Início.`}</p>`;
     el.querySelectorAll('[data-dr]').forEach(b => b.onclick = () => { drill = { type: b.dataset.dr, i: 0, res: [], streak: 0 }; nextDrill(); renderDrills(); });
     return;
   }

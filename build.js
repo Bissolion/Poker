@@ -22,8 +22,8 @@ fs.writeFileSync(path.join(dir, 'mesa-de-treino.html'), page);
 // ---- PWA ----
 const docs = path.join(dir, 'docs');
 fs.mkdirSync(path.join(docs, 'icons'), { recursive: true });
-const cut = page.indexOf('<div class="app">');
-if (cut < 0) throw new Error('marcador <div class="app"> não encontrado em ui/corpo.html');
+const cut = page.indexOf('<header class="top">');
+if (cut < 0) throw new Error('marcador <header class="top"> não encontrado em ui/corpo.html');
 const headPart = page.slice(0, cut), bodyPart = page.slice(cut);
 const desc = "Treino de Texas Hold'em contra bots, com coach de equity, pot odds, quiz e torneios.";
 const index = `<!doctype html>

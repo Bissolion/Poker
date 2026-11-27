@@ -1,6 +1,5 @@
 // ---- Estudo ----
-function openStudy(tab) { studyTab = tab; $('study').hidden = false; renderStudy(); $('btnClose').focus(); }
-function closeStudy() { $('study').hidden = true; }
+function openStudy(tab) { go(TAB_GROUP[tab] || 'train', tab); }
 function renderStudy() {
   document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.tab === studyTab));
   if (studyTab === 'hands') renderHands();
@@ -9,6 +8,7 @@ function renderStudy() {
   else if (studyTab === 'drills') renderDrills();
   else if (studyTab === 'real') renderReal();
   else if (studyTab === 'bank') renderBank();
+  else if (studyTab === 'terms') $('studyBody').innerHTML = `<p class="muted">${tx`As palavras que o coach usa, em poucas linhas.`}</p>` + $('tplGloss').innerHTML;
   else renderSession();
 }
 

@@ -7,6 +7,7 @@ const BOTS = [
 ];
 const $ = id => document.getElementById(id);
 const IS_PWA = !!window.__MESA_PWA;
+let view = 'home'; // seção aberta: home, table, train, mine
 // Baixar arquivos: no app instalado e no navegador, um link comum; dentro do Claude, pela capacidade "downloads"
 const IN_CLAUDE = !IS_PWA && !!(window.claude && typeof window.claude.use === 'function');
 let dlNs = null;

@@ -44,16 +44,14 @@ $('table').addEventListener('click', e => {
   strOpen = t.dataset.str === 'close' ? false : t.dataset.str; renderTable();
   const f = $('table').querySelector(strOpen ? '.str-x' : '.str'); if (f) f.focus();
 });
-$('btnGame').onclick = openSetup;
+$('btnGame').onclick = () => openSetup('new');
+$('btnPrefs').onclick = () => openSetup('prefs');
 $('btnSetupClose').onclick = closeSetup;
-$('btnStudy').onclick = () => openStudy(studyTab);
-$('btnClose').onclick = closeStudy;
-document.querySelectorAll('.tab').forEach(t => t.onclick = () => { studyTab = t.dataset.tab; renderStudy(); });
-$('study').addEventListener('click', e => { if (e.target.id === 'study') closeStudy(); });
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => { studyTab = t.dataset.tab; LAST_TAB[t.dataset.group] = studyTab; renderStudy(); });
 $('setup').addEventListener('click', e => { if (e.target.id === 'setup') closeSetup(); });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeStudy(); closeSetup(); if (strOpen) { strOpen = false; renderTable(); } return; }
-  if ($('study').hidden) return;
+  if (e.key === 'Escape') { closeSetup(); if (strOpen) { strOpen = false; renderTable(); } return; }
+  if (view !== 'mine') return;
   if (studyTab === 'hands' && replay && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
     const n = hands[replay.idx].snaps.length;
     replay.i = Math.max(0, Math.min(n - 1, replay.i + (e.key === 'ArrowRight' ? 1 : -1))); renderReplay();
@@ -61,7 +59,6 @@ document.addEventListener('keydown', e => {
 });
 $('liveHelp').onchange = e => { liveHelp = e.target.checked; save(); render(); };
 
-newGame(cfg);
 
 // Vazamentos, estatísticas por posição e comparação com a sessão anterior
 const fmtStat = (v, f) => v == null ? '–' : f === 'num' ? v.toFixed(1).replace('.', DEC) : pct(v);
@@ -111,7 +108,7 @@ function leaksHTML() {
 // Evolução semana a semana: treino aqui no app e partidas reais importadas
 const weekOf = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return E.localDay(x); };
 function weeklyHTML() {
-  if (realGames === null) loadReal().then(() => { if (studyTab === 'session' && !$('study').hidden) renderStudy(); });
+  if (realGames === null) loadReal().then(() => { if (studyTab === 'session' && view === 'mine') renderStudy(); });
   const W = {};
   const get = k => W[k] || (W[k] = { h: [], d: [], real: [] });
   const byHand = {};
