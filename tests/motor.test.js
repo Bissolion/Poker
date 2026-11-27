@@ -414,7 +414,8 @@ console.log('vazamentos ok');
     projetos: g => g.street !== 'preflop' && g.legal(0).toCall > 0 && P.heroDraws(g.players[0].hole, g.board), cbet: g => g.street === 'flop' && g.legal(0).toCall === 0 && g.pfAgg === 0, river: g => g.street === 'river' && g.legal(0).toCall > 0,
     hu_abrir: g => g.players.length === 2 && g.posOf(0) === 'BTN' && g.raises === 0, hu_defesa: g => g.players.length === 2 && g.posOf(0) === 'BB' && g.raises === 1,
     hu_push: g => g.players.length === 2 && P.effBB(g, 0) <= 12 && P.preflopAdvice(g, 0).push, spin_push: g => g.players.length === 3 && P.effBB(g, 0) <= 12 && P.preflopAdvice(g, 0).push,
-    spin_call: g => g.players.length === 3 && g.legal(0).toCall > 0 && g.players.some(p => p.allIn) };
+    spin_call: g => g.players.length === 3 && g.legal(0).toCall > 0 && g.players.some(p => p.allIn),
+    segunda: g => g.street === 'turn' && g.legal(0).toCall === 0 && g.pfAgg === 0 };
   for (const t of Object.keys(P.DRILLS)) for (let i = 0; i < 100; i++) {
     const d = P.makeDrill(t, i % 3), g = d.g;
     assert(g.toAct === 0 && !g.handOver && g.players.every(p => p.stack >= 0), `treino ${t} válido`);

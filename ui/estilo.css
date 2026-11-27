@@ -428,6 +428,6 @@ details[open] summary { margin-bottom: 8px; }
 .bform .primary { padding: 0 22px; }
 label.chip { cursor: pointer; display: inline-flex; align-items: center; }
 .sz-good { color: var(--good); } .sz-ok { color: var(--ok); } .sz-bad { color: var(--bad); }
-.fb-why { display: block; margin-top: 6px; font-size: 13.5px; color: var(--ink); border-left: 2px solid var(--brass); padding-left: 8px; }
+.fb-why { grid-column: 2; display: block; margin-top: 2px; font-size: 13.5px; color: var(--ink); border-left: 2px solid var(--brass); padding-left: 8px; }
 .fb-why b { display: block; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--brass); }
 .rd-why { font-size: 13px; border-left: 2px solid var(--brass); padding-left: 8px; color: var(--ink); }

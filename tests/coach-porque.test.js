@@ -33,3 +33,20 @@ assert(k4.decisions.filter(d => d.street !== 'preflop' && d.type === 'raise').ev
 const call = get('SG4453546329').decisions.find(d => d.street === 'river' && d.type === 'call');
 assert(/precisa ganhar 20%/.test(call.why), call.why);
 console.log('coach de tamanho e porquê pós-flop ok');
+// Etapa 5: treino da segunda bala
+{
+  let seed = 7; const rng = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const kinds = {}; let airBetBad = 0, airN = 0;
+  for (let i = 0; i < 40; i++) {
+    const d = P.makeDrill('segunda', 0, rng);
+    assert.strictEqual(d.g.street, 'turn'); assert.strictEqual(d.g.toAct, 0); assert.strictEqual(d.g.legal(0).toCall, 0);
+    kinds[d.kind] = (kinds[d.kind] || 0) + 1;
+    const bet = P.gradeDrill(d, 'raise', rng), chk = P.gradeDrill(d, 'check', rng);
+    assert(bet.why && chk.why);
+    if (d.kind === 'ar') { airN++; if (bet.grade === 'bad' && chk.grade === 'good') airBetBad++; }
+    if (d.kind === 'forte' && bet.info.st >= 0.6) assert.strictEqual(bet.grade, 'good');
+  }
+  assert(Object.keys(kinds).length >= 3, JSON.stringify(kinds));
+  assert(airBetBad >= airN * 0.7, `ar: ${airBetBad}/${airN}`);
+  console.log('segunda bala ok', JSON.stringify(kinds));
+}

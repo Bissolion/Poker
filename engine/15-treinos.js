@@ -6,6 +6,7 @@ const DRILLS = {
   projetos: { name: tx`Jogar projetos`, desc: tx`Você tem um projeto e o rival apostou.` },
   cbet: { name: 'Continuation bet', desc: tx`Você abriu, levou call e o rival passou no flop.` },
   river: { name: tx`Pagar no river`, desc: tx`O rival apostou no river. Paga ou larga?` },
+  segunda: { name: tx`Segunda bala (parar de blefar)`, desc: tx`Você apostou no flop e levou call. No turn, aposta de novo ou passa?` },
   hu_abrir: { name: tx`Abrir do botão`, desc: tx`Você está no botão. Abre ou larga?`, group: 'hu' },
   hu_defesa: { name: tx`Defender contra o botão`, desc: tx`O botão aumentou e você está no big blind.`, group: 'hu' },
   hu_push: { name: tx`All-in ou desistir no heads-up`, desc: tx`Stack curto, um contra um: all-in, paga ou larga?`, group: 'hu' },
@@ -110,6 +111,7 @@ function makeDrill(type, level = 0, rng = Math.random) {
     }
     return { g, type };
   }
+  if (type === 'segunda') return makeSecondBarrel(level, rng);
   // pós-flop: você abre do botão ou cutoff, o big blind paga, o flop sai como pedido
   const g = drillGame(rng), pos = ['CO', 'BTN'][R(0, 1)];
   seatButtonFor(g, pos); g.startHand();
@@ -146,6 +148,47 @@ function makeDrill(type, level = 0, rng = Math.random) {
   else playStreet(true);
   return { g, type };
 }
+// Segunda bala: você abriu, apostou no flop, o big blind pagou e passou no turn.
+// Mistura de mãos: ar (passar), projeto forte e mão feita (apostar de novo), mão média (passar).
+function makeSecondBarrel(level, rng) {
+  const R = drillRng(rng), g = drillGame(rng), pos = ['CO', 'BTN'][R(0, 1)];
+  seatButtonFor(g, pos); g.startHand();
+  const bbSeat = SEATS6.find(s => g.posOf(s) === 'BB');
+  const kind = (u => u < 0.4 ? 'ar' : u < 0.62 ? 'projeto' : u < 0.85 ? 'forte' : 'media')(rng());
+  let hole, board;
+  for (let t = 0; t < 5000; t++) {
+    const d = shuffle([...Array(52).keys()], rng);
+    hole = [d[0], d[1]]; board = d.slice(4, 8);
+    const c = catOf(evalHand([...hole, ...board])), hd = heroDraws(hole, board);
+    const ok = kind === 'ar' ? c === 0 && !hd : kind === 'projeto' ? c === 0 && hd && hd.outs >= 8 : kind === 'forte' ? c >= 2 && c <= 6 : c === 1;
+    if (ok) break;
+  }
+  const holes = []; holes[0] = hole;
+  rigDeck(g, holes, board);
+  while (g.street === 'preflop' && !g.handOver) {
+    const s = g.toAct;
+    if (s === 0) g.act(0, { type: 'raise', to: g.bb * 2.5 });
+    else if (s === bbSeat) g.act(s, { type: 'call' });
+    else g.act(s, { type: 'fold' });
+  }
+  g.act(bbSeat, { type: 'check' });
+  g.act(0, { type: 'raise', to: Math.round(g.pot() * [0.33, 0.5, 0.66][R(0, 2)] / 5) * 5 });
+  g.act(bbSeat, { type: 'call' });
+  g.act(bbSeat, { type: 'check' });
+  return { g, type: 'segunda', kind };
+}
+function gradeSecondBarrel(d, action, info) {
+  const bet = action === 'raise', E = Math.round(info.eq * 100) + '%';
+  const hd = heroDraws(d.g.players[0].hole, d.g.board), outs = hd ? hd.outs : 0;
+  if (info.st >= 0.6) return bet ? { grade: 'good', title: tx`Segunda bala de valor`, text: tx`Com ${E} de equity, você está na frente: aposte de novo e cobre das mãos piores que pagaram no flop.` }
+    : { grade: 'ok', title: tx`Deixou valor na mesa`, text: tx`Com ${E}, você está na frente. Quem pagou no flop tem par ou projeto e paga de novo: aposte.` };
+  if (outs >= 8) return bet ? { grade: 'good', title: tx`Semi-blefe no turn`, text: tx`Com ${outs} outs, a segunda bala ganha de dois jeitos: o rival larga agora, ou você completa no river.` }
+    : { grade: 'good', title: tx`Carta grátis`, text: tx`Passar com ${outs} outs também vale: você vê o river de graça. Apostar como semi-blefe era a outra boa opção.` };
+  if (info.st >= 0.35) return bet ? { grade: 'ok', title: tx`Aposta com mão média`, text: tx`Com ${E}, nenhuma mão pior paga duas vezes: quem continua costuma estar na frente. Passe e chegue barato ao showdown.` }
+    : { grade: 'good', title: tx`Controle do pote`, text: tx`Com mão média, passar é o certo: você chega ao showdown sem pagar caro.` };
+  return bet ? { grade: 'bad', title: tx`Blefe contra quem já pagou`, text: tx`Só ${E} de equity e nenhum projeto. Quem pagou no flop tem algo e raramente larga no turn. Desista do pote passando.` }
+    : { grade: 'good', title: tx`Parou de blefar`, text: tx`Só ${E} e sem projeto: passar e desistir do pote custa menos do que uma segunda bala que vai ser paga.` };
+}
 // Avalia a resposta do treino com o mesmo coach do jogo
 function gradeDrill(d, action, rng = Math.random) {
   const g = d.g, L = g.legal(0);
@@ -158,11 +201,13 @@ function gradeDrill(d, action, rng = Math.random) {
   let rec = postflopRec(info);
   const cb = tips.find(x => x.k === 'cbet' || x.k === 'river');
   if (cb && cb.rec && L.toCall === 0) rec = cb.rec;
-  let fb = gradePostflop(info, action, L, g.street);
+  const ctx = postflopCtx(g, 0);
+  if (d.type === 'segunda' && action !== 'fold') return { ...gradeSecondBarrel(d, action === 'call' ? 'check' : action, info), why: postflopReason(g, 0, info, action), rec: info.st >= 0.6 || (heroDraws(g.players[0].hole, g.board) || { outs: 0 }).outs >= 8 ? 'raise' : 'check', info, tips };
+  let fb = gradePostflop(info, action, L, g.street, ctx);
   if (cb && cb.k === 'cbet' && cb.rec === 'raise' && action === 'check') fb = { grade: 'ok', title: tx`Faltou a continuation bet`, text: cb.text };
   if (cb && cb.k === 'cbet' && cb.rec === 'check' && action === 'raise' && fb.grade === 'good') fb = { grade: 'ok', title: tx`Continuation bet arriscada aqui`, text: cb.text };
-  return { ...fb, rec, info, tips };
+  return { ...fb, why: postflopReason(g, 0, info, action), rec, info, tips };
 }
 // Treino sugerido para cada vazamento
 const LEAK_DRILL_HU = { hu: 'hu_push', spin: 'spin_push' };
-const LEAK_DRILL = { vpip: 'abrir', pfr: 'abrir', gap: 'abrir', vpip_UTG: 'abrir', vpip_MP: 'abrir', vpip_CO: 'abrir', vpip_BTN: 'abrir', vpip_SB: 'abrir', vpip_BB: 'defesa', threebet: 'defesa', fold3bet: 'defesa', cbet: 'cbet', foldcbet: 'projetos', wtsd: 'river', wsd: 'river', af: 'cbet', rivercall: 'river' };
+const LEAK_DRILL = { vpip: 'abrir', pfr: 'abrir', gap: 'abrir', vpip_UTG: 'abrir', vpip_MP: 'abrir', vpip_CO: 'abrir', vpip_BTN: 'abrir', vpip_SB: 'abrir', vpip_BB: 'defesa', threebet: 'defesa', fold3bet: 'defesa', cbet: 'cbet', foldcbet: 'projetos', wtsd: 'river', wsd: 'river', af: 'segunda', rivercall: 'river' };

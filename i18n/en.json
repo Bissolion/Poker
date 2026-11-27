@@ -967,5 +967,20 @@
  "Tamanho sugerido: {0}": "Suggested size: {0}",
  "sugerido": "suggested",
  "Por quê": "Why",
- "tamanho": "size"
+ "tamanho": "size",
+ "Segunda bala (parar de blefar)": "Second barrel (stop bluffing)",
+ "Você apostou no flop e levou call. No turn, aposta de novo ou passa?": "You bet the flop and got called. On the turn, bet again or check?",
+ "Segunda bala de valor": "Value second barrel",
+ "Com {0} de equity, você está na frente: aposte de novo e cobre das mãos piores que pagaram no flop.": "With {0} equity, you're ahead: bet again and charge the worse hands that called the flop.",
+ "Com {0}, você está na frente. Quem pagou no flop tem par ou projeto e paga de novo: aposte.": "With {0}, you're ahead. Whoever called the flop has a pair or a draw and will call again: bet.",
+ "Semi-blefe no turn": "Turn semi-bluff",
+ "Com {0} outs, a segunda bala ganha de dois jeitos: o rival larga agora, ou você completa no river.": "With {0} outs, the second barrel wins two ways: the opponent folds now, or you hit on the river.",
+ "Carta grátis": "Free card",
+ "Passar com {0} outs também vale: você vê o river de graça. Apostar como semi-blefe era a outra boa opção.": "Checking with {0} outs is fine too: you see the river for free. Betting as a semi-bluff was the other good option.",
+ "Com {0}, nenhuma mão pior paga duas vezes: quem continua costuma estar na frente. Passe e chegue barato ao showdown.": "With {0}, no worse hand calls twice: whoever continues is usually ahead. Check and get to showdown cheaply.",
+ "Controle do pote": "Pot control",
+ "Com mão média, passar é o certo: você chega ao showdown sem pagar caro.": "With a medium hand, checking is right: you get to showdown without paying much.",
+ "Só {0} de equity e nenhum projeto. Quem pagou no flop tem algo e raramente larga no turn. Desista do pote passando.": "Only {0} equity and no draw. Whoever called the flop has something and rarely folds on the turn. Give up the pot by checking.",
+ "Parou de blefar": "Stopped bluffing",
+ "Só {0} e sem projeto: passar e desistir do pote custa menos do que uma segunda bala que vai ser paga.": "Only {0} and no draw: checking and giving up the pot costs less than a second barrel that will get called."
 }
