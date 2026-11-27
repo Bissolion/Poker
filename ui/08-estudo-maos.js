@@ -7,6 +7,7 @@ function renderStudy() {
   else if (studyTab === 'ranges') renderRanges();
   else if (studyTab === 'quiz') renderQuiz();
   else if (studyTab === 'drills') renderDrills();
+  else if (studyTab === 'real') renderReal();
   else renderSession();
 }
 
@@ -44,11 +45,11 @@ function renderHands() {
 }
 function nextMistake(h, from) { for (let k = from + 1; k < h.snaps.length; k++) { const f = h.snaps[k].fb; if (f && f.grade !== 'good') return k; } return -1; }
 function renderReplay() {
-  const el = $('studyBody'), h = hands[replay.idx], n = h.snaps.length, i = replay.i, s = h.snaps[i];
+  const el = $('studyBody'), h = replay.h || hands[replay.idx], n = h.snaps.length, i = replay.i, s = h.snaps[i];
   const nm = nextMistake(h, i);
   const combo = E.comboName(h.holes[0][0], h.holes[0][1]);
   el.innerHTML = `
-    <div class="rp-head"><button class="ghost" id="rpBack" type="button">← Mãos</button><span class="rp-title">${tx`Mão ${h.no} · <b>${combo}</b> no ${h.pos[0]}`} · <b class="${h.net > 0 ? 'pos-t' : h.net < 0 ? 'neg-t' : ''}">${signed(h.net)}</b></span></div>
+    <div class="rp-head"><button class="ghost" id="rpBack" type="button">← ${h.real ? tx`Partida` : tx`Mãos`}</button><span class="rp-title">${tx`Mão ${h.no} · <b>${combo}</b> no ${h.pos[0]}`} · <b class="${h.net > 0 ? 'pos-t' : h.net < 0 ? 'neg-t' : ''}">${signed(h.net)}</b></span></div>
     <div class="table mini">${tableHTML(replayView(h, i, replay.showAll), 'md')}</div>
     <div class="step"><span class="step-n">${i + 1}/${n}</span><span>${s.t}</span></div>
     ${s.fb ? fbHTML(s.fb) : ''}
@@ -59,14 +60,14 @@ function renderReplay() {
       <button class="ctl" id="rpLast" type="button" aria-label="Fim" ${i >= n - 1 ? 'disabled' : ''}>⏭</button>
     </div>
     <div class="rp-opts">
-      <label class="switch" for="rpAll">Ver cartas de todos <input type="checkbox" id="rpAll" ${replay.showAll ? 'checked' : ''}></label>
+      ${h.real ? `<span class="muted">${tx`Cartas dos rivais só aparecem quando foram mostradas.`}</span>` : `<label class="switch" for="rpAll">Ver cartas de todos <input type="checkbox" id="rpAll" ${replay.showAll ? 'checked' : ''}></label>`}
       <button class="chip" id="rpErr" type="button" ${nm < 0 ? 'disabled' : ''}>Próximo erro →</button>
     </div>`;
   const go = k => { replay.i = Math.max(0, Math.min(n - 1, k)); renderReplay(); };
-  $('rpBack').onclick = () => { replay = null; renderHands(); };
+  $('rpBack').onclick = () => { if (replay.back) return replay.back(); replay = null; renderHands(); };
   $('rpFirst').onclick = () => go(0); $('rpPrev').onclick = () => go(i - 1);
   $('rpNext').onclick = () => go(i + 1); $('rpLast').onclick = () => go(n - 1);
   $('rpErr').onclick = () => { if (nm >= 0) go(nm); };
-  $('rpAll').onchange = e => { replay.showAll = e.target.checked; renderReplay(); };
+  if ($('rpAll')) $('rpAll').onchange = e => { replay.showAll = e.target.checked; renderReplay(); };
 }
 

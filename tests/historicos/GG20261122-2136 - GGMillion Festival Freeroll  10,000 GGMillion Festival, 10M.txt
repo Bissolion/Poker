@@ -1,0 +1,245 @@
+Poker Hand #TM6697373844: Tournament #328736824, GGMillion$ Festival Freeroll : $10,000 GGMillion$ Festival, $10M Hold'em No Limit - Level1(20/40(4)) - 2026/11/22 18:38:58
+Table '172' 8-max Seat #7 is the button
+Seat 1: 42418509 (708 in chips)
+Seat 2: Hero (948 in chips)
+Seat 3: a2a9d3e6 (1,280 in chips)
+Seat 4: bd595809 (2,116 in chips)
+Seat 5: fab7943c (968 in chips)
+Seat 6: 429417fa (1,100 in chips)
+Seat 7: 131b4011 (2,960 in chips)
+Seat 8: accae36d (948 in chips)
+Hero: posts the ante 4
+bd595809: posts the ante 4
+131b4011: posts the ante 4
+429417fa: posts the ante 4
+fab7943c: posts the ante 4
+a2a9d3e6: posts the ante 4
+42418509: posts the ante 4
+accae36d: posts the ante 4
+accae36d: posts small blind 20
+42418509: posts big blind 40
+*** HOLE CARDS ***
+Dealt to 42418509 
+Dealt to Hero [Kh As]
+Dealt to a2a9d3e6 
+Dealt to bd595809 
+Dealt to fab7943c 
+Dealt to 429417fa 
+Dealt to 131b4011 
+Dealt to accae36d 
+Hero: calls 40
+a2a9d3e6: raises 172 to 212
+bd595809: folds
+fab7943c: folds
+429417fa: folds
+131b4011: folds
+accae36d: folds
+42418509: raises 492 to 704 and is all-in
+Hero: raises 240 to 944 and is all-in
+a2a9d3e6: calls 732
+Hero: shows [Kh As]
+a2a9d3e6: shows [8s 8c]
+42418509: shows [Kd Kc]
+*** FLOP *** [5h 5c Js]
+*** TURN *** [5h 5c Js] [6h]
+*** RIVER *** [5h 5c Js 6h] [Qs]
+*** SHOWDOWN ***
+42418509 collected 2,164 from pot
+a2a9d3e6 collected 480 from pot
+*** SUMMARY ***
+Total pot 2,644 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [5h 5c Js 6h Qs]
+Seat 1: 42418509 (big blind) showed [Kd Kc] and won (2,164) with two pair, Kings and Fives
+Seat 2: Hero showed [Kh As] and lost with a pair of Fives
+Seat 3: a2a9d3e6 showed [8s 8c] and won (480) with two pair, Eights and Fives
+Seat 4: bd595809 folded before Flop
+Seat 5: fab7943c folded before Flop
+Seat 6: 429417fa folded before Flop
+Seat 7: 131b4011 (button) folded before Flop
+Seat 8: accae36d (small blind) folded before Flop
+
+
+Poker Hand #TM6697373767: Tournament #328736824, GGMillion$ Festival Freeroll : $10,000 GGMillion$ Festival, $10M Hold'em No Limit - Level1(20/40(4)) - 2026/11/22 18:38:00
+Table '172' 8-max Seat #6 is the button
+Seat 1: 42418509 (952 in chips)
+Seat 2: Hero (952 in chips)
+Seat 3: a2a9d3e6 (952 in chips)
+Seat 4: bd595809 (2,120 in chips)
+Seat 5: fab7943c (972 in chips)
+Seat 6: 429417fa (1,104 in chips)
+Seat 7: 131b4011 (2,984 in chips)
+Seat 8: accae36d (992 in chips)
+Hero: posts the ante 4
+bd595809: posts the ante 4
+131b4011: posts the ante 4
+429417fa: posts the ante 4
+fab7943c: posts the ante 4
+a2a9d3e6: posts the ante 4
+42418509: posts the ante 4
+accae36d: posts the ante 4
+131b4011: posts small blind 20
+accae36d: posts big blind 40
+*** HOLE CARDS ***
+Dealt to 42418509 
+Dealt to Hero [7h Kc]
+Dealt to a2a9d3e6 
+Dealt to bd595809 
+Dealt to fab7943c 
+Dealt to 429417fa 
+Dealt to 131b4011 
+Dealt to accae36d 
+42418509: calls 40
+Hero: folds
+a2a9d3e6: calls 40
+bd595809: folds
+fab7943c: folds
+429417fa: folds
+131b4011: folds
+accae36d: checks
+*** FLOP *** [2c Jc 7s]
+accae36d: checks
+42418509: bets 80
+a2a9d3e6: calls 80
+accae36d: folds
+*** TURN *** [2c Jc 7s] [5h]
+42418509: bets 40
+a2a9d3e6: calls 40
+*** RIVER *** [2c Jc 7s 5h] [3c]
+42418509: bets 80
+a2a9d3e6: raises 286 to 366
+42418509: folds
+Uncalled bet (286) returned to a2a9d3e6
+*** SHOWDOWN ***
+a2a9d3e6 collected 572 from pot
+*** SUMMARY ***
+Total pot 572 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [2c Jc 7s 5h 3c]
+Seat 1: 42418509 folded on the River
+Seat 2: Hero folded before Flop
+Seat 3: a2a9d3e6 won (572)
+Seat 4: bd595809 folded before Flop
+Seat 5: fab7943c folded before Flop
+Seat 6: 429417fa (button) folded before Flop
+Seat 7: 131b4011 (small blind) folded before Flop
+Seat 8: accae36d (big blind) folded on the Flop
+
+
+Poker Hand #TM6697373699: Tournament #328736824, GGMillion$ Festival Freeroll : $10,000 GGMillion$ Festival, $10M Hold'em No Limit - Level1(20/40(4)) - 2026/11/22 18:37:08
+Table '172' 8-max Seat #5 is the button
+Seat 1: 42418509 (996 in chips)
+Seat 2: Hero (956 in chips)
+Seat 3: a2a9d3e6 (956 in chips)
+Seat 4: bd595809 (2,164 in chips)
+Seat 5: fab7943c (976 in chips)
+Seat 6: 429417fa (956 in chips)
+Seat 7: 131b4011 (3,028 in chips)
+Seat 8: accae36d (996 in chips)
+Hero: posts the ante 4
+bd595809: posts the ante 4
+131b4011: posts the ante 4
+429417fa: posts the ante 4
+fab7943c: posts the ante 4
+a2a9d3e6: posts the ante 4
+42418509: posts the ante 4
+accae36d: posts the ante 4
+429417fa: posts small blind 20
+131b4011: posts big blind 40
+*** HOLE CARDS ***
+Dealt to 42418509 
+Dealt to Hero [6h Jh]
+Dealt to a2a9d3e6 
+Dealt to bd595809 
+Dealt to fab7943c 
+Dealt to 429417fa 
+Dealt to 131b4011 
+Dealt to accae36d 
+accae36d: folds
+42418509: calls 40
+Hero: folds
+a2a9d3e6: folds
+bd595809: calls 40
+fab7943c: folds
+429417fa: raises 912 to 952 and is all-in
+131b4011: folds
+42418509: folds
+bd595809: folds
+Uncalled bet (912) returned to 429417fa
+*** SHOWDOWN ***
+429417fa collected 192 from pot
+*** SUMMARY ***
+Total pot 192 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 42418509 folded before Flop
+Seat 2: Hero folded before Flop
+Seat 3: a2a9d3e6 folded before Flop
+Seat 4: bd595809 folded before Flop
+Seat 5: fab7943c (button) folded before Flop
+Seat 6: 429417fa (small blind) collected (192)
+Seat 7: 131b4011 (big blind) folded before Flop
+Seat 8: accae36d folded before Flop
+
+
+Poker Hand #TM6697373601: Tournament #328736824, GGMillion$ Festival Freeroll : $10,000 GGMillion$ Festival, $10M Hold'em No Limit - Level1(20/40(4)) - 2026/11/22 18:36:02
+Table '172' 8-max Seat #4 is the button
+Seat 1: 42418509 (1,000 in chips)
+Seat 2: Hero (1,000 in chips)
+Seat 3: a2a9d3e6 (1,000 in chips)
+Seat 4: bd595809 (1,000 in chips)
+Seat 5: fab7943c (1,000 in chips)
+Seat 6: 429417fa (1,000 in chips)
+Seat 7: 99d0996a (1,000 in chips)
+Seat 8: accae36d (1,000 in chips)
+Hero: posts the ante 4
+bd595809: posts the ante 4
+99d0996a: posts the ante 4
+429417fa: posts the ante 4
+a2a9d3e6: posts the ante 4
+42418509: posts the ante 4
+accae36d: posts the ante 4
+fab7943c: posts the ante 4
+fab7943c: posts small blind 20
+429417fa: posts big blind 40
+*** HOLE CARDS ***
+Dealt to 42418509 
+Dealt to Hero [Ts 9c]
+Dealt to a2a9d3e6 
+Dealt to bd595809 
+Dealt to fab7943c 
+Dealt to 429417fa 
+Dealt to 99d0996a 
+Dealt to accae36d 
+99d0996a: calls 40
+accae36d: folds
+42418509: folds
+Hero: calls 40
+a2a9d3e6: calls 40
+bd595809: calls 40
+fab7943c: folds
+429417fa: checks
+*** FLOP *** [Ah 4s Js]
+429417fa: checks
+99d0996a: bets 252
+Hero: folds
+a2a9d3e6: folds
+bd595809: calls 252
+429417fa: folds
+*** TURN *** [Ah 4s Js] [Kc]
+99d0996a: bets 704 and is all-in
+bd595809: calls 704 and is all-in
+99d0996a: shows [Kd Td] (a pair of Kings)
+bd595809: shows [Kh Ks] (three of a kind, Kings)
+*** RIVER *** [Ah 4s Js Kc] [Jd]
+*** SHOWDOWN ***
+bd595809 collected 2,164 from pot
+*** SUMMARY ***
+Total pot 2,164 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [Ah 4s Js Kc Jd]
+Seat 1: 42418509 folded before Flop
+Seat 2: Hero folded on the Flop
+Seat 3: a2a9d3e6 folded on the Flop
+Seat 4: bd595809 (button) showed [Kh Ks] and won (2,164) with a full house, Kings full of Jacks
+Seat 5: fab7943c (small blind) folded before Flop
+Seat 6: 429417fa (big blind) folded on the Flop
+Seat 7: 99d0996a showed [Kd Td] and lost with two pair, Kings and Jacks
+Seat 8: accae36d folded before Flop
+
+

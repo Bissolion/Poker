@@ -51,7 +51,7 @@ const ordinal = n => E.LANG === 'en' ? n + (n % 10 === 1 && n % 100 !== 11 ? 'st
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 // ---- mesa (compartilhada entre jogo e replay) ----
-const SLOTS = { 2: ['p3'], 3: ['p2', 'p4'], 9: ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8'], 6: ['p1', 'p2', 'p3', 'p4', 'p5'] };
+const SLOTS = { 2: ['p3'], 3: ['p2', 'p4'], 4: ['p1', 'p3', 'p5'], 5: ['p1', 'p2', 'p4', 'p5'], 7: ['q1', 'q2', 'q4', 'q5', 'q7', 'q8'], 8: ['q1', 'q2', 'q3', 'q4', 'q6', 'q7', 'q8'], 9: ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8'], 6: ['p1', 'p2', 'p3', 'p4', 'p5'] };
 function tableHTML(v, heroSize) {
   let html = '<div class="felt"></div>';
   const slots = SLOTS[v.seats.length] || SLOTS[6];

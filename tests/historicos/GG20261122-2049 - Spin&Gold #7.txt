@@ -1,0 +1,196 @@
+Poker Hand #SG4453531661: Tournament #329278065, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/22 17:51:35
+Table '58855' 3-max Seat #1 is the button
+Seat 1: Hero (260 in chips)
+Seat 2: 82fcedf9 (340 in chips)
+Seat 3: d3cb8e66 (300 in chips)
+82fcedf9: posts small blind 10
+d3cb8e66: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [Jd Kd]
+Dealt to 82fcedf9 
+Dealt to d3cb8e66 
+Hero: raises 20 to 40
+82fcedf9: calls 30
+d3cb8e66: folds
+*** FLOP *** [5s 3c 3d]
+82fcedf9: checks
+Hero: bets 33
+82fcedf9: calls 33
+*** TURN *** [5s 3c 3d] [3h]
+82fcedf9: bets 125
+Hero: raises 62 to 187 and is all-in
+82fcedf9: calls 62
+Hero: shows [Jd Kd] (three of a kind, Threes)
+82fcedf9: shows [6h 6d] (a full house, Threes full of Sixes)
+*** RIVER *** [5s 3c 3d 3h] [Ts]
+*** SHOWDOWN ***
+82fcedf9 collected 540 from pot
+*** SUMMARY ***
+Total pot 540 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [5s 3c 3d 3h Ts]
+Seat 1: Hero (button) showed [Jd Kd] and lost with three of a kind, Threes
+Seat 2: 82fcedf9 (small blind) showed [6h 6d] and won (540) with a full house, Threes full of Sixes
+Seat 3: d3cb8e66 (big blind) folded before Flop
+
+
+Poker Hand #SG4453531555: Tournament #329278065, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/22 17:51:25
+Table '58855' 3-max Seat #3 is the button
+Seat 1: Hero (270 in chips)
+Seat 2: 82fcedf9 (360 in chips)
+Seat 3: d3cb8e66 (270 in chips)
+Hero: posts small blind 10
+82fcedf9: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [5c 7c]
+Dealt to 82fcedf9 
+Dealt to d3cb8e66 
+d3cb8e66: raises 250 to 270 and is all-in
+Hero: folds
+82fcedf9: folds
+Uncalled bet (250) returned to d3cb8e66
+*** SHOWDOWN ***
+d3cb8e66 collected 50 from pot
+*** SUMMARY ***
+Total pot 50 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: Hero (small blind) folded before Flop
+Seat 2: 82fcedf9 (big blind) folded before Flop
+Seat 3: d3cb8e66 (button) collected (50)
+
+
+Poker Hand #SG4453531466: Tournament #329278065, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/22 17:51:16
+Table '58855' 3-max Seat #2 is the button
+Seat 1: Hero (260 in chips)
+Seat 2: 82fcedf9 (360 in chips)
+Seat 3: d3cb8e66 (280 in chips)
+d3cb8e66: posts small blind 10
+Hero: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [7c 7s]
+Dealt to 82fcedf9 
+Dealt to d3cb8e66 
+82fcedf9: folds
+d3cb8e66: folds
+Uncalled bet (10) returned to Hero
+*** SHOWDOWN ***
+Hero collected 20 from pot
+*** SUMMARY ***
+Total pot 20 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: Hero (big blind) collected (20)
+Seat 2: 82fcedf9 (button) folded before Flop (didn't bet)
+Seat 3: d3cb8e66 (small blind) folded before Flop
+
+
+Poker Hand #SG4453531001: Tournament #329278065, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/22 17:50:35
+Table '58855' 3-max Seat #1 is the button
+Seat 1: Hero (310 in chips)
+Seat 2: 82fcedf9 (290 in chips)
+Seat 3: d3cb8e66 (300 in chips)
+82fcedf9: posts small blind 10
+d3cb8e66: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [Ts 8c]
+Dealt to 82fcedf9 
+Dealt to d3cb8e66 
+Hero: calls 20
+82fcedf9: calls 10
+d3cb8e66: checks
+*** FLOP *** [Jc 3h Ad]
+82fcedf9: checks
+d3cb8e66: checks
+Hero: checks
+*** TURN *** [Jc 3h Ad] [Kh]
+82fcedf9: bets 30
+d3cb8e66: folds
+Hero: calls 30
+*** RIVER *** [Jc 3h Ad Kh] [2d]
+82fcedf9: bets 90
+Hero: folds
+Uncalled bet (90) returned to 82fcedf9
+*** SHOWDOWN ***
+82fcedf9 collected 120 from pot
+*** SUMMARY ***
+Total pot 120 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [Jc 3h Ad Kh 2d]
+Seat 1: Hero (button) folded on the River
+Seat 2: 82fcedf9 (small blind) won (120)
+Seat 3: d3cb8e66 (big blind) folded on the Turn
+
+
+Poker Hand #SG4453530909: Tournament #329278065, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/22 17:50:26
+Table '58855' 3-max Seat #3 is the button
+Seat 1: Hero (320 in chips)
+Seat 2: 82fcedf9 (280 in chips)
+Seat 3: d3cb8e66 (300 in chips)
+Hero: posts small blind 10
+82fcedf9: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [8c 6h]
+Dealt to 82fcedf9 
+Dealt to d3cb8e66 
+d3cb8e66: folds
+Hero: folds
+Uncalled bet (10) returned to 82fcedf9
+*** SHOWDOWN ***
+82fcedf9 collected 20 from pot
+*** SUMMARY ***
+Total pot 20 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: Hero (small blind) folded before Flop
+Seat 2: 82fcedf9 (big blind) collected (20)
+Seat 3: d3cb8e66 (button) folded before Flop (didn't bet)
+
+
+Poker Hand #SG4453530756: Tournament #329278065, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/22 17:50:14
+Table '58855' 3-max Seat #2 is the button
+Seat 1: Hero (340 in chips)
+Seat 2: 82fcedf9 (280 in chips)
+Seat 3: d3cb8e66 (280 in chips)
+d3cb8e66: posts small blind 10
+Hero: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [2d 6c]
+Dealt to 82fcedf9 
+Dealt to d3cb8e66 
+82fcedf9: folds
+d3cb8e66: raises 260 to 280 and is all-in
+Hero: folds
+Uncalled bet (260) returned to d3cb8e66
+*** SHOWDOWN ***
+d3cb8e66 collected 40 from pot
+*** SUMMARY ***
+Total pot 40 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: Hero (big blind) folded before Flop
+Seat 2: 82fcedf9 (button) folded before Flop (didn't bet)
+Seat 3: d3cb8e66 (small blind) collected (40)
+
+
+Poker Hand #SG4453530500: Tournament #329278065, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/22 17:49:51
+Table '58855' 3-max Seat #1 is the button
+Seat 1: Hero (300 in chips)
+Seat 2: 82fcedf9 (300 in chips)
+Seat 3: d3cb8e66 (300 in chips)
+82fcedf9: posts small blind 10
+d3cb8e66: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [6c 8c]
+Dealt to 82fcedf9 
+Dealt to d3cb8e66 
+Hero: calls 20
+82fcedf9: calls 10
+d3cb8e66: checks
+*** FLOP *** [Ks Td 6d]
+82fcedf9: checks
+d3cb8e66: checks
+Hero: bets 20
+82fcedf9: folds
+d3cb8e66: folds
+Uncalled bet (20) returned to Hero
+*** SHOWDOWN ***
+Hero collected 60 from pot
+*** SUMMARY ***
+Total pot 60 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [Ks Td 6d]
+Seat 1: Hero (button) won (60)
+Seat 2: 82fcedf9 (small blind) folded on the Flop
+Seat 3: d3cb8e66 (big blind) folded on the Flop
+
+

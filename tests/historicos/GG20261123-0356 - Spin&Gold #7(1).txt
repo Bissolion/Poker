@@ -1,0 +1,33 @@
+Poker Hand #SG4454264429: Tournament #329334777, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:56:05
+Table '5656' 3-max Seat #2 is the button
+Seat 1: Hero (300 in chips)
+Seat 2: 8317af7b (300 in chips)
+Seat 3: fa2caff2 (300 in chips)
+fa2caff2: posts small blind 10
+Hero: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [2c Ac]
+Dealt to 8317af7b 
+Dealt to fa2caff2 
+8317af7b: folds
+fa2caff2: raises 20 to 40
+Hero: raises 40 to 80
+fa2caff2: calls 40
+*** FLOP *** [2d Jc Ad]
+fa2caff2: checks
+Hero: bets 220 and is all-in
+fa2caff2: calls 220 and is all-in
+Hero: shows [2c Ac] (two pair, Aces and Twos)
+fa2caff2: shows [As Js] (two pair, Aces and Jacks)
+*** TURN *** [2d Jc Ad] [3s]
+*** RIVER *** [2d Jc Ad 3s] [4d]
+*** SHOWDOWN ***
+fa2caff2 collected 600 from pot
+*** SUMMARY ***
+Total pot 600 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [2d Jc Ad 3s 4d]
+Seat 1: Hero (big blind) showed [2c Ac] and lost with two pair, Aces and Twos
+Seat 2: 8317af7b (button) folded before Flop (didn't bet)
+Seat 3: fa2caff2 (small blind) showed [As Js] and won (600) with two pair, Aces and Jacks
+
+

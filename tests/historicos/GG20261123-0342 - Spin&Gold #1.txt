@@ -1,0 +1,386 @@
+Poker Hand #SG4454261373: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level2(15/30) - 2026/11/23 00:46:03
+Table '4565' 3-max Seat #1 is the button
+Seat 1: 709166ef (360 in chips)
+Seat 2: 26cbc169 (435 in chips)
+Seat 3: Hero (105 in chips)
+26cbc169: posts small blind 15
+Hero: posts big blind 30
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [7d Qd]
+709166ef: raises 330 to 360 and is all-in
+26cbc169: folds
+Hero: calls 75 and is all-in
+Uncalled bet (255) returned to 709166ef
+709166ef: shows [As 6d]
+Hero: shows [7d Qd]
+*** FLOP *** [9d 7h Ac]
+*** TURN *** [9d 7h Ac] [Tc]
+*** RIVER *** [9d 7h Ac Tc] [3h]
+*** SHOWDOWN ***
+709166ef collected 225 from pot
+*** SUMMARY ***
+Total pot 225 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [9d 7h Ac Tc 3h]
+Seat 1: 709166ef (button) showed [As 6d] and won (225) with a pair of Aces
+Seat 2: 26cbc169 (small blind) folded before Flop
+Seat 3: Hero (big blind) showed [7d Qd] and lost with a pair of Sevens
+
+
+Poker Hand #SG4454261216: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level2(15/30) - 2026/11/23 00:45:34
+Table '4565' 3-max Seat #3 is the button
+Seat 1: 709166ef (375 in chips)
+Seat 2: 26cbc169 (210 in chips)
+Seat 3: Hero (315 in chips)
+709166ef: posts small blind 15
+26cbc169: posts big blind 30
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [Qd 5c]
+Hero: calls 30
+709166ef: folds
+26cbc169: checks
+*** FLOP *** [6d 9h 2d]
+26cbc169: checks
+Hero: bets 75
+26cbc169: raises 105 to 180 and is all-in
+Hero: calls 105
+26cbc169: shows [9c 8h] (a pair of Nines)
+Hero: shows [Qd 5c] (Queen high)
+*** TURN *** [6d 9h 2d] [9d]
+*** RIVER *** [6d 9h 2d 9d] [Jh]
+*** SHOWDOWN ***
+26cbc169 collected 435 from pot
+*** SUMMARY ***
+Total pot 435 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [6d 9h 2d 9d Jh]
+Seat 1: 709166ef (small blind) folded before Flop
+Seat 2: 26cbc169 (big blind) showed [9c 8h] and won (435) with three of a kind, Nines
+Seat 3: Hero (button) showed [Qd 5c] and lost with a pair of Nines
+
+
+Poker Hand #SG4454261159: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level2(15/30) - 2026/11/23 00:45:22
+Table '4565' 3-max Seat #2 is the button
+Seat 1: 709166ef (345 in chips)
+Seat 2: 26cbc169 (210 in chips)
+Seat 3: Hero (345 in chips)
+Hero: posts small blind 15
+709166ef: posts big blind 30
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [Kd 3c]
+26cbc169: folds
+Hero: calls 15
+709166ef: raises 315 to 345 and is all-in
+Hero: folds
+Uncalled bet (315) returned to 709166ef
+*** SHOWDOWN ***
+709166ef collected 60 from pot
+*** SUMMARY ***
+Total pot 60 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 709166ef (big blind) collected (60)
+Seat 2: 26cbc169 (button) folded before Flop (didn't bet)
+Seat 3: Hero (small blind) folded before Flop
+
+
+Poker Hand #SG4454261115: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level2(15/30) - 2026/11/23 00:45:13
+Table '4565' 3-max Seat #1 is the button
+Seat 1: 709166ef (345 in chips)
+Seat 2: 26cbc169 (225 in chips)
+Seat 3: Hero (330 in chips)
+26cbc169: posts small blind 15
+Hero: posts big blind 30
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [Ad 6d]
+709166ef: folds
+26cbc169: folds
+Uncalled bet (15) returned to Hero
+*** SHOWDOWN ***
+Hero collected 30 from pot
+*** SUMMARY ***
+Total pot 30 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 709166ef (button) folded before Flop (didn't bet)
+Seat 2: 26cbc169 (small blind) folded before Flop
+Seat 3: Hero (big blind) collected (30)
+
+
+Poker Hand #SG4454261061: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level2(15/30) - 2026/11/23 00:45:02
+Table '4565' 3-max Seat #3 is the button
+Seat 1: 709166ef (315 in chips)
+Seat 2: 26cbc169 (255 in chips)
+Seat 3: Hero (330 in chips)
+709166ef: posts small blind 15
+26cbc169: posts big blind 30
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [3s Tc]
+Hero: folds
+709166ef: raises 285 to 315 and is all-in
+26cbc169: folds
+Uncalled bet (285) returned to 709166ef
+*** SHOWDOWN ***
+709166ef collected 60 from pot
+*** SUMMARY ***
+Total pot 60 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 709166ef (small blind) collected (60)
+Seat 2: 26cbc169 (big blind) folded before Flop
+Seat 3: Hero (button) folded before Flop (didn't bet)
+
+
+Poker Hand #SG4454260978: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level2(15/30) - 2026/11/23 00:44:46
+Table '4565' 3-max Seat #2 is the button
+Seat 1: 709166ef (285 in chips)
+Seat 2: 26cbc169 (255 in chips)
+Seat 3: Hero (360 in chips)
+Hero: posts small blind 15
+709166ef: posts big blind 30
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [8s 2s]
+26cbc169: folds
+Hero: calls 15
+709166ef: raises 60 to 90
+Hero: folds
+Uncalled bet (60) returned to 709166ef
+*** SHOWDOWN ***
+709166ef collected 60 from pot
+*** SUMMARY ***
+Total pot 60 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 709166ef (big blind) collected (60)
+Seat 2: 26cbc169 (button) folded before Flop (didn't bet)
+Seat 3: Hero (small blind) folded before Flop
+
+
+Poker Hand #SG4454260845: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level2(15/30) - 2026/11/23 00:44:20
+Table '4565' 3-max Seat #1 is the button
+Seat 1: 709166ef (240 in chips)
+Seat 2: 26cbc169 (270 in chips)
+Seat 3: Hero (390 in chips)
+26cbc169: posts small blind 15
+Hero: posts big blind 30
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [Ad 4h]
+709166ef: raises 90 to 120
+26cbc169: folds
+Hero: folds
+Uncalled bet (90) returned to 709166ef
+*** SHOWDOWN ***
+709166ef collected 75 from pot
+*** SUMMARY ***
+Total pot 75 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 709166ef (button) collected (75)
+Seat 2: 26cbc169 (small blind) folded before Flop
+Seat 3: Hero (big blind) folded before Flop
+
+
+Poker Hand #SG4454260684: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:43:52
+Table '4565' 3-max Seat #3 is the button
+Seat 1: 709166ef (250 in chips)
+Seat 2: 26cbc169 (290 in chips)
+Seat 3: Hero (360 in chips)
+709166ef: posts small blind 10
+26cbc169: posts big blind 20
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [4c 9c]
+Hero: calls 20
+709166ef: folds
+26cbc169: checks
+*** FLOP *** [4h 6c 6h]
+26cbc169: checks
+Hero: bets 38
+26cbc169: folds
+Uncalled bet (38) returned to Hero
+*** SHOWDOWN ***
+Hero collected 50 from pot
+*** SUMMARY ***
+Total pot 50 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [4h 6c 6h]
+Seat 1: 709166ef (small blind) folded before Flop
+Seat 2: 26cbc169 (big blind) folded on the Flop
+Seat 3: Hero (button) won (50)
+
+
+Poker Hand #SG4454260616: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:43:39
+Table '4565' 3-max Seat #2 is the button
+Seat 1: 709166ef (270 in chips)
+Seat 2: 26cbc169 (290 in chips)
+Seat 3: Hero (340 in chips)
+Hero: posts small blind 10
+709166ef: posts big blind 20
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [6c Qc]
+26cbc169: folds
+Hero: raises 20 to 40
+709166ef: folds
+Uncalled bet (20) returned to Hero
+*** SHOWDOWN ***
+Hero collected 40 from pot
+*** SUMMARY ***
+Total pot 40 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 709166ef (big blind) folded before Flop
+Seat 2: 26cbc169 (button) folded before Flop (didn't bet)
+Seat 3: Hero (small blind) collected (40)
+
+
+Poker Hand #SG4454260559: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:43:28
+Table '4565' 3-max Seat #1 is the button
+Seat 1: 709166ef (240 in chips)
+Seat 2: 26cbc169 (300 in chips)
+Seat 3: Hero (360 in chips)
+26cbc169: posts small blind 10
+Hero: posts big blind 20
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [6h Tc]
+709166ef: raises 220 to 240 and is all-in
+26cbc169: folds
+Hero: folds
+Uncalled bet (220) returned to 709166ef
+*** SHOWDOWN ***
+709166ef collected 50 from pot
+*** SUMMARY ***
+Total pot 50 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 709166ef (button) collected (50)
+Seat 2: 26cbc169 (small blind) folded before Flop
+Seat 3: Hero (big blind) folded before Flop
+
+
+Poker Hand #SG4454260518: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:43:20
+Table '4565' 3-max Seat #3 is the button
+Seat 1: 709166ef (250 in chips)
+Seat 2: 26cbc169 (290 in chips)
+Seat 3: Hero (360 in chips)
+709166ef: posts small blind 10
+26cbc169: posts big blind 20
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [4h 9c]
+Hero: folds
+709166ef: folds
+Uncalled bet (10) returned to 26cbc169
+*** SHOWDOWN ***
+26cbc169 collected 20 from pot
+*** SUMMARY ***
+Total pot 20 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 709166ef (small blind) folded before Flop
+Seat 2: 26cbc169 (big blind) collected (20)
+Seat 3: Hero (button) folded before Flop (didn't bet)
+
+
+Poker Hand #SG4454260426: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:43:03
+Table '4565' 3-max Seat #2 is the button
+Seat 1: 709166ef (270 in chips)
+Seat 2: 26cbc169 (260 in chips)
+Seat 3: Hero (370 in chips)
+Hero: posts small blind 10
+709166ef: posts big blind 20
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [Qc 3d]
+26cbc169: raises 240 to 260 and is all-in
+Hero: folds
+709166ef: folds
+Uncalled bet (240) returned to 26cbc169
+*** SHOWDOWN ***
+26cbc169 collected 50 from pot
+*** SUMMARY ***
+Total pot 50 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 709166ef (big blind) folded before Flop
+Seat 2: 26cbc169 (button) collected (50)
+Seat 3: Hero (small blind) folded before Flop
+
+
+Poker Hand #SG4454260344: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:42:45
+Table '4565' 3-max Seat #1 is the button
+Seat 1: 709166ef (270 in chips)
+Seat 2: 26cbc169 (240 in chips)
+Seat 3: Hero (390 in chips)
+26cbc169: posts small blind 10
+Hero: posts big blind 20
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [Ks 5c]
+709166ef: folds
+26cbc169: raises 220 to 240 and is all-in
+Hero: folds
+Uncalled bet (220) returned to 26cbc169
+*** SHOWDOWN ***
+26cbc169 collected 40 from pot
+*** SUMMARY ***
+Total pot 40 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 709166ef (button) folded before Flop (didn't bet)
+Seat 2: 26cbc169 (small blind) collected (40)
+Seat 3: Hero (big blind) folded before Flop
+
+
+Poker Hand #SG4454260252: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:42:27
+Table '4565' 3-max Seat #3 is the button
+Seat 1: 709166ef (280 in chips)
+Seat 2: 26cbc169 (260 in chips)
+Seat 3: Hero (360 in chips)
+709166ef: posts small blind 10
+26cbc169: posts big blind 20
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [4c Ah]
+Hero: calls 20
+709166ef: folds
+26cbc169: checks
+*** FLOP *** [8c Jd 3c]
+26cbc169: checks
+Hero: bets 25
+26cbc169: folds
+Uncalled bet (25) returned to Hero
+*** SHOWDOWN ***
+Hero collected 50 from pot
+*** SUMMARY ***
+Total pot 50 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [8c Jd 3c]
+Seat 1: 709166ef (small blind) folded before Flop
+Seat 2: 26cbc169 (big blind) folded on the Flop
+Seat 3: Hero (button) won (50)
+
+
+Poker Hand #SG4454260152: Tournament #329333518, Spin&Gold #1 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:42:08
+Table '4565' 3-max Seat #2 is the button
+Seat 1: 709166ef (300 in chips)
+Seat 2: 26cbc169 (300 in chips)
+Seat 3: Hero (300 in chips)
+Hero: posts small blind 10
+709166ef: posts big blind 20
+*** HOLE CARDS ***
+Dealt to 709166ef 
+Dealt to 26cbc169 
+Dealt to Hero [8h Ah]
+26cbc169: raises 20 to 40
+Hero: raises 260 to 300 and is all-in
+709166ef: folds
+26cbc169: folds
+Uncalled bet (260) returned to Hero
+*** SHOWDOWN ***
+Hero collected 100 from pot
+*** SUMMARY ***
+Total pot 100 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 709166ef (big blind) folded before Flop
+Seat 2: 26cbc169 (button) folded before Flop
+Seat 3: Hero (small blind) collected (100)
+
+

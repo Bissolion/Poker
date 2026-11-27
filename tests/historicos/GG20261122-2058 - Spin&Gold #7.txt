@@ -1,0 +1,69 @@
+Poker Hand #SG4453546329: Tournament #329279615, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/22 17:59:11
+Table '60291' 3-max Seat #3 is the button
+Seat 1: Hero (620 in chips)
+Seat 3: 7d69a15e (280 in chips)
+7d69a15e: posts small blind 10
+Hero: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [7h 4c]
+Dealt to 7d69a15e 
+7d69a15e: raises 40 to 60
+Hero: calls 40
+*** FLOP *** [Ks 2d 4s]
+Hero: bets 40
+7d69a15e: calls 40
+*** TURN *** [Ks 2d 4s] [9h]
+Hero: bets 66
+7d69a15e: calls 66
+*** RIVER *** [Ks 2d 4s 9h] [8s]
+Hero: checks
+7d69a15e: bets 114 and is all-in
+Hero: calls 114
+7d69a15e: shows [Qs Ah] (Ace high)
+Hero: shows [7h 4c] (a pair of Fours)
+*** SHOWDOWN ***
+Hero collected 560 from pot
+*** SUMMARY ***
+Total pot 560 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [Ks 2d 4s 9h 8s]
+Seat 1: Hero (big blind) showed [7h 4c] and won (560) with a pair of Fours
+Seat 3: 7d69a15e (small blind) showed [Qs Ah] and lost with Ace high
+
+
+Poker Hand #SG4453545960: Tournament #329279615, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/22 17:58:38
+Table '60291' 3-max Seat #1 is the button
+Seat 1: Hero (300 in chips)
+Seat 2: 33f65ce (300 in chips)
+Seat 3: 7d69a15e (300 in chips)
+33f65ce: posts small blind 10
+7d69a15e: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [2d Ks]
+Dealt to 33f65ce 
+Dealt to 7d69a15e 
+Hero: calls 20
+33f65ce: calls 10
+7d69a15e: checks
+*** FLOP *** [Js Ts Qh]
+33f65ce: checks
+7d69a15e: checks
+Hero: bets 60
+33f65ce: calls 60
+7d69a15e: folds
+*** TURN *** [Js Ts Qh] [Ad]
+33f65ce: checks
+Hero: bets 220 and is all-in
+33f65ce: calls 220 and is all-in
+Hero: shows [2d Ks] (a straight, Ace to Ten)
+33f65ce: shows [7h Qd] (a pair of Queens)
+*** RIVER *** [Js Ts Qh Ad] [5d]
+*** SHOWDOWN ***
+Hero collected 620 from pot
+*** SUMMARY ***
+Total pot 620 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [Js Ts Qh Ad 5d]
+Seat 1: Hero (button) showed [2d Ks] and won (620) with a straight, Ace to Ten
+Seat 2: 33f65ce (small blind) showed [7h Qd] and lost with a pair of Queens
+Seat 3: 7d69a15e (big blind) folded on the Flop
+
+

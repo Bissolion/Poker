@@ -1,0 +1,831 @@
+Poker Hand #TM6695908902: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level5(125/250(25)) - 2026/11/22 17:42:40
+Table '87' 8-max Seat #8 is the button
+Seat 1: 3ac511b9 (880 in chips)
+Seat 2: f6b7d750 (15,540 in chips)
+Seat 3: b689afd9 (3,885 in chips)
+Seat 4: Hero (307 in chips)
+Seat 5: e80b9b0c (8,058 in chips)
+Seat 6: 1b2332d7 (5,975 in chips)
+Seat 7: 25ec0afb (7,670 in chips)
+Seat 8: 604da5ae (4,370 in chips)
+Hero: posts the ante 25
+f6b7d750: posts the ante 25
+25ec0afb: posts the ante 25
+3ac511b9: posts the ante 25
+b689afd9: posts the ante 25
+604da5ae: posts the ante 25
+e80b9b0c: posts the ante 25
+1b2332d7: posts the ante 25
+3ac511b9: posts small blind 125
+f6b7d750: posts big blind 250
+*** HOLE CARDS ***
+Dealt to 3ac511b9 
+Dealt to f6b7d750 
+Dealt to b689afd9 
+Dealt to Hero [4h Th]
+Dealt to e80b9b0c 
+Dealt to 1b2332d7 
+Dealt to 25ec0afb 
+Dealt to 604da5ae 
+b689afd9: folds
+Hero: raises 32 to 282 and is all-in
+e80b9b0c: calls 282
+1b2332d7: calls 282
+25ec0afb: folds
+604da5ae: calls 282
+3ac511b9: raises 573 to 855 and is all-in
+f6b7d750: calls 605
+e80b9b0c: calls 573
+1b2332d7: calls 573
+604da5ae: calls 573
+*** FLOP *** [Kc 9c Qh]
+f6b7d750: checks
+e80b9b0c: checks
+1b2332d7: bets 5,095 and is all-in
+604da5ae: folds
+f6b7d750: folds
+e80b9b0c: calls 5,095
+1b2332d7: shows [Qc Qs] (three of a kind, Queens)
+3ac511b9: shows [8s 2d] (King high)
+Hero: shows [4h Th] (King high)
+e80b9b0c: shows [4s 9h] (a pair of Nines)
+*** TURN *** [Kc 9c Qh] [Jc]
+*** RIVER *** [Kc 9c Qh Jc] [8c]
+f6b7d750: shows [5c] (a flush King high)
+*** SHOWDOWN ***
+1b2332d7 collected 1,892 from pot
+1b2332d7 collected 2,865 from pot
+1b2332d7 collected 10,190 from pot
+*** SUMMARY ***
+Total pot 14,947 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [Kc 9c Qh Jc 8c]
+Seat 1: 3ac511b9 (small blind) showed [8s 2d] and lost with a pair of Eights
+Seat 2: f6b7d750 (big blind) folded on the Flop
+Seat 3: b689afd9 folded before Flop
+Seat 4: Hero showed [4h Th] and lost with a straight, King to Nine
+Seat 5: e80b9b0c showed [4s 9h] and lost with a pair of Nines
+Seat 6: 1b2332d7 showed [Qc Qs] and won (14,947) with a flush King high
+Seat 7: 25ec0afb folded before Flop
+Seat 8: 604da5ae (button) folded on the Flop
+
+
+Poker Hand #TM6695908851: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level4(100/200(20)) - 2026/11/22 17:41:51
+Table '87' 8-max Seat #7 is the button
+Seat 1: 3ac511b9 (5,420 in chips)
+Seat 2: f6b7d750 (4,980 in chips)
+Seat 3: b689afd9 (3,905 in chips)
+Seat 4: Hero (327 in chips)
+Seat 5: e80b9b0c (13,478 in chips)
+Seat 6: 1b2332d7 (5,995 in chips)
+Seat 7: 25ec0afb (8,090 in chips)
+Seat 8: 604da5ae (4,490 in chips)
+Hero: posts the ante 20
+f6b7d750: posts the ante 20
+25ec0afb: posts the ante 20
+3ac511b9: posts the ante 20
+b689afd9: posts the ante 20
+604da5ae: posts the ante 20
+e80b9b0c: posts the ante 20
+1b2332d7: posts the ante 20
+604da5ae: posts small blind 100
+3ac511b9: posts big blind 200
+*** HOLE CARDS ***
+Dealt to 3ac511b9 
+Dealt to f6b7d750 
+Dealt to b689afd9 
+Dealt to Hero [8h Kc]
+Dealt to e80b9b0c 
+Dealt to 1b2332d7 
+Dealt to 25ec0afb 
+Dealt to 604da5ae 
+f6b7d750: raises 200 to 400
+b689afd9: folds
+Hero: folds
+e80b9b0c: calls 400
+1b2332d7: folds
+25ec0afb: calls 400
+604da5ae: folds
+3ac511b9: raises 5,000 to 5,400 and is all-in
+f6b7d750: calls 4,560 and is all-in
+e80b9b0c: calls 5,000
+25ec0afb: folds
+3ac511b9: shows [6h Ac]
+f6b7d750: shows [Ah Qc]
+e80b9b0c: shows [9d Kd]
+*** FLOP *** [5h 3d 6s]
+*** TURN *** [5h 3d 6s] [Qd]
+*** RIVER *** [5h 3d 6s Qd] [5c]
+*** SHOWDOWN ***
+f6b7d750 collected 15,540 from pot
+3ac511b9 collected 880 from pot
+*** SUMMARY ***
+Total pot 16,420 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [5h 3d 6s Qd 5c]
+Seat 1: 3ac511b9 (big blind) showed [6h Ac] and won (880) with two pair, Sixes and Fives
+Seat 2: f6b7d750 showed [Ah Qc] and won (15,540) with two pair, Queens and Fives
+Seat 3: b689afd9 folded before Flop
+Seat 4: Hero folded before Flop
+Seat 5: e80b9b0c showed [9d Kd] and lost with a pair of Fives
+Seat 6: 1b2332d7 folded before Flop
+Seat 7: 25ec0afb (button) folded before Flop
+Seat 8: 604da5ae (small blind) folded before Flop
+
+
+Poker Hand #TM6695908830: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level4(100/200(20)) - 2026/11/22 17:41:33
+Table '87' 8-max Seat #6 is the button
+Seat 1: 3ac511b9 (4,980 in chips)
+Seat 2: f6b7d750 (5,000 in chips)
+Seat 3: b689afd9 (3,925 in chips)
+Seat 4: Hero (347 in chips)
+Seat 5: e80b9b0c (13,498 in chips)
+Seat 6: 1b2332d7 (6,015 in chips)
+Seat 7: 25ec0afb (8,210 in chips)
+Seat 8: 604da5ae (4,710 in chips)
+Hero: posts the ante 20
+f6b7d750: posts the ante 20
+3ac511b9: posts the ante 20
+25ec0afb: posts the ante 20
+b689afd9: posts the ante 20
+604da5ae: posts the ante 20
+e80b9b0c: posts the ante 20
+1b2332d7: posts the ante 20
+25ec0afb: posts small blind 100
+604da5ae: posts big blind 200
+*** HOLE CARDS ***
+Dealt to 3ac511b9 
+Dealt to f6b7d750 
+Dealt to b689afd9 
+Dealt to Hero [7c 4c]
+Dealt to e80b9b0c 
+Dealt to 1b2332d7 
+Dealt to 25ec0afb 
+Dealt to 604da5ae 
+3ac511b9: raises 4,760 to 4,960 and is all-in
+f6b7d750: folds
+b689afd9: folds
+Hero: folds
+e80b9b0c: folds
+1b2332d7: folds
+25ec0afb: folds
+604da5ae: folds
+Uncalled bet (4,760) returned to 3ac511b9
+*** SHOWDOWN ***
+3ac511b9 collected 660 from pot
+*** SUMMARY ***
+Total pot 660 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: 3ac511b9 collected (660)
+Seat 2: f6b7d750 folded before Flop
+Seat 3: b689afd9 folded before Flop
+Seat 4: Hero folded before Flop
+Seat 5: e80b9b0c folded before Flop
+Seat 6: 1b2332d7 (button) folded before Flop
+Seat 7: 25ec0afb (small blind) folded before Flop
+Seat 8: 604da5ae (big blind) folded before Flop
+
+
+Poker Hand #TM6695908779: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level4(100/200(20)) - 2026/11/22 17:40:43
+Table '87' 8-max Seat #5 is the button
+Seat 1: 3ac511b9 (5,000 in chips)
+Seat 3: b689afd9 (3,945 in chips)
+Seat 4: Hero (367 in chips)
+Seat 5: e80b9b0c (13,078 in chips)
+Seat 6: 1b2332d7 (6,135 in chips)
+Seat 7: 25ec0afb (8,430 in chips)
+Seat 8: 604da5ae (4,730 in chips)
+Hero: posts the ante 20
+3ac511b9: posts the ante 20
+25ec0afb: posts the ante 20
+b689afd9: posts the ante 20
+604da5ae: posts the ante 20
+e80b9b0c: posts the ante 20
+1b2332d7: posts the ante 20
+1b2332d7: posts small blind 100
+25ec0afb: posts big blind 200
+*** HOLE CARDS ***
+Dealt to 3ac511b9 
+Dealt to b689afd9 
+Dealt to Hero [6s 3s]
+Dealt to e80b9b0c 
+Dealt to 1b2332d7 
+Dealt to 25ec0afb 
+Dealt to 604da5ae 
+604da5ae: folds
+3ac511b9: folds
+b689afd9: folds
+Hero: folds
+e80b9b0c: calls 200
+1b2332d7: folds
+25ec0afb: checks
+*** FLOP *** [Kc Qs 6c]
+25ec0afb: checks
+e80b9b0c: checks
+*** TURN *** [Kc Qs 6c] [2h]
+25ec0afb: checks
+e80b9b0c: checks
+*** RIVER *** [Kc Qs 6c 2h] [4h]
+25ec0afb: checks
+e80b9b0c: checks
+25ec0afb: shows [Ts 5d] (King high)
+e80b9b0c: shows [Qh 5h] (a pair of Queens)
+*** SHOWDOWN ***
+e80b9b0c collected 640 from pot
+*** SUMMARY ***
+Total pot 640 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [Kc Qs 6c 2h 4h]
+Seat 1: 3ac511b9 folded before Flop
+Seat 3: b689afd9 folded before Flop
+Seat 4: Hero folded before Flop
+Seat 5: e80b9b0c (button) showed [Qh 5h] and won (640) with a pair of Queens
+Seat 6: 1b2332d7 (small blind) folded before Flop
+Seat 7: 25ec0afb (big blind) showed [Ts 5d] and lost with King high
+Seat 8: 604da5ae folded before Flop
+
+
+Poker Hand #TM6696843213: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level4(100/200(20)) - 2026/11/22 17:39:30
+Table '48' 8-max Seat #5 is the button
+Seat 1: Hero (4,760 in chips)
+Seat 2: ba22c35c (4,585 in chips)
+Seat 3: 8e688dbd (5,000 in chips)
+Seat 4: 92738f83 (14,387 in chips)
+Seat 5: f1f0344 (9,558 in chips)
+Seat 6: c7c6894c (5,390 in chips)
+Seat 8: 953502a5 (14,219 in chips)
+Hero: posts the ante 20
+f1f0344: posts the ante 20
+8e688dbd: posts the ante 20
+953502a5: posts the ante 20
+ba22c35c: posts the ante 20
+92738f83: posts the ante 20
+c7c6894c: posts the ante 20
+c7c6894c: posts small blind 100
+953502a5: posts big blind 200
+*** HOLE CARDS ***
+Dealt to Hero [8c 8h]
+Dealt to ba22c35c 
+Dealt to 8e688dbd 
+Dealt to 92738f83 
+Dealt to f1f0344 
+Dealt to c7c6894c 
+Dealt to 953502a5 
+Hero: calls 200
+ba22c35c: folds
+8e688dbd: calls 200
+92738f83: folds
+f1f0344: folds
+c7c6894c: calls 100
+953502a5: checks
+*** FLOP *** [5h 7h 7d]
+c7c6894c: checks
+953502a5: checks
+Hero: bets 470
+8e688dbd: folds
+c7c6894c: calls 470
+953502a5: calls 470
+*** TURN *** [5h 7h 7d] [As]
+c7c6894c: checks
+953502a5: checks
+Hero: bets 776
+c7c6894c: folds
+953502a5: calls 776
+*** RIVER *** [5h 7h 7d As] [6h]
+953502a5: bets 2,927
+Hero: calls 2,927
+953502a5: shows [3c 4h] (a straight, Seven to Three)
+Hero: shows [8c 8h] (two pair, Eights and Sevens)
+*** SHOWDOWN ***
+953502a5 collected 9,756 from pot
+*** SUMMARY ***
+Total pot 9,756 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [5h 7h 7d As 6h]
+Seat 1: Hero showed [8c 8h] and lost with two pair, Eights and Sevens
+Seat 2: ba22c35c folded before Flop
+Seat 3: 8e688dbd folded on the Flop
+Seat 4: 92738f83 folded before Flop
+Seat 5: f1f0344 (button) folded before Flop
+Seat 6: c7c6894c (small blind) folded on the Turn
+Seat 8: 953502a5 (big blind) showed [3c 4h] and won (9,756) with a straight, Seven to Three
+
+
+Poker Hand #TM6696843170: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level3(75/150(15)) - 2026/11/22 17:38:48
+Table '48' 8-max Seat #4 is the button
+Seat 1: Hero (4,775 in chips)
+Seat 2: ba22c35c (4,750 in chips)
+Seat 4: 92738f83 (14,402 in chips)
+Seat 5: f1f0344 (9,723 in chips)
+Seat 6: c7c6894c (5,000 in chips)
+Seat 7: 78606f5c (11,869 in chips)
+Seat 8: 953502a5 (14,234 in chips)
+Hero: posts the ante 15
+f1f0344: posts the ante 15
+78606f5c: posts the ante 15
+953502a5: posts the ante 15
+ba22c35c: posts the ante 15
+92738f83: posts the ante 15
+c7c6894c: posts the ante 15
+f1f0344: posts small blind 75
+c7c6894c: posts big blind 150
+*** HOLE CARDS ***
+Dealt to Hero [Qh 6s]
+Dealt to ba22c35c 
+Dealt to 92738f83 
+Dealt to f1f0344 
+Dealt to c7c6894c 
+Dealt to 78606f5c 
+Dealt to 953502a5 
+78606f5c: folds
+953502a5: folds
+Hero: folds
+ba22c35c: calls 150
+92738f83: folds
+f1f0344: calls 75
+c7c6894c: raises 4,835 to 4,985 and is all-in
+ba22c35c: folds
+f1f0344: folds
+Uncalled bet (4,835) returned to c7c6894c
+*** SHOWDOWN ***
+c7c6894c collected 555 from pot
+*** SUMMARY ***
+Total pot 555 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: Hero folded before Flop
+Seat 2: ba22c35c folded before Flop
+Seat 4: 92738f83 (button) folded before Flop
+Seat 5: f1f0344 (small blind) folded before Flop
+Seat 6: c7c6894c (big blind) collected (555)
+Seat 7: 78606f5c folded before Flop
+Seat 8: 953502a5 folded before Flop
+
+
+Poker Hand #TM6696843107: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level3(75/150(15)) - 2026/11/22 17:37:45
+Table '48' 8-max Seat #2 is the button
+Seat 1: Hero (4,790 in chips)
+Seat 2: ba22c35c (4,765 in chips)
+Seat 3: 8ddb20a7 (4,122 in chips)
+Seat 4: 92738f83 (14,567 in chips)
+Seat 5: f1f0344 (9,738 in chips)
+Seat 6: c7c6894c (4,887 in chips)
+Seat 7: 78606f5c (11,884 in chips)
+Seat 8: 953502a5 (5,000 in chips)
+Hero: posts the ante 15
+8ddb20a7: posts the ante 15
+f1f0344: posts the ante 15
+78606f5c: posts the ante 15
+953502a5: posts the ante 15
+ba22c35c: posts the ante 15
+c7c6894c: posts the ante 15
+92738f83: posts the ante 15
+8ddb20a7: posts small blind 75
+92738f83: posts big blind 150
+*** HOLE CARDS ***
+Dealt to Hero [3d 5h]
+Dealt to ba22c35c 
+Dealt to 8ddb20a7 
+Dealt to 92738f83 
+Dealt to f1f0344 
+Dealt to c7c6894c 
+Dealt to 78606f5c 
+Dealt to 953502a5 
+f1f0344: folds
+c7c6894c: raises 4,722 to 4,872 and is all-in
+78606f5c: folds
+953502a5: raises 113 to 4,985 and is all-in
+Hero: folds
+ba22c35c: folds
+8ddb20a7: calls 4,032 and is all-in
+92738f83: folds
+Uncalled bet (113) returned to 953502a5
+953502a5: shows [Ah Qh]
+8ddb20a7: shows [7s 7d]
+c7c6894c: shows [Kd Ac]
+*** FLOP *** [8d 9h 8h]
+*** TURN *** [8d 9h 8h] [Qd]
+*** RIVER *** [8d 9h 8h Qd] [Qc]
+*** SHOWDOWN ***
+953502a5 collected 12,591 from pot
+953502a5 collected 1,530 from pot
+*** SUMMARY ***
+Total pot 14,121 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [8d 9h 8h Qd Qc]
+Seat 1: Hero folded before Flop
+Seat 2: ba22c35c (button) folded before Flop
+Seat 3: 8ddb20a7 (small blind) showed [7s 7d] and lost with two pair, Queens and Eights
+Seat 4: 92738f83 (big blind) folded before Flop
+Seat 5: f1f0344 folded before Flop
+Seat 6: c7c6894c showed [Kd Ac] and lost with two pair, Queens and Eights
+Seat 7: 78606f5c folded before Flop
+Seat 8: 953502a5 showed [Ah Qh] and won (14,121) with a full house, Queens full of Eights
+
+
+Poker Hand #TM6696843023: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level3(75/150(15)) - 2026/11/22 17:36:24
+Table '48' 8-max Seat #1 is the button
+Seat 1: Hero (4,805 in chips)
+Seat 2: ba22c35c (4,930 in chips)
+Seat 3: 8ddb20a7 (4,715 in chips)
+Seat 4: 92738f83 (15,160 in chips)
+Seat 5: f1f0344 (9,753 in chips)
+Seat 6: c7c6894c (5,480 in chips)
+Seat 7: 78606f5c (9,910 in chips)
+Hero: posts the ante 15
+8ddb20a7: posts the ante 15
+f1f0344: posts the ante 15
+78606f5c: posts the ante 15
+ba22c35c: posts the ante 15
+c7c6894c: posts the ante 15
+92738f83: posts the ante 15
+ba22c35c: posts small blind 75
+8ddb20a7: posts big blind 150
+*** HOLE CARDS ***
+Dealt to Hero [4s 9h]
+Dealt to ba22c35c 
+Dealt to 8ddb20a7 
+Dealt to 92738f83 
+Dealt to f1f0344 
+Dealt to c7c6894c 
+Dealt to 78606f5c 
+92738f83: calls 150
+f1f0344: folds
+c7c6894c: calls 150
+78606f5c: calls 150
+Hero: folds
+ba22c35c: calls 75
+8ddb20a7: checks
+*** FLOP *** [7d Jc Td]
+ba22c35c: checks
+8ddb20a7: checks
+92738f83: checks
+c7c6894c: bets 428
+78606f5c: calls 428
+ba22c35c: folds
+8ddb20a7: calls 428
+92738f83: calls 428
+*** TURN *** [7d Jc Td] [2d]
+8ddb20a7: checks
+92738f83: checks
+c7c6894c: checks
+78606f5c: checks
+*** RIVER *** [7d Jc Td 2d] [6d]
+8ddb20a7: checks
+92738f83: checks
+c7c6894c: checks
+78606f5c: bets 1,284
+8ddb20a7: folds
+92738f83: folds
+c7c6894c: folds
+Uncalled bet (1,284) returned to 78606f5c
+*** SHOWDOWN ***
+78606f5c collected 2,567 from pot
+*** SUMMARY ***
+Total pot 2,567 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [7d Jc Td 2d 6d]
+Seat 1: Hero (button) folded before Flop
+Seat 2: ba22c35c (small blind) folded on the Flop
+Seat 3: 8ddb20a7 (big blind) folded on the River
+Seat 4: 92738f83 folded on the River
+Seat 5: f1f0344 folded before Flop
+Seat 6: c7c6894c folded on the River
+Seat 7: 78606f5c won (2,567)
+
+
+Poker Hand #TM6696842945: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level2(50/100(10)) - 2026/11/22 17:35:17
+Table '48' 8-max Seat #7 is the button
+Seat 1: Hero (4,915 in chips)
+Seat 2: ba22c35c (4,940 in chips)
+Seat 3: 8ddb20a7 (4,825 in chips)
+Seat 4: 92738f83 (10,045 in chips)
+Seat 6: c7c6894c (5,490 in chips)
+Seat 7: 78606f5c (9,920 in chips)
+Seat 8: 49f4e9e3 (4,865 in chips)
+Hero: posts the ante 10
+8ddb20a7: posts the ante 10
+49f4e9e3: posts the ante 10
+78606f5c: posts the ante 10
+ba22c35c: posts the ante 10
+c7c6894c: posts the ante 10
+92738f83: posts the ante 10
+49f4e9e3: posts small blind 50
+Hero: posts big blind 100
+*** HOLE CARDS ***
+Dealt to Hero [4c 2c]
+Dealt to ba22c35c 
+Dealt to 8ddb20a7 
+Dealt to 92738f83 
+Dealt to c7c6894c 
+Dealt to 78606f5c 
+Dealt to 49f4e9e3 
+ba22c35c: folds
+8ddb20a7: calls 100
+92738f83: raises 9,935 to 10,035 and is all-in
+c7c6894c: folds
+78606f5c: folds
+49f4e9e3: calls 4,805 and is all-in
+Hero: folds
+8ddb20a7: folds
+Uncalled bet (5,180) returned to 92738f83
+92738f83: shows [Qh As]
+49f4e9e3: shows [Ad 9h]
+*** FLOP *** [3h Jh Qd]
+*** TURN *** [3h Jh Qd] [9c]
+*** RIVER *** [3h Jh Qd 9c] [3d]
+*** SHOWDOWN ***
+92738f83 collected 9,980 from pot
+*** SUMMARY ***
+Total pot 9,980 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [3h Jh Qd 9c 3d]
+Seat 1: Hero (big blind) folded before Flop
+Seat 2: ba22c35c folded before Flop
+Seat 3: 8ddb20a7 folded before Flop
+Seat 4: 92738f83 showed [Qh As] and won (9,980) with two pair, Queens and Threes
+Seat 6: c7c6894c folded before Flop
+Seat 7: 78606f5c (button) folded before Flop
+Seat 8: 49f4e9e3 (small blind) showed [Ad 9h] and lost with two pair, Nines and Threes
+
+
+Poker Hand #TM6696842872: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level2(50/100(10)) - 2026/11/22 17:34:10
+Table '48' 8-max Seat #6 is the button
+Seat 1: Hero (4,925 in chips)
+Seat 2: ba22c35c (4,950 in chips)
+Seat 3: 8ddb20a7 (4,935 in chips)
+Seat 4: 92738f83 (10,055 in chips)
+Seat 5: 8050953a (305 in chips)
+Seat 6: c7c6894c (4,875 in chips)
+Seat 7: 78606f5c (9,980 in chips)
+Seat 8: 49f4e9e3 (4,975 in chips)
+Hero: posts the ante 10
+8ddb20a7: posts the ante 10
+49f4e9e3: posts the ante 10
+78606f5c: posts the ante 10
+8050953a: posts the ante 10
+ba22c35c: posts the ante 10
+c7c6894c: posts the ante 10
+92738f83: posts the ante 10
+78606f5c: posts small blind 50
+49f4e9e3: posts big blind 100
+*** HOLE CARDS ***
+Dealt to Hero [3s Js]
+Dealt to ba22c35c 
+Dealt to 8ddb20a7 
+Dealt to 92738f83 
+Dealt to 8050953a 
+Dealt to c7c6894c 
+Dealt to 78606f5c 
+Dealt to 49f4e9e3 
+Hero: folds
+ba22c35c: folds
+8ddb20a7: calls 100
+92738f83: folds
+8050953a: raises 195 to 295 and is all-in
+c7c6894c: raises 4,570 to 4,865 and is all-in
+78606f5c: folds
+49f4e9e3: folds
+8ddb20a7: folds
+Uncalled bet (4,570) returned to c7c6894c
+c7c6894c: shows [Jh Ac]
+8050953a: shows [Ad 5c]
+*** FLOP *** [2h 2s Ks]
+*** TURN *** [2h 2s Ks] [9d]
+*** RIVER *** [2h 2s Ks 9d] [8d]
+*** SHOWDOWN ***
+c7c6894c collected 920 from pot
+*** SUMMARY ***
+Total pot 920 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [2h 2s Ks 9d 8d]
+Seat 1: Hero folded before Flop
+Seat 2: ba22c35c folded before Flop
+Seat 3: 8ddb20a7 folded before Flop
+Seat 4: 92738f83 folded before Flop
+Seat 5: 8050953a showed [Ad 5c] and lost with a pair of Twos
+Seat 6: c7c6894c (button) showed [Jh Ac] and won (920) with a pair of Twos
+Seat 7: 78606f5c (small blind) folded before Flop
+Seat 8: 49f4e9e3 (big blind) folded before Flop
+
+
+Poker Hand #TM6696842803: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level2(50/100(10)) - 2026/11/22 17:33:09
+Table '48' 8-max Seat #5 is the button
+Seat 1: Hero (4,935 in chips)
+Seat 2: ba22c35c (4,960 in chips)
+Seat 3: 8ddb20a7 (4,945 in chips)
+Seat 4: 92738f83 (10,065 in chips)
+Seat 5: 8050953a (5,240 in chips)
+Seat 6: c7c6894c (4,935 in chips)
+Seat 7: 78606f5c (4,935 in chips)
+Seat 8: 49f4e9e3 (4,985 in chips)
+Hero: posts the ante 10
+8ddb20a7: posts the ante 10
+49f4e9e3: posts the ante 10
+78606f5c: posts the ante 10
+8050953a: posts the ante 10
+ba22c35c: posts the ante 10
+92738f83: posts the ante 10
+c7c6894c: posts the ante 10
+c7c6894c: posts small blind 50
+78606f5c: posts big blind 100
+*** HOLE CARDS ***
+Dealt to Hero [9h Ad]
+Dealt to ba22c35c 
+Dealt to 8ddb20a7 
+Dealt to 92738f83 
+Dealt to 8050953a 
+Dealt to c7c6894c 
+Dealt to 78606f5c 
+Dealt to 49f4e9e3 
+49f4e9e3: folds
+Hero: folds
+ba22c35c: folds
+8ddb20a7: folds
+92738f83: folds
+8050953a: raises 330 to 430
+c7c6894c: folds
+78606f5c: calls 330
+*** FLOP *** [8d 2h Kh]
+78606f5c: checks
+8050953a: bets 990
+78606f5c: calls 990
+*** TURN *** [8d 2h Kh] [4h]
+78606f5c: checks
+8050953a: bets 2,970
+78606f5c: calls 2,970
+*** RIVER *** [8d 2h Kh 4h] [3s]
+78606f5c: bets 535 and is all-in
+8050953a: calls 535
+78606f5c: shows [Qc Ks] (a pair of Kings)
+8050953a: shows [7c 7s] (a pair of Sevens)
+*** SHOWDOWN ***
+78606f5c collected 9,980 from pot
+*** SUMMARY ***
+Total pot 9,980 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [8d 2h Kh 4h 3s]
+Seat 1: Hero folded before Flop
+Seat 2: ba22c35c folded before Flop
+Seat 3: 8ddb20a7 folded before Flop
+Seat 4: 92738f83 folded before Flop
+Seat 5: 8050953a (button) showed [7c 7s] and lost with a pair of Sevens
+Seat 6: c7c6894c (small blind) folded before Flop
+Seat 7: 78606f5c (big blind) showed [Qc Ks] and won (9,980) with a pair of Kings
+Seat 8: 49f4e9e3 folded before Flop
+
+
+Poker Hand #TM6696842760: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level1(25/50(5)) - 2026/11/22 17:32:24
+Table '48' 8-max Seat #4 is the button
+Seat 1: Hero (4,940 in chips)
+Seat 2: ba22c35c (4,965 in chips)
+Seat 3: 8ddb20a7 (5,000 in chips)
+Seat 4: 92738f83 (10,070 in chips)
+Seat 5: 8050953a (5,105 in chips)
+Seat 6: c7c6894c (4,990 in chips)
+Seat 7: 78606f5c (4,940 in chips)
+Seat 8: 49f4e9e3 (4,990 in chips)
+Hero: posts the ante 5
+8ddb20a7: posts the ante 5
+49f4e9e3: posts the ante 5
+78606f5c: posts the ante 5
+8050953a: posts the ante 5
+ba22c35c: posts the ante 5
+92738f83: posts the ante 5
+c7c6894c: posts the ante 5
+8050953a: posts small blind 25
+c7c6894c: posts big blind 50
+*** HOLE CARDS ***
+Dealt to Hero [Ks Qh]
+Dealt to ba22c35c 
+Dealt to 8ddb20a7 
+Dealt to 92738f83 
+Dealt to 8050953a 
+Dealt to c7c6894c 
+Dealt to 78606f5c 
+Dealt to 49f4e9e3 
+78606f5c: folds
+49f4e9e3: folds
+Hero: folds
+ba22c35c: folds
+8ddb20a7: calls 50
+92738f83: folds
+8050953a: raises 5,050 to 5,100 and is all-in
+c7c6894c: folds
+8ddb20a7: folds
+Uncalled bet (5,050) returned to 8050953a
+*** SHOWDOWN ***
+8050953a collected 190 from pot
+*** SUMMARY ***
+Total pot 190 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: Hero folded before Flop
+Seat 2: ba22c35c folded before Flop
+Seat 3: 8ddb20a7 folded before Flop
+Seat 4: 92738f83 (button) folded before Flop
+Seat 5: 8050953a (small blind) collected (190)
+Seat 6: c7c6894c (big blind) folded before Flop
+Seat 7: 78606f5c folded before Flop
+Seat 8: 49f4e9e3 folded before Flop
+
+
+Poker Hand #TM6696842694: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level1(25/50(5)) - 2026/11/22 17:31:19
+Table '48' 8-max Seat #2 is the button
+Seat 1: Hero (4,995 in chips)
+Seat 2: ba22c35c (4,970 in chips)
+Seat 3: deb6cd2a (4,945 in chips)
+Seat 4: 92738f83 (4,995 in chips)
+Seat 5: 8050953a (5,110 in chips)
+Seat 6: c7c6894c (4,995 in chips)
+Seat 7: 78606f5c (4,995 in chips)
+Seat 8: 49f4e9e3 (4,995 in chips)
+Hero: posts the ante 5
+deb6cd2a: posts the ante 5
+49f4e9e3: posts the ante 5
+78606f5c: posts the ante 5
+8050953a: posts the ante 5
+ba22c35c: posts the ante 5
+c7c6894c: posts the ante 5
+92738f83: posts the ante 5
+deb6cd2a: posts small blind 25
+92738f83: posts big blind 50
+*** HOLE CARDS ***
+Dealt to Hero [Qd 8d]
+Dealt to ba22c35c 
+Dealt to deb6cd2a 
+Dealt to 92738f83 
+Dealt to 8050953a 
+Dealt to c7c6894c 
+Dealt to 78606f5c 
+Dealt to 49f4e9e3 
+8050953a: folds
+c7c6894c: folds
+78606f5c: calls 50
+49f4e9e3: folds
+Hero: calls 50
+ba22c35c: folds
+deb6cd2a: raises 400 to 450
+92738f83: raises 4,540 to 4,990 and is all-in
+78606f5c: folds
+Hero: folds
+deb6cd2a: calls 4,490 and is all-in
+Uncalled bet (50) returned to 92738f83
+92738f83: shows [9h 9s]
+deb6cd2a: shows [Ac Qc]
+*** FLOP *** [5h 5c 2h]
+*** TURN *** [5h 5c 2h] [5s]
+*** RIVER *** [5h 5c 2h 5s] [Kc]
+*** SHOWDOWN ***
+92738f83 collected 10,020 from pot
+*** SUMMARY ***
+Total pot 10,020 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [5h 5c 2h 5s Kc]
+Seat 1: Hero folded before Flop
+Seat 2: ba22c35c (button) folded before Flop
+Seat 3: deb6cd2a (small blind) showed [Ac Qc] and lost with three of a kind, Fives
+Seat 4: 92738f83 (big blind) showed [9h 9s] and won (10,020) with a full house, Fives full of Nines
+Seat 5: 8050953a folded before Flop
+Seat 6: c7c6894c folded before Flop
+Seat 7: 78606f5c folded before Flop
+Seat 8: 49f4e9e3 folded before Flop
+
+
+Poker Hand #TM6696842610: Tournament #328682349, Freebuy to WSOP SC Punta Cana: 5x $25 Step Hold'em No Limit - Level1(25/50(5)) - 2026/11/22 17:30:02
+Table '48' 8-max Seat #1 is the button
+Seat 1: Hero (5,000 in chips)
+Seat 2: ba22c35c (5,000 in chips)
+Seat 3: deb6cd2a (5,000 in chips)
+Seat 4: 92738f83 (5,000 in chips)
+Seat 5: 8050953a (5,000 in chips)
+Seat 6: c7c6894c (5,000 in chips)
+Seat 7: 78606f5c (5,000 in chips)
+Seat 8: 49f4e9e3 (5,000 in chips)
+Hero: posts the ante 5
+deb6cd2a: posts the ante 5
+49f4e9e3: posts the ante 5
+78606f5c: posts the ante 5
+8050953a: posts the ante 5
+ba22c35c: posts the ante 5
+c7c6894c: posts the ante 5
+92738f83: posts the ante 5
+ba22c35c: posts small blind 25
+deb6cd2a: posts big blind 50
+*** HOLE CARDS ***
+Dealt to Hero [Qc 6s]
+Dealt to ba22c35c 
+Dealt to deb6cd2a 
+Dealt to 92738f83 
+Dealt to 8050953a 
+Dealt to c7c6894c 
+Dealt to 78606f5c 
+Dealt to 49f4e9e3 
+92738f83: folds
+8050953a: raises 4,945 to 4,995 and is all-in
+c7c6894c: folds
+78606f5c: folds
+49f4e9e3: folds
+Hero: folds
+ba22c35c: folds
+deb6cd2a: folds
+Uncalled bet (4,945) returned to 8050953a
+*** SHOWDOWN ***
+8050953a collected 165 from pot
+*** SUMMARY ***
+Total pot 165 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Seat 1: Hero (button) folded before Flop
+Seat 2: ba22c35c (small blind) folded before Flop
+Seat 3: deb6cd2a (big blind) folded before Flop
+Seat 4: 92738f83 folded before Flop
+Seat 5: 8050953a collected (165)
+Seat 6: c7c6894c folded before Flop
+Seat 7: 78606f5c folded before Flop
+Seat 8: 49f4e9e3 folded before Flop
+
+

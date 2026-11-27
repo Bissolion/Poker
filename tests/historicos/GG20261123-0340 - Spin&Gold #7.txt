@@ -1,0 +1,38 @@
+Poker Hand #SG4454219863: Tournament #329333475, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:40:30
+Table '4413' 3-max Seat #2 is the button
+Seat 1: 20e8a24d (500 in chips)
+Seat 2: Hero (500 in chips)
+Seat 3: be8c37ee (500 in chips)
+be8c37ee: posts small blind 10
+20e8a24d: posts big blind 20
+*** HOLE CARDS ***
+Dealt to 20e8a24d 
+Dealt to Hero [Ts 6s]
+Dealt to be8c37ee 
+Hero: calls 20
+be8c37ee: raises 20 to 40
+20e8a24d: calls 20
+Hero: raises 40 to 80
+be8c37ee: calls 40
+20e8a24d: calls 40
+*** FLOP *** [9d Ks 3s]
+be8c37ee: checks
+20e8a24d: checks
+Hero: bets 80
+be8c37ee: raises 340 to 420 and is all-in
+20e8a24d: folds
+Hero: calls 340 and is all-in
+be8c37ee: shows [As 4c] (Ace high)
+Hero: shows [Ts 6s] (King high)
+*** TURN *** [9d Ks 3s] [9s]
+*** RIVER *** [9d Ks 3s 9s] [4s]
+*** SHOWDOWN ***
+be8c37ee collected 1,080 from pot
+*** SUMMARY ***
+Total pot 1,080 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [9d Ks 3s 9s 4s]
+Seat 1: 20e8a24d (big blind) folded on the Flop
+Seat 2: Hero (button) showed [Ts 6s] and lost with a flush King high
+Seat 3: be8c37ee (small blind) showed [As 4c] and won (1,080) with a flush Ace high
+
+

@@ -1,0 +1,78 @@
+Poker Hand #SG4454248385: Tournament #329334975, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:57:38
+Table '5729' 3-max Seat #1 is the button
+Seat 1: Hero (300 in chips)
+Seat 3: 27110603 (600 in chips)
+Hero: posts small blind 10
+27110603: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [Jc 6s]
+Dealt to 27110603 
+Hero: raises 280 to 300 and is all-in
+27110603: calls 280
+Hero: shows [Jc 6s]
+27110603: shows [Qs 9c]
+*** FLOP *** [7s Ah 2c]
+*** TURN *** [7s Ah 2c] [2h]
+*** RIVER *** [7s Ah 2c 2h] [Qc]
+*** SHOWDOWN ***
+27110603 collected 600 from pot
+*** SUMMARY ***
+Total pot 600 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [7s Ah 2c 2h Qc]
+Seat 1: Hero (small blind) showed [Jc 6s] and lost with a pair of Twos
+Seat 3: 27110603 (big blind) showed [Qs 9c] and won (600) with two pair, Queens and Twos
+
+
+Poker Hand #SG4454248305: Tournament #329334975, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:57:22
+Table '5729' 3-max Seat #3 is the button
+Seat 1: Hero (280 in chips)
+Seat 3: 27110603 (620 in chips)
+27110603: posts small blind 10
+Hero: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [6h 9s]
+Dealt to 27110603 
+27110603: calls 10
+Hero: checks
+*** FLOP *** [Kh 5d 6d]
+Hero: bets 40
+27110603: folds
+Uncalled bet (40) returned to Hero
+*** SHOWDOWN ***
+Hero collected 40 from pot
+*** SUMMARY ***
+Total pot 40 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [Kh 5d 6d]
+Seat 1: Hero (big blind) won (40)
+Seat 3: 27110603 (small blind) folded on the Flop
+
+
+Poker Hand #SG4454248134: Tournament #329334975, Spin&Gold #7 Hold'em No Limit - Level1(10/20) - 2026/11/23 00:56:53
+Table '5729' 3-max Seat #2 is the button
+Seat 1: Hero (300 in chips)
+Seat 2: 2ea74a28 (300 in chips)
+Seat 3: 27110603 (300 in chips)
+27110603: posts small blind 10
+Hero: posts big blind 20
+*** HOLE CARDS ***
+Dealt to Hero [7h 5h]
+Dealt to 2ea74a28 
+Dealt to 27110603 
+2ea74a28: raises 280 to 300 and is all-in
+27110603: calls 290 and is all-in
+Hero: folds
+2ea74a28: shows [4s 8s]
+27110603: shows [Js 2c]
+*** FLOP *** [2s Kh Kd]
+*** TURN *** [2s Kh Kd] [Th]
+*** RIVER *** [2s Kh Kd Th] [3s]
+*** SHOWDOWN ***
+27110603 collected 620 from pot
+*** SUMMARY ***
+Total pot 620 | Rake 0 | Jackpot 0 | Bingo 0 | Fortune 0 | Tax 0
+Board [2s Kh Kd Th 3s]
+Seat 1: Hero (big blind) folded before Flop
+Seat 2: 2ea74a28 (button) showed [4s 8s] and lost with a pair of Kings
+Seat 3: 27110603 (small blind) showed [Js 2c] and won (620) with two pair, Kings and Twos
+
+
