@@ -47,12 +47,16 @@ function postflopTips(g, seat, info, rng = Math.random) {
   // 1. continuation bet
   const sp = solverSpot(g, seat);
   if (sp && sp.node === 'cbet' && sp.freq) {
-    const f = sp.freq, bet = f.small + f.big, tot = POSFLOP.tex[sp.tex].total;
-    const size = f.big > f.small ? 0.75 : 0.33;
-    tips.push({ k: 'cbet', rec: bet >= 0.5 ? 'raise' : 'check', size, solver: true, text: tx`Solver: nesta textura (${label.toLowerCase()}), quem aumentou antes do flop aposta ${P(tot)} das vezes. Com ${FLOP_CAT_PT[sp.cat]}, a estratégia é passar ${P(f.check)}, apostar 1/3 do pote ${P(f.small)} e 3/4 do pote ${P(f.big)}.` });
+    const f = sp.freq, bet = f.small + f.big, tot = sp.total;
+    const size = f.big > f.small ? 0.75 : 0.33, scn = sp.spot && sp.spot !== 'srp_btn' ? ` (${SPOT_PT[sp.spot]})` : '';
+    tips.push({ k: 'cbet', rec: bet >= 0.5 ? 'raise' : 'check', size, solver: true, text: tx`Solver${scn}: nesta textura (${label.toLowerCase()}), quem aumentou antes do flop aposta ${P(tot)} das vezes. Com ${FLOP_CAT_PT[sp.cat]}, a estratégia é passar ${P(f.check)}, apostar 1/3 do pote ${P(f.small)} e 3/4 do pote ${P(f.big)}.` });
+  } else if (sp && sp.node === 'barrel' && sp.freq) {
+    const f = sp.freq;
+    tips.push({ k: 'barrel', rec: f.bet >= 0.5 ? 'raise' : 'check', size: 0.75, solver: true, text: tx`Solver: você apostou no flop e levou call. Num turn ${TURN_PT[sp.tt]}, com ${FLOP_CAT_PT[sp.cat]}, a segunda bala (3/4 do pote) sai ${P(f.bet)} das vezes; passar, ${P(f.check)}.` });
   } else if (sp && sp.node === 'defesa' && sp.freq) {
     const f = sp.freq;
-    tips.push({ k: 'defesa', rec: f.fold >= 0.5 ? 'fold' : f.raise > f.call ? 'raise' : 'call', solver: true, text: tx`Solver: contra uma continuation bet ${sp.size === 'pequena' ? tx`pequena` : tx`grande`}, com ${FLOP_CAT_PT[sp.cat]} a defesa é desistir ${P(f.fold)}, pagar ${P(f.call)} e aumentar ${P(f.raise)}.` });
+    const scn = sp.spot && sp.spot !== 'srp_btn' ? ` (${SPOT_PT[sp.spot]})` : '';
+    tips.push({ k: 'defesa', rec: f.fold >= 0.5 ? 'fold' : f.raise > f.call ? 'raise' : 'call', solver: true, text: tx`Solver${scn}: contra uma continuation bet ${sp.size === 'pequena' ? tx`pequena` : tx`grande`}, com ${FLOP_CAT_PT[sp.cat]} a defesa é desistir ${P(f.fold)}, pagar ${P(f.call)} e aumentar ${P(f.raise)}.` });
   } else if (g.street === 'flop' && L.toCall === 0 && aggressor) {
     if (multi) tips.push({ k: 'cbet', rec: info.st >= 0.6 ? 'raise' : 'check', text: tx`Você aumentou antes do flop, mas contra ${info.nOpp} rivais a continuation bet funciona menos: aposte só com mão boa ou projeto forte.` });
     else if (label === tx`Seca`) tips.push({ k: 'cbet', rec: 'raise', size: 0.33, text: tx`Você aumentou antes do flop e a mesa é seca: aposte pequeno (cerca de 1/3 do pote) com quase toda a sua faixa. O rival erra o flop na maior parte das vezes.` });

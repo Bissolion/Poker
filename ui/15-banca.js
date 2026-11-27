@@ -106,7 +106,7 @@ function renderBank() {
     </details>
     <details class="bcfg"><summary>${tx`Backup`}</summary>
       <p class="muted">${tx`O backup leva a banca, as regras e as mãos importadas. Guarde o texto num lugar seguro (e-mail, notas) para restaurar em outro aparelho.`}</p>
-      <div class="seg"><button class="chip" type="button" id="bkCopy">${tx`Copiar backup`}</button>${IS_PWA ? `<button class="chip" type="button" id="bkDown">${tx`Baixar backup`}</button>` : ''}
+      <div class="seg"><button class="chip" type="button" id="bkCopy">${tx`Copiar backup`}</button>${canDownload() ? `<button class="chip" type="button" id="bkDown">${tx`Baixar backup`}</button>` : ''}
         <label class="chip"><input type="file" id="bkFile" accept=".json,application/json,text/plain" hidden>${tx`Restaurar de arquivo`}</label></div>
       <textarea id="bkText" rows="3" placeholder="${tx`…ou cole aqui o texto do backup`}"></textarea>
       <div class="seg"><button class="chip" type="button" id="bkRestore">${tx`Restaurar texto colado`}</button><span class="muted" id="bkMsg" aria-live="polite"></span></div>
@@ -222,7 +222,7 @@ function bindBackup() {
   };
   bankBackup().then(t => { bankBackupCache = t; });
   const dn = $('bkDown');
-  if (dn) dn.onclick = async () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([await bankBackup()], { type: 'application/json' })); a.download = `mesa-de-treino-backup-${E.localDay(new Date())}.json`; a.click(); };
+  if (dn) dn.onclick = async () => { const r = await saveFile(`mesa-de-treino-backup-${E.localDay(new Date())}.json`, bankBackupCache || await bankBackup(), 'application/json'); if (r) msg(r); };
   const fi = $('bkFile');
   fi.onchange = async () => { if (!fi.files.length) return; const r = await bankRestore(await fi.files[0].text()); bankMsg = r; await loadBank(); renderBank(); };
   $('bkRestore').onclick = async () => { const t = $('bkText').value.trim(); if (!t) { msg(tx`Cole o texto do backup na caixa.`); return; } const r = await bankRestore(t); bankMsg = r; await loadBank(); renderBank(); };

@@ -40,7 +40,7 @@ class Game {
     this.handNo++;
     this.button = this.next(this.button);
     this.board = []; this.street = 'preflop'; this.handOver = false; this.result = null;
-    this.currentBet = 0; this.minRaise = this.bb; this.raises = 0; this.pfAgg = -1; this.pfOpener = -1;
+    this.currentBet = 0; this.minRaise = this.bb; this.raises = 0; this.pfAgg = -1; this.pfOpener = -1; this.pfRaises = 0; this.flopStack = 0;
     this.deck = shuffle([...Array(52).keys()], this.rng);
     for (const p of this.players) Object.assign(p, { hole: [], bet: 0, committed: 0, folded: p.out, allIn: false, hasActed: false, actedSinceFull: false, minChen: 0, reads: [], lastAction: p.out ? tx`Fora` : '', startStack: p.stack });
     this.snaps = [];
@@ -140,6 +140,7 @@ class Game {
   endStreet() {
     this.refundUncalled();
     for (const p of this.players) { p.bet = 0; p.hasActed = false; p.actedSinceFull = false; }
+    if (this.street === 'preflop') { this.pfRaises = this.raises; this.flopStack = Math.min(...this.players.filter(p => !p.folded).map(p => p.stack)); }
     this.currentBet = 0; this.minRaise = this.bb; this.raises = 0;
     if (this.street === 'river') return this.showdown();
     if (this.street === 'preflop') { this.street = 'flop'; this.board.push(this.deck.pop(), this.deck.pop(), this.deck.pop()); }

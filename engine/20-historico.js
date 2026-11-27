@@ -93,7 +93,7 @@ function adviseDecision(g, seat, iters = 1500) {
   else {
     info = postflopInfo(g, seat, iters); rec = postflopRec(info);
     info.tips = postflopTips(g, seat, info);
-    const t = info.tips.find(x => x.rec && (x.k === 'cbet' || x.k === 'river'));
+    const t = info.tips.find(x => x.rec && (x.k === 'cbet' || x.k === 'river' || x.k === 'barrel'));
     if (t && L.toCall === 0) rec = t.rec;
     const sz = info.tips.find(x => x.size); if (sz) info.size = sz.size;
   }

@@ -32,7 +32,7 @@ function newGame(c) {
   const spin = c.table === 'spin';
   const roster = c.table === 'hu' ? [BOTS.find(b => b.k === c.rival) || BOTS[1]] : spin ? E.shuffle(BOTS.slice()).slice(0, 2) : c.table === '9' ? BOTS : BOTS.slice(0, 5);
   const tourney = spin || c.format === 'tourney';
-  game = new E.Game([{ name: tx`Você`, isHuman: true }, ...roster.map(b => ({ name: b.name, profile: E.PROFILES[b.k] }))],
+  game = new E.Game([{ name: tx`Você`, isHuman: true }, ...roster.map(b => ({ name: b.name, pk: b.k, profile: E.PROFILES[b.k] }))],
     { stack: spin ? 500 : tourney ? 1500 : 1000, skill: c.skill, sb: tourney ? E.BLIND_LEVELS[0][0] : 5, bb: tourney ? E.BLIND_LEVELS[0][1] : 10 });
   const payouts = tourney ? E.PAYOUTS[c.table === 'hu' || spin ? 'vencedor' : c.table === '9' ? '50/30/20' : (c.prize || '65/35')] : null;
   if (payouts) game.payouts = payouts;

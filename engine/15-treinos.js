@@ -199,7 +199,7 @@ function gradeDrill(d, action, rng = Math.random) {
   const info = postflopInfo(g, 0, 900);
   const tips = postflopTips(g, 0, info, rng);
   let rec = postflopRec(info);
-  const cb = tips.find(x => x.k === 'cbet' || x.k === 'river');
+  const cb = tips.find(x => x.k === 'cbet' || x.k === 'river' || x.k === 'barrel');
   if (cb && cb.rec && L.toCall === 0) rec = cb.rec;
   const ctx = postflopCtx(g, 0);
   if (d.type === 'segunda' && action !== 'fold') return { ...gradeSecondBarrel(d, action === 'call' ? 'check' : action, info), why: postflopReason(g, 0, info, action), rec: info.st >= 0.6 || (heroDraws(g.players[0].hole, g.board) || { outs: 0 }).outs >= 8 ? 'raise' : 'check', info, tips };

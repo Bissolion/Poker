@@ -59,7 +59,7 @@ function beginHeroTurn() {
     info = E.postflopInfo(game, 0, 1500); rec = E.postflopRec(info);
     info.tips = E.postflopTips(game, 0, info);
     // a continuation bet e o river mudam a sugestão quando ninguém apostou
-    const t = info.tips.find(x => x.rec && (x.k === 'cbet' || x.k === 'river'));
+    const t = info.tips.find(x => x.rec && (x.k === 'cbet' || x.k === 'river' || x.k === 'barrel'));
     if (t && L.toCall === 0) rec = t.rec;
     const sz = info.tips.find(x => x.size); if (sz) info.size = sz.size;
   }
@@ -136,6 +136,7 @@ function nextHand() {
     for (const p of g.players.slice(1)) if (p.stack === 0) p.stack = 1000;
   }
   decision = null; handFb = []; flags = {}; counted = false; raiseTo = 0; runout = null; anim = null; lastOut = [];
+  applyAdapt();
   g.startHand();
   if (tour && tour.flash) g.log.push({ hand: g.handNo, text: tx`Blinds sobem para ${g.sb}/${g.bb}`, kind: 'level' });
   setTimeout(() => sfx.card(2), 60);
@@ -154,4 +155,23 @@ function flashGrade(fb) {
   el.className = 'show ' + fb.grade;
   clearTimeout(flashGrade.t);
   flashGrade.t = setTimeout(() => { el.className = fb.grade; }, 1700);
+}
+
+// bots que se adaptam: leem suas últimas mãos e ajustam o estilo (nunca no Iniciante)
+let adaptState = { n: 0, notes: [] };
+function applyAdapt() {
+  const g = game; if (!g) return;
+  const on = prefs.adapt && cfg.skill !== 'easy';
+  const hs = reg.hands.slice(-300), keys = new Set(hs.map(h => h.h));
+  adaptState = on ? E.adaptReads(reg.decs.filter(d => keys.has(d.h)), hs) : { n: 0, notes: [], off: true };
+  for (const p of g.players) if (p.pk) p.profile = E.adaptProfile(E.PROFILES[p.pk], adaptState.adj);
+  renderAdapt();
+}
+function renderAdapt() {
+  const el = $('adaptBox'); if (!el) return;
+  const s = adaptState;
+  el.innerHTML = s.off ? `<p class="muted">${cfg.skill === 'easy' ? tx`No Iniciante, os bots não se adaptam a você.` : tx`Bots que se adaptam: desligado nas Preferências.`}</p>`
+    : s.need ? `<p class="muted">${tx`Os bots estão observando seu jogo: com mais ${s.need} mãos, eles começam a se adaptar a você.`}</p>`
+    : s.notes.length ? `<p><b>${tx`O que os bots perceberam em você`}</b></p><ul class="adapt">${s.notes.map(x => `<li>${x.text}</li>`).join('')}</ul><p class="muted">${tx`Mude o padrão e eles mudam também. Desligue em Preferências.`}</p>`
+    : `<p class="muted">${tx`Os bots observaram ${s.n} mãos e não acharam nada para explorar. Bom sinal.`}</p>`;
 }

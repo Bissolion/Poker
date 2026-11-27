@@ -129,3 +129,31 @@ function handRecord(g, seat, flags) {
     flop: !!flags.flop, sd: !!(r.showdown && !p.folded), won: r.net[seat] > 0, net: Math.round(r.net[seat] / g.bb * 10) / 10,
   };
 }
+
+// ---------- Bots que se adaptam: depois de ~50 mãos, eles exploram suas tendências ----------
+const ADAPT_MIN = 50;
+function adaptReads(decs, hands) {
+  const n = hands.length, P = x => Math.round(x * 100) + '%';
+  if (n < ADAPT_MIN) return { n, need: ADAPT_MIN - n, notes: [], adj: null };
+  const S = leakStats(decs, hands), vpip = hands.filter(h => h.vpip).length / n;
+  const adj = { open: 0, raise: 0, cbet: 0, fold: 0, bluff: 1 }, notes = [];
+  const fc = S.foldcbet, af = S.af, sd = S.wtsd;
+  if (fc.n >= 8 && fc.v > 0.6) { adj.cbet += 0.5; notes.push({ k: 'foldcbet', text: tx`Você desiste em ${P(fc.v)} das continuation bets: eles passaram a apostar mais no flop, inclusive sem mão.` }); }
+  else if (fc.n >= 8 && fc.v < 0.3) { adj.cbet -= 0.3; adj.bluff *= 0.6; notes.push({ k: 'foldcbet', text: tx`Você quase não larga no flop (${P(fc.v)}): eles blefam menos e apostam por valor quando têm mão.` }); }
+  if (af.n >= 15 && af.v > 4) { adj.fold -= 0.35; notes.push({ k: 'af', text: tx`Você aposta e aumenta muito (agressividade ${Math.round(af.v * 10) / 10}): eles pagam suas apostas com mãos mais fracas.` }); }
+  else if (af.n >= 15 && af.v < 1) { adj.fold += 0.3; notes.push({ k: 'af', text: tx`Você quase só paga: quando você aposta, eles acreditam e largam mais.` }); }
+  if (vpip > 0.35) { adj.raise += 0.05; adj.open += 0.02; notes.push({ k: 'vpip', text: tx`Você entra em ${P(vpip)} das mãos: eles aumentam mais para jogar contra você com mão melhor.` }); }
+  else if (vpip < 0.15) { adj.open += 0.06; notes.push({ k: 'vpip', text: tx`Você joga só ${P(vpip)} das mãos: eles roubam mais os blinds.` }); }
+  if (sd.n >= 15 && sd.v > 0.6) { adj.bluff *= 0.5; notes.push({ k: 'wtsd', text: tx`Você vai ao showdown em ${P(sd.v)} das mãos que vê o flop: eles quase não blefam contra você.` }); }
+  return { n, notes, adj: notes.length ? adj : null };
+}
+// estilo do bot com os ajustes contra você (o original fica intacto)
+function adaptProfile(base, adj) {
+  if (!adj) return base;
+  const dev = base.dev || {}, post = base.post || {};
+  return Object.assign({}, base, {
+    bluff: base.bluff * adj.bluff, adapted: true,
+    dev: Object.assign({}, dev, { open: (dev.open || 0) + adj.open, raise: (dev.raise || 0) + adj.raise }),
+    post: Object.assign({}, post, { cbet: (post.cbet || 0) + adj.cbet, fold: (post.fold || 0) + adj.fold }),
+  });
+}

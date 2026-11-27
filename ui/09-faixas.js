@@ -9,14 +9,16 @@ function cellOf(r, c) {
 }
 const normCombo = s => s.replace(/10/g, 'T');
 const RSCN = [['open', tx`Abrir`], ['vsopen', tx`Contra abertura`], ['vs3bet', tx`Contra 3-bet`], ['push', tx`All-in curto`]];
-const PRE_ORDER = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
+const PRE_ORDER6 = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'], PRE_ORDER9 = ['UTG', 'UTG1', 'UTG2', 'LJ', 'HJ', 'CO', 'BTN', 'SB', 'BB'];
+let PRE_ORDER = PRE_ORDER6;
+const POS_CHIP = { UTG1: 'UTG+1', UTG2: 'UTG+2' };
 const DEPTHS = [3, 5, 8, 10, 12, 15];
 // Monta o que a grade mostra: para cada mão, frequência de "aumentar" (r) e de "pagar" (c)
 function gridModel(st) {
-  const nAct = st.hu ? 2 : 6;
+  const nAct = st.hu ? 2 : st.nine ? 9 : 6;
   if (st.scn === 'push') {
     const callMode = st.pos === 'BB';
-    const k = st.hu ? 1 : callMode ? Math.max(1, PRE_ORDER.length - 1 - PRE_ORDER.indexOf(st.opener)) : PRE_ORDER.length - 1 - PRE_ORDER.indexOf(st.pos);
+    const k = Math.min(5, st.hu ? 1 : callMode ? Math.max(1, PRE_ORDER.length - 1 - PRE_ORDER.indexOf(st.opener)) : PRE_ORDER.length - 1 - PRE_ORDER.indexOf(st.pos));
     const tab = callMode ? E.CALL_MAX[k] || {} : E.PUSH_MAX[k] || {};
     const f = n => (tab[n] || 0) >= st.depth ? 1 : 0;
     return { nAct, f: n => callMode ? { r: 0, c: f(n) } : { r: f(n), c: 0 }, labels: { r: 'All-in', c: tx`Pagar o all-in` }, txt: callMode ? tx`Big blind pagando all-in do ${E.POS_LABEL[st.opener] || tx`Botão`} com ${st.depth} BB` : tx`All-in com ${st.depth} BB, ${k} ${k > 1 ? tx`jogadores` : tx`jogador`} por agir`, max: n => tab[n] || 0 };
@@ -31,13 +33,16 @@ function gridPositions(st) {
   if (st.hu) return st.scn === 'vsopen' ? ['BB'] : st.scn === 'vs3bet' ? ['BTN'] : st.scn === 'push' ? ['BTN', 'BB'] : ['BTN', 'BB'];
   if (st.scn === 'open') return PRE_ORDER;
   if (st.scn === 'vsopen') return PRE_ORDER.slice(1);
-  if (st.scn === 'vs3bet') return PRE_ORDER.slice(0, 5);
+  if (st.scn === 'vs3bet') return PRE_ORDER.slice(0, -1);
   return PRE_ORDER;
 }
 function renderRanges() {
   const el = $('studyBody'), g = game;
   const st = rangeSt;
   if (st.hu == null) st.hu = g.activeCount() === 2;
+  if (st.nine == null) st.nine = !st.hu && g.players.length >= 7;
+  if (st.hu) st.nine = false;
+  PRE_ORDER = st.nine ? PRE_ORDER9 : PRE_ORDER6;
   if (!RSCN.some(([k]) => k === st.scn)) st.scn = 'open';
   if (!st.depth) st.depth = 10;
   const positions = gridPositions(st);
@@ -56,22 +61,22 @@ function renderRanges() {
   }
   const chips = (key, list, val, label = v => v) => `<div class="seg" role="group">${list.map(v => `<button type="button" class="chip" data-${key}="${v}" aria-pressed="${String(v) === String(val)}">${label(v)}</button>`).join('')}</div>`;
   el.innerHTML = `
-    <div class="seg" role="group" aria-label="${tx`[[jogo]]Mesa`}"><button type="button" class="chip" data-hu="0" aria-pressed="${!st.hu}">6 jogadores</button><button type="button" class="chip" data-hu="1" aria-pressed="${st.hu}">Heads-up</button></div>
+    <div class="seg" role="group" aria-label="${tx`[[jogo]]Mesa`}"><button type="button" class="chip" data-hu="0" aria-pressed="${!st.hu && !st.nine}">6 jogadores</button><button type="button" class="chip" data-hu="9" aria-pressed="${!!st.nine}">${tx`9 jogadores`}</button><button type="button" class="chip" data-hu="1" aria-pressed="${st.hu}">Heads-up</button></div>
     ${chips('scn', RSCN.map(x => x[0]), st.scn, v => RSCN.find(x => x[0] === v)[1])}
-    <div class="field"><span class="field-label">${st.scn === 'push' && st.pos === 'BB' ? tx`Você (pagando)` : tx`Sua posição`}</span>${chips('pos', positions, st.pos)}</div>
-    ${(st.scn === 'vsopen' || (st.scn === 'push' && st.pos === 'BB')) && !st.hu ? `<div class="field"><span class="field-label">${st.scn === 'push' ? tx`Quem foi all-in` : tx`Quem abriu`}</span>${chips('op', openers, st.opener)}</div>` : ''}
+    <div class="field"><span class="field-label">${st.scn === 'push' && st.pos === 'BB' ? tx`Você (pagando)` : tx`Sua posição`}</span>${chips('pos', positions, st.pos, v => POS_CHIP[v] || v)}</div>
+    ${(st.scn === 'vsopen' || (st.scn === 'push' && st.pos === 'BB')) && !st.hu ? `<div class="field"><span class="field-label">${st.scn === 'push' ? tx`Quem foi all-in` : tx`Quem abriu`}</span>${chips('op', openers, st.opener, v => POS_CHIP[v] || v)}</div>` : ''}
     ${st.scn === 'push' ? `<div class="field"><span class="field-label">Stack efetivo</span>${chips('dp', DEPTHS, st.depth, v => v + ' BB')}</div>` : ''}
     <div class="grid13" role="grid" aria-label="Grade de mãos iniciais">${cells}</div>
     <div class="rlegend">${rT ? `<span style="--c:var(--brass)">${M.labels.r} ${pct(rT / 1326)}</span>` : ''}${cT ? `<span style="--c:var(--call)">${M.labels.c} ${pct(cT / 1326)}</span>` : ''}<span style="--c:linear-gradient(to right, var(--brass) 50%, var(--surface-2) 50%)">Mista</span>${mine ? '<span class="mk">sua mão</span>' : ''}</div>
     <div class="cell-info" id="cellInfo">Toque numa mão para ver a decisão. Acima da diagonal: mesmo naipe (s); abaixo: naipes diferentes (o). Células divididas são jogadas mistas.</div>
-    <p class="muted">${tx`${M.txt}. Faixas aproximadas de 6 jogadores com 100 BB, no estilo das tabelas de solver; o all-in curto vem do equilíbrio calculado pelo próprio app. São a referência do coach e o ponto de partida dos bots.`}</p>`;
+    <p class="muted">${tx`${M.txt}. Faixas aproximadas de 6 jogadores com 100 BB, no estilo das tabelas de solver; o all-in curto vem do equilíbrio calculado pelo próprio app. São a referência do coach e o ponto de partida dos bots.`}${st.nine ? ' ' + tx`Na mesa de 9, as três primeiras posições abrem ainda mais fechado (cerca de 11%, 12% e 15%), porque há mais jogadores para acordar com mão boa depois de você.` : ''}</p>`;
   const info = b => {
     const n = b.dataset.n, r = +b.dataset.r, c = +b.dataset.c, fold = Math.max(0, 1 - r - c);
     const p = [r ? `${M.labels.r.toLowerCase()} ${r < 1 ? pct(r) : ''}`.trim() : '', c ? `${M.labels.c.toLowerCase()} ${c < 1 ? pct(c) : ''}`.trim() : '', fold && (r || c) ? tx`desistir ${pct(fold)}` : ''].filter(Boolean);
     const extra = M.max ? tx` Vale até ${M.max(n) || 0} BB.` : '';
     $('cellInfo').innerHTML = tx`<b>${n}</b> · força de Chen ${b.dataset.s}. ${p.length ? p.join(', ').replace(/^./, x => x.toUpperCase()) : tx`Desistir`}.${extra}`;
   };
-  el.querySelectorAll('[data-hu]').forEach(b => b.onclick = () => { st.hu = b.dataset.hu === '1'; renderRanges(); });
+  el.querySelectorAll('[data-hu]').forEach(b => b.onclick = () => { st.hu = b.dataset.hu === '1'; st.nine = b.dataset.hu === '9'; renderRanges(); });
   el.querySelectorAll('[data-scn]').forEach(b => b.onclick = () => { st.scn = b.dataset.scn; renderRanges(); });
   el.querySelectorAll('[data-pos]').forEach(b => b.onclick = () => { st.pos = b.dataset.pos; renderRanges(); });
   el.querySelectorAll('[data-op]').forEach(b => b.onclick = () => { st.opener = b.dataset.op; renderRanges(); });

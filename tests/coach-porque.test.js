@@ -50,3 +50,15 @@ console.log('coach de tamanho e porquê pós-flop ok');
   assert(airBetBad >= airN * 0.7, `ar: ${airBetBad}/${airN}`);
   console.log('segunda bala ok', JSON.stringify(kinds));
 }
+// Etapa 7: bots que se adaptam
+{
+  const hands = [...Array(60)].map((_, i) => ({ h: i, n: 6, pos: 'BTN', vpip: i % 2 === 0, pfr: i % 4 === 0, flop: true, sd: i % 3 !== 0, won: false }));
+  const decs = [...Array(20)].map((_, i) => ({ h: i, n: 6, st: 'flop', fcb: true, a: i < 16 ? 'fold' : 'call' }));
+  assert.strictEqual(P.adaptReads(decs, hands.slice(0, 30)).need, 20);
+  const r = P.adaptReads(decs, hands);
+  assert(r.adj && r.adj.cbet > 0, 'larga muito contra c-bet → bots apostam mais');
+  assert(r.notes.some(n => n.k === 'vpip') && r.notes.some(n => n.k === 'wtsd'));
+  const pr = P.adaptProfile(P.PROFILES.tag, r.adj);
+  assert(pr.post.cbet > P.PROFILES.tag.post.cbet && P.PROFILES.tag.post.cbet === 0, 'perfil original intacto');
+  console.log('bots adaptativos ok:', r.notes.map(n => n.k).join(', '));
+}

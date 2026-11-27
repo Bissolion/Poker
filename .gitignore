@@ -3,3 +3,4 @@ node_modules/
 dist/
 tools/solver/target/
 tools/solver/Cargo.lock
+tools/spots/

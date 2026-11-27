@@ -105,7 +105,34 @@ function leaksHTML() {
     <h3>Estatísticas de jogo</h3><div class="tscroll"><table class="stbl"><thead><tr><th>Estatística</th><th class="num">Você</th><th class="num">Faixa</th><th class="num">Amostra</th><th></th></tr></thead><tbody>${gameRows}</tbody></table></div>
     <p class="muted">A faixa é o que um jogador que segue as tabelas e o coach do app produz contra estes bots. Um desvio só vira vazamento quando a amostra é grande o bastante para não ser sorte.</p>
     ${cmp}
-    <div class="seg"><button class="chip" id="csvCopy" type="button">Copiar histórico em CSV</button>${IS_PWA ? '<button class="chip" id="csvDown" type="button">Baixar CSV</button>' : ''}<span class="muted" id="csvMsg"></span></div>`;
+    ${weeklyHTML()}
+    <div class="seg"><button class="chip" id="csvCopy" type="button">Copiar histórico em CSV</button>${canDownload() ? '<button class="chip" id="csvDown" type="button">Baixar CSV</button>' : ''}<span class="muted" id="csvMsg"></span></div>`;
+}
+// Evolução semana a semana: treino aqui no app e partidas reais importadas
+const weekOf = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return E.localDay(x); };
+function weeklyHTML() {
+  if (realGames === null) loadReal().then(() => { if (studyTab === 'session' && !$('study').hidden) renderStudy(); });
+  const W = {};
+  const get = k => W[k] || (W[k] = { h: [], d: [], real: [] });
+  const byHand = {};
+  for (const h of reg.hands) { const k = weekOf(new Date(h.s || 0)); get(k).h.push(h); byHand[h.h] = k; }
+  for (const d of reg.decs) { const k = byHand[d.h] || weekOf(new Date(d.s || 0)); get(k).d.push(d); }
+  for (const g of realGames || []) { const [y, m, dd] = g.date.split('-').map(Number); if (g.score != null) get(weekOf(new Date(y, m - 1, dd))).real.push(g.score); }
+  const keys = Object.keys(W).filter(k => k > '2000').sort().slice(-8);
+  if (keys.length < 2) return '';
+  const rows = keys.map(k => {
+    const w = W[k], good = w.d.length ? w.d.filter(x => x.g === 'good').length / w.d.length : null;
+    const bb = w.h.length ? w.h.reduce((a, x) => a + (x.net || 0), 0) / w.h.length * 100 : null;
+    const vp = w.h.length ? w.h.filter(x => x.vpip).length / w.h.length : null;
+    const real = w.real.length ? w.real.reduce((a, b) => a + b, 0) / w.real.length : null;
+    return { k, n: w.h.length, good, bb, vp, real, nr: w.real.length };
+  });
+  const pts = rows.filter(r => r.good != null), Wd = 300, H = 60;
+  const spark = pts.length >= 2 ? `<svg class="spark" viewBox="0 0 ${Wd} ${H}" role="img" aria-label="${tx`Decisões boas por semana`}"><path class="ln" d="${pts.map((r, i) => `${i ? 'L' : 'M'}${(i / (pts.length - 1) * (Wd - 10) + 5).toFixed(1)},${(H - 5 - r.good * (H - 10)).toFixed(1)}`).join('')}"/></svg>` : '';
+  const f1 = v => v == null ? '–' : fmtN(Math.round(v * 10) / 10);
+  return `<h3>${tx`Evolução por semana`}</h3>${spark}<div class="tscroll"><table class="stbl"><thead><tr><th>${tx`Semana`}</th><th class="num">${tx`Mãos`}</th><th class="num">${tx`Boas`}</th><th class="num">BB/100</th><th class="num">VPIP</th><th class="num">${tx`Nota real`}</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td>${r.k.slice(8, 10)}/${r.k.slice(5, 7)}</td><td class="num">${r.n}</td><td class="num">${r.good == null ? '–' : pct(r.good)}</td><td class="num">${f1(r.bb)}</td><td class="num">${r.vp == null ? '–' : pct(r.vp)}</td><td class="num">${r.real == null ? '–' : f1(r.real) + ` <small>(${r.nr})</small>`}</td></tr>`).join('')}
+    </tbody></table></div><p class="muted">${tx`Boas = decisões que o coach aprovou no treino. Nota real = média das partidas importadas em Minhas mãos naquela semana.`}</p>`;
 }
 function regCSV() {
   const cols = ['h', 's', 'm', 'st', 'pos', 'n', 'r', 'tc', 'a', 'g', 'opn', 'agg', 'cbo', 'fcb'];
@@ -126,5 +153,5 @@ function bindLeaks() {
     try { navigator.clipboard.writeText(txt).then(() => msg(tx`Copiado.`), () => msg(tx`Não foi possível copiar aqui.`)); } catch (e) { msg(tx`Não foi possível copiar aqui.`); }
   };
   const dn = $('csvDown');
-  if (dn) dn.onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([regCSV()], { type: 'text/csv' })); a.download = 'mesa-de-treino.csv'; a.click(); };
+  if (dn) dn.onclick = async () => { const r = await saveFile('mesa-de-treino.csv', regCSV(), 'text/csv'); if (r) msg(r); };
 }

@@ -35,30 +35,62 @@ function flopCat(hole, board) {
   if (h.some(x => x === 12) || Math.min(...h) > b[0]) return 'altas';
   return 'nada';
 }
-// Situação de flop coberta pelas tabelas: { node, freq, cat, sizes } ou null
+// Qual tabela usar: o pote de abertura Botão x BB (POSFLOP) ou um dos cenários extras (SPOTS)
+const SPOT_PT = { srp_btn: tx`botão x big blind`, srp_co: tx`cutoff x big blind`, srp_sb: tx`small blind x big blind`, '3bet_bb': tx`pote de 3-bet`, curto: tx`stack curto` };
+function spotTable(g) {
+  const S = typeof SPOTS !== 'undefined' ? SPOTS : {};
+  if ((g.pfRaises || 0) >= 2) return S['3bet_bb'] ? { name: '3bet_bb', T: S['3bet_bb'] } : null;
+  if (g.flopStack && g.flopStack / g.bb <= 40 && S.curto) return { name: 'curto', T: S.curto };
+  const pos = g.posOf(g.pfAgg);
+  if (pos === 'CO' && S.srp_co) return { name: 'srp_co', T: S.srp_co };
+  if (pos === 'SB' && g.players.length > 2 && S.srp_sb) return { name: 'srp_sb', T: S.srp_sb };
+  return typeof POSFLOP !== 'undefined' ? { name: 'srp_btn', T: POSFLOP } : null;
+}
+// tipo da carta do turn em relação ao flop
+const TURN_PT = { baixa: tx`baixo`, alta: tx`com carta mais alta que o flop`, naipe: tx`que traz o terceiro do naipe`, par: tx`que forma par na mesa` };
+function turnTypeOf(flop, t) {
+  const fr = flop.map(rankOf), fs = flop.map(suitOf);
+  if (fr.includes(rankOf(t))) return 'par';
+  if (fs.filter(s => s === suitOf(t)).length >= 2) return 'naipe';
+  if (rankOf(t) > Math.max(...fr)) return 'alta';
+  return 'baixa';
+}
+// Situação coberta pelas tabelas: { node, freq, cat, ... } ou null
 //  node 'cbet': quem aumentou antes do flop, sem aposta à frente (rival passou ou ainda vai agir)
 //  node 'defesa': quem pagou antes do flop, diante de uma aposta de quem aumentou
+//  node 'barrel': no turn, quem apostou no flop e levou call decide se aposta de novo
 function solverSpot(g, seat) {
-  if (typeof POSFLOP === 'undefined' || g.street !== 'flop') return null;
   const p = g.players[seat], rivals = g.players.filter(q => q !== p && !q.folded);
   if (rivals.length !== 1 || g.pfAgg < 0) return null;
-  const T = POSFLOP.tex[flopTexKey(g.board)];
+  const L = g.legal(seat);
+  if (g.street === 'turn') {
+    const S = typeof SPOTS !== 'undefined' && SPOTS.srp_btn && SPOTS.srp_btn.turn;
+    if (!S || g.pfAgg !== seat || L.toCall !== 0 || (g.pfRaises || 0) > 1 || (g.flopStack && g.flopStack / g.bb <= 40)) return null;
+    const bet = (p.reads || []).some(r => r.st === 'flop' && r.lv >= 2 && !r.raise), called = (rivals[0].reads || []).some(r => r.st === 'flop' && r.lv === 1);
+    if (!bet || !called) return null;
+    const tt = turnTypeOf(g.board.slice(0, 3), g.board[3]), cat = flopCat(p.hole, g.board);
+    return S[tt] && S[tt][cat] ? { node: 'barrel', cat, tt, freq: S[tt][cat], all: S[tt], spot: 'srp_btn' } : null;
+  }
+  if (g.street !== 'flop') return null;
+  const st = spotTable(g); if (!st) return null;
+  // cenário extra sem esta textura resolvida: usa a média dele
+  const T = st.T.tex[flopTexKey(g.board)] || (st.name !== 'srp_btn' ? st.T.geral : null);
   if (!T) return null;
-  const cat = flopCat(p.hole, g.board), L = g.legal(seat), pot = g.pot();
-  if (g.pfAgg === seat && L.toCall === 0) return { node: 'cbet', cat, freq: T.cbet[cat], all: T.cbet, tex: flopTexKey(g.board) };
+  const cat = flopCat(p.hole, g.board), pot = g.pot();
+  if (g.pfAgg === seat && L.toCall === 0) return { node: 'cbet', cat, freq: T.cbet[cat], all: T.cbet, tex: flopTexKey(g.board), spot: st.name, total: T.total };
   const agg = rivals[0];
   if (g.pfAgg === agg.seat && L.toCall > 0 && g.raises <= 1) {
     const before = pot - L.toCall, frac = L.toCall / Math.max(1, before);
     const k = frac < 0.5 ? 'pequena' : 'grande';
-    return { node: 'defesa', cat, size: k, frac, freq: T.defesa[k][cat], all: T.defesa[k], tex: flopTexKey(g.board) };
+    return { node: 'defesa', cat, size: k, frac, freq: T.defesa[k][cat], all: T.defesa[k], tex: flopTexKey(g.board), spot: st.name };
   }
   return null;
 }
 // Escolhe uma ação pelas frequências do solver, com o desvio do estilo do bot
 function solverAction(g, seat, sp, pr, sk, rng) {
-  const L = g.legal(seat), pot = g.pot(), f = { ...sp.freq };
+  const L = g.legal(seat), pot = g.pot(), f = sp.node === 'barrel' ? { check: sp.freq.check, big: sp.freq.bet } : { ...sp.freq };
   const dv = pr.post || {};
-  if (sp.node === 'cbet') {
+  if (sp.node === 'cbet' || sp.node === 'barrel') {
     // agressivo aposta mais (principalmente sem mão), cauteloso aposta menos sem mão
     const weak = ['fraco', 'gutshot', 'altas', 'nada'].includes(sp.cat);
     const m = 1 + (dv.cbet || 0) * (weak ? 1.5 : 0.5);
