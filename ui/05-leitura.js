@@ -175,7 +175,7 @@ function renderActions() {
   const callLabel = L.canCheck ? tx`Passar` : `Pagar<small>${L.toCall}${L.toCall >= h.stack ? ' (all-in)' : ''}</small>`;
   const sizer = L.canRaise && L.maxTo > L.minTo ? `<div class="sizer">
       <div class="presets">${presetsFor(L).map(([lab, v]) => `<button type="button" class="chip" data-to="${clampTo(v, L)}" aria-pressed="${clampTo(v, L) === raiseTo}">${lab}</button>`).join('')}<span class="sz-note" id="szNote">${sizeNote(L, raiseTo)}</span></div>
-      <input type="range" id="raiseRange" min="${L.minTo}" max="${L.maxTo}" step="${roundTo()}" value="${raiseTo}" aria-label="Tamanho da aposta">
+      <div class="rr-wrap"><input type="range" id="raiseRange" min="${L.minTo}" max="${L.maxTo}" step="${roundTo()}" value="${raiseTo}" aria-label="Tamanho da aposta">${sugMark(L)}</div>
     </div>` : '';
   el.innerHTML = `${sizer}
     <div class="btns">
@@ -184,7 +184,7 @@ function renderActions() {
       <button type="button" class="act raise ${rec === 'raise' ? 'rec' : ''}" data-act="raise" ${L.canRaise ? '' : 'disabled'}>${L.canRaise ? raiseLabelFor(L, raiseTo) : tx`Aumentar`}</button>
     </div>`;
   el.querySelectorAll('[data-act]').forEach(b => b.onclick = () => heroAct(b.dataset.act));
-  el.querySelectorAll('.chip').forEach(b => b.onclick = () => { raiseTo = +b.dataset.to; renderActions(); });
+  el.querySelectorAll('.chip, .sz-mark').forEach(b => b.onclick = () => { raiseTo = +b.dataset.to; renderActions(); });
   const rr = $('raiseRange');
   if (rr) rr.oninput = () => {
     raiseTo = clampTo(+rr.value, L);
@@ -192,6 +192,13 @@ function renderActions() {
     $('szNote').textContent = sizeNote(L, raiseTo);
     el.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', +c.dataset.to === raiseTo));
   };
+}
+// marca no controle de tamanho: o tamanho que o coach sugere
+function sugMark(L) {
+  if (!liveHelp || L.maxTo <= L.minTo) return '';
+  const v = clampTo(defaultRaise(L), L), f = (v - L.minTo) / (L.maxTo - L.minTo);
+  // o polegar do controle tem ~22px: a marca acompanha o centro dele
+  return `<button type="button" class="sz-mark" data-to="${v}" style="left:calc(11px + ${(f * 100).toFixed(1)}% - ${(f * 22).toFixed(1)}px)" aria-label="${tx`Tamanho sugerido: ${v}`}"><i></i><span>${tx`sugerido`}</span></button>`;
 }
 function defaultRaise(L) {
   const g = game, d = decision;
@@ -263,7 +270,7 @@ function renderLive() {
   }
 }
 const GRADE_PT = { good: tx`Boa`, ok: 'Ok', bad: tx`Erro` };
-const fbHTML = f => `<div class="fb-item ${f.grade}"><span class="pill ${f.grade}">${GRADE_PT[f.grade]}</span><span class="fb-title">${f.title}</span><span class="fb-meta">${tx`${f.street} · você: ${f.act}`}</span><span class="fb-text">${f.text}</span>${f.sizing ? `<span class="fb-size ${f.sizing.grade}"><b>Tamanho</b>${f.sizing.text}</span>` : ''}</div>`;
+const fbHTML = f => `<div class="fb-item ${f.grade}"><span class="pill ${f.grade}">${GRADE_PT[f.grade]}</span><span class="fb-title">${f.title}</span><span class="fb-meta">${tx`${f.street} · você: ${f.act}`}</span><span class="fb-text">${f.text}</span>${f.why && f.why !== f.text ? `<span class="fb-why"><b>${tx`Por quê`}</b>${f.why}</span>` : ''}${f.sizing ? `<span class="fb-size ${f.sizing.grade}"><b>Tamanho</b>${f.sizing.text}</span>` : ''}</div>`;
 function renderFb() {
   const el = $('fb');
   if (!handFb.length) { el.innerHTML = game.handOver || game.players[0].folded ? '' : `<p class="muted">Depois de cada jogada sua, a análise aparece aqui.</p>`; return; }

@@ -148,6 +148,11 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 .status b { color: var(--brass); }
 .sizer { display: grid; gap: 8px; }
 .presets { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.rr-wrap { position: relative; padding-bottom: 18px; }
+.rr-wrap input { width: 100%; margin: 0; }
+.sz-mark { position: absolute; top: 0; transform: translateX(-50%); background: none; border: 0; padding: 0; pointer-events: none; display: grid; justify-items: center; color: var(--brass); font-size: 11px; cursor: pointer; }
+.sz-mark i { width: 2px; height: 26px; background: var(--brass); border-radius: 1px; opacity: .8; pointer-events: none; }
+.sz-mark span { line-height: 1; margin-top: 1px; pointer-events: auto; padding: 2px 4px; }
 .sz-note { margin-left: auto; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .chip { background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; font-size: 13px; font-weight: 600; }
 .chip:hover, .chip[aria-pressed="true"] { border-color: var(--brass); color: var(--brass); }
@@ -422,3 +427,7 @@ details[open] summary { margin-bottom: 8px; }
 .bcfg textarea { margin-top: 8px; resize: vertical; font-family: ui-monospace, monospace; font-size: 12px; }
 .bform .primary { padding: 0 22px; }
 label.chip { cursor: pointer; display: inline-flex; align-items: center; }
+.sz-good { color: var(--good); } .sz-ok { color: var(--ok); } .sz-bad { color: var(--bad); }
+.fb-why { display: block; margin-top: 6px; font-size: 13.5px; color: var(--ink); border-left: 2px solid var(--brass); padding-left: 8px; }
+.fb-why b { display: block; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--brass); }
+.rd-why { font-size: 13px; border-left: 2px solid var(--brass); padding-left: 8px; color: var(--ink); }

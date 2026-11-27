@@ -9,6 +9,14 @@ function boardWet(board) {
   return false;
 }
 // c: {street, raises, to, currentBet, pot, toCall, isBet, bb, limpers, maxTo, st, draws, board}
+// a mão do herói é a melhor possível com esta mesa agora (empate conta)?
+function isNuts(hole, board) {
+  if (board.length < 3) return false;
+  const mine = evalHand([...hole, ...board]), used = new Set([...hole, ...board]);
+  const rest = [...Array(52).keys()].filter(c => !used.has(c));
+  for (let i = 0; i < rest.length; i++) for (let j = i + 1; j < rest.length; j++) if (evalHand([rest[i], rest[j], ...board]) > mine) return false;
+  return true;
+}
 function gradeSizing(c) {
   const P = x => Math.round(x * 100) + '%';
   if (c.street === 'preflop') {
@@ -23,6 +31,7 @@ function gradeSizing(c) {
       return { grade: 'good', text: tx`${(Math.round(x * 2) / 2).toString().replace('.', DEC)} BB é um tamanho padrão de abertura.` };
     }
     const x = c.to / c.currentBet;
+    if (c.minTo && c.to <= c.minTo && c.to < c.maxTo) return { grade: 'ok', text: tx`Re-aumento mínimo (${x.toFixed(1).replace('.', DEC)}×): o rival paga quase de graça e vê o flop com posição ou odds ótimas. Use cerca de 3× (4× fora de posição).` };
     if (x < 2.2) return { grade: 'ok', text: tx`Re-aumento pequeno (${x.toFixed(1).replace('.', DEC)}×) dá odds boas para pagar. Use cerca de 3×.` };
     if (x > 4.5 && c.to < c.maxTo) return { grade: 'ok', text: tx`Re-aumento de ${x.toFixed(1).replace('.', DEC)}× é grande demais: só mãos melhores continuam. Use cerca de 3×.` };
     return { grade: 'good', text: tx`Re-aumento de ${x.toFixed(1).replace('.', DEC)}×, tamanho padrão.` };
@@ -31,6 +40,11 @@ function gradeSizing(c) {
   const F = P(frac) + (c.isBet ? tx` do pote` : tx` do pote no aumento`);
   const wet = boardWet(c.board);
   const semi = c.st < 0.6 && c.draws && c.draws.some(d => d.outs >= 8);
+  if (c.nuts && c.street === 'river') {
+    if (frac < 0.5) return { grade: 'ok', text: tx`Valor perdido: com a melhor mão possível no river, aposta de ${F} é pouco. Aposte 75% do pote ou mais; overbet também vale.` };
+    if (frac > 1) return { grade: 'good', text: tx`Overbet de ${F} com a nuts: o rival que tem mão boa paga e você tira o máximo.` };
+  }
+  if (c.nuts && frac > 1.3 && c.street !== 'river') return { grade: 'good', text: tx`Overbet de ${F} com a nuts: tamanho agressivo, bom quando o rival tem mão para pagar.` };
   if (c.st >= 0.6) {
     if (frac < 0.33) return { grade: 'ok', text: tx`Aposta de ${F} é pequena para mão forte: mãos piores pagariam mais.${wet ? tx` E projetos pagam barato para tentar te passar.` : ''}` };
     if (wet && frac < 0.5) return { grade: 'ok', text: tx`Aposta de ${F} protege pouco: o board tem projetos possíveis. Aposte pelo menos meio pote para cobrar caro deles.` };
@@ -118,7 +132,7 @@ function postflopInfo(g, seat, iters = 1500) {
   const eq = equity(p.hole, g.board, opps, iters);
   const pot = g.pot();
   const need = L.toCall > 0 ? L.toCall / (pot + L.toCall) : 0;
-  return { eq, need, st: strengthOf(eq, opps.length), nOpp: opps.length, made: handName(evalHand([...p.hole, ...g.board])), notes: g.players.filter(q => q !== p && !q.folded).map(readNote).filter(Boolean), draws: drawsOf(p.hole, g.board), cardsLeft: 5 - g.board.length, toCall: L.toCall, pot };
+  return { eq, need, st: strengthOf(eq, opps.length), nOpp: opps.length, made: handName(evalHand([...p.hole, ...g.board])), notes: g.players.filter(q => q !== p && !q.folded).map(readNote).filter(Boolean), draws: drawsOf(p.hole, g.board), cardsLeft: 5 - g.board.length, toCall: L.toCall, pot, nuts: isNuts(p.hole, g.board) };
 }
 function postflopRec(info) {
   if (info.toCall === 0) return info.st >= 0.62 ? 'raise' : 'check';
@@ -126,7 +140,7 @@ function postflopRec(info) {
   return info.eq >= info.need ? 'call' : 'fold';
 }
 const pct = x => Math.round(x * 100) + '%';
-function gradePostflop(info, action, L, street) {
+function gradePostflop(info, action, L, street, ctx = {}) {
   const { eq, need, st } = info;
   const E = pct(eq), N = pct(need);
   const draw = street !== 'river';
@@ -134,7 +148,12 @@ function gradePostflop(info, action, L, street) {
     if (action === 'fold') return { grade: 'bad', title: tx`Desistiu de graça`, text: tx`Ninguém apostou: passar não custa nada e você continua na mão.` };
     if (action === 'check') return st >= 0.75 ? { grade: 'ok', title: tx`Deixou valor na mesa`, text: tx`Sua mão é forte (${E} de equity). Apostar faz rivais com mãos piores pagarem.` } : { grade: 'good', title: tx`Check razoável`, text: tx`Com ${E} de equity, passar controla o tamanho do pote.` };
     if (st >= 0.6) return { grade: 'good', title: tx`Aposta de valor`, text: tx`Com ${E} de equity, você está à frente da maioria das mãos rivais. Apostar cobra delas.` };
-    if (st < 0.35) return { grade: 'ok', title: tx`Blefe`, text: tx`Só ${E} de equity. Blefe funciona às vezes contra jogadores cautelosos, mas o “Paga tudo” quase nunca desiste.` };
+    if (st < 0.35) {
+      // blefe de turn/river contra quem já pagou a rua anterior, sem projeto: o erro que mais se repete
+      const prevCall = (ctx.called || []).some(c => !c.now);
+      if (prevCall && street !== 'flop' && eq < 0.2) return { grade: 'bad', title: tx`Blefe contra quem já pagou`, text: tx`Só ${E} de equity, e o rival já pagou antes: ele tem algo e não larga. Desista do pote passando.` };
+      return { grade: 'ok', title: tx`Blefe`, text: ctx.real ? tx`Só ${E} de equity. Blefe precisa que o rival largue, e nos limites baixos quase ninguém larga.` : tx`Só ${E} de equity. Blefe funciona às vezes contra jogadores cautelosos, mas o “Paga tudo” quase nunca desiste.` };
+    }
     return { grade: 'ok', title: tx`Aposta com mão média`, text: tx`${E} de equity. Mãos médias muitas vezes preferem passar: quem paga sua aposta costuma ter mão melhor.` };
   }
   if (action === 'fold') {

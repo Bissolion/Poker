@@ -104,13 +104,15 @@ function adviseDecision(g, seat, iters = 1500) {
 function judgeDecision(g, seat, d, type, to) {
   const L = d.L;
   if (type === 'call' && L.canCheck) type = 'check';
-  let fb = d.street === 'preflop' ? gradePreflop(d.adv, type, L) : gradePostflop(d.info, type, L, d.street);
+  const pctx = d.street === 'preflop' ? null : Object.assign(postflopCtx(g, seat), { real: true });
+  let fb = d.street === 'preflop' ? gradePreflop(d.adv, type, L) : gradePostflop(d.info, type, L, d.street, pctx);
   const cb = d.info && (d.info.tips || []).find(x => x.k === 'cbet');
   if (cb && cb.rec === 'raise' && type === 'check') fb = { grade: 'ok', title: tx`Faltou a continuation bet`, text: cb.text };
   if (cb && cb.rec === 'check' && type === 'raise' && fb.grade === 'good') fb = { grade: 'ok', title: tx`Continuation bet arriscada aqui`, text: cb.text };
   let sizing = null;
-  if (type === 'raise') sizing = gradeSizing({ street: d.street, raises: g.raises, to, currentBet: g.currentBet, pot: g.pot(), toCall: L.toCall, isBet: L.isBet, bb: g.bb,
+  if (type === 'raise') sizing = gradeSizing({ street: d.street, raises: g.raises, to, currentBet: g.currentBet, minTo: L.minTo, pot: g.pot(), toCall: L.toCall, isBet: L.isBet, bb: g.bb,
     limpers: limpersAt(g, seat), maxTo: L.maxTo, st: d.info ? d.info.st : 0, draws: d.info ? d.info.draws : [], board: g.board, nAct: g.activeCount(), stackBB: d.adv && d.adv.push ? d.adv.depth : null, nuts: d.info ? d.info.nuts : false });
+  if (d.street !== 'preflop') fb = Object.assign({}, fb, { why: postflopReason(g, seat, d.info, type, { real: true }) });
   return { fb, sizing, type };
 }
 
@@ -162,7 +164,7 @@ function replayHand(h, opts = {}) {
       const L = d.L;
       decisions.push({ street: g.street, board: g.board.slice(), pot: g.pot(), toCall: L.toCall, stackBB: Math.round((g.players[s].stack + g.players[s].bet) / g.bb * 10) / 10,
         pos: g.posOf(s), type: j.type, to: act.to || 0, allIn: a.allIn, rec: d.rec, grade: j.fb.grade, title: j.fb.title, text: j.fb.text, sizing: j.sizing,
-        push: !!(d.adv && d.adv.push), why: d.adv ? d.adv.why : '', snap: g.snaps.length });
+        push: !!(d.adv && d.adv.push), why: j.fb.why || (d.adv ? d.adv.why : ''), snap: g.snaps.length });
       const rec = decisionRecord(g, s, j.type, j.fb.grade); rec.h = h.id; recs.push(rec);
     }
     if (s === heroSeat && g.street === 'preflop') { if (act.type === 'raise') flags.vpip = flags.pfr = true; else if (act.type === 'call') flags.vpip = true; }

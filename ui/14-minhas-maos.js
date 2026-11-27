@@ -134,8 +134,8 @@ function renderRealGame() {
     <div class="rdecs">${items.length ? items.map(({ d, h, hi }) => `
       <button class="rdec ${d.grade}" type="button" data-hi="${hi}">
         <span class="rd-cards">${h.cards.map(c => card(c, 'sm')).join('')}</span>
-        <span class="rd-body"><span class="rd-meta">${tx`Mão ${hi + 1}`} · ${E.STREET_LABEL[d.street]} · ${d.pos} · ${fmtN(d.stackBB)} BB · <b>${gradeWord(d.grade)}</b></span>
-        <b>${actWord(d)}: ${d.title}</b><span class="muted">${d.text || ''}</span>${d.sizing && d.sizing.grade !== 'good' ? `<span class="muted">${tx`Tamanho:`} ${d.sizing.text}</span>` : ''}</span>
+        <span class="rd-body"><span class="rd-meta">${tx`Mão ${hi + 1}`} · ${E.STREET_LABEL[d.street]} · ${d.pos} · ${fmtN(d.stackBB)} BB · <b>${gradeWord(d.grade)}</b>${d.sizing ? ` · ${tx`tamanho`} <b class="sz-${d.sizing.grade}">${gradeWord(d.sizing.grade)}</b>` : ''}</span>
+        <b>${actWord(d)}: ${d.title}</b><span class="muted">${d.text || ''}</span>${d.street !== 'preflop' && d.why ? `<span class="rd-why">${d.why}</span>` : ''}${d.sizing && d.sizing.grade !== 'good' ? `<span class="muted">${tx`Tamanho:`} ${d.sizing.text}</span>` : ''}</span>
       </button>`).join('') : `<p class="muted">${tx`Nenhuma decisão nesse filtro.`}</p>`}</div>`;
   $('rgBack').onclick = () => { realSel = null; renderReal(); };
   el.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { realFilter = b.dataset.f; renderRealGame(); });
@@ -150,7 +150,7 @@ function realReplayHand(g, hi) {
   const G = r.g, n = G.players.length, hs = r.heroSeat, rot = k => (k + hs) % n;
   const snaps = G.snaps.map(s => Object.assign({}, s, { seat: s.seat < 0 ? s.seat : (s.seat - hs + n) % n, p: [...Array(n).keys()].map(k => s.p[rot(k)]) }));
   for (const d of r.decisions) {
-    if (snaps[d.snap]) snaps[d.snap].fb = { street: E.STREET_LABEL[d.street], act: actWord(d), grade: d.grade, title: d.title, text: d.text, sizing: d.sizing };
+    if (snaps[d.snap]) snaps[d.snap].fb = { street: E.STREET_LABEL[d.street], act: actWord(d), grade: d.grade, title: d.title, text: d.text, why: d.street !== 'preflop' ? d.why : '', sizing: d.sizing };
   }
   const shown = Object.keys(h.raw.shows).map(nm => G.players.findIndex(p => p.name === nm)).filter(k => k >= 0 && k !== hs).map(k => (k - hs + n) % n);
   return { real: true, no: hi + 1, names: [...Array(n).keys()].map(k => k === 0 ? tx`Você` : G.players[rot(k)].name.slice(0, 8)), labels: Array(n).fill(''),

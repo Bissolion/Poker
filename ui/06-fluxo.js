@@ -73,12 +73,13 @@ function heroAct(type) {
   const L = d.L, g = game;
   if (type === 'call' && L.canCheck) type = 'check';
   const to = raiseTo;
-  let fb = d.street === 'preflop' ? E.gradePreflop(d.adv, type, L) : E.gradePostflop(d.info, type, L, d.street);
+  let fb = d.street === 'preflop' ? E.gradePreflop(d.adv, type, L) : E.gradePostflop(d.info, type, L, d.street, E.postflopCtx(g, 0));
   const cb = d.info && (d.info.tips || []).find(x => x.k === 'cbet');
   if (cb && cb.rec === 'raise' && type === 'check') fb = { grade: 'ok', title: tx`Faltou a continuation bet`, text: cb.text };
   if (cb && cb.rec === 'check' && type === 'raise' && fb.grade === 'good') fb = { grade: 'ok', title: tx`Continuation bet arriscada aqui`, text: cb.text };
   let sizing = null;
-  if (type === 'raise') sizing = E.gradeSizing({ street: d.street, raises: g.raises, to, currentBet: g.currentBet, pot: g.pot(), toCall: L.toCall, isBet: L.isBet, bb: g.bb, limpers: limpersFor(0), maxTo: L.maxTo, st: d.info ? d.info.st : 0, draws: d.info ? d.info.draws : [], board: g.board, nAct: g.activeCount(), stackBB: d.adv && d.adv.push ? d.adv.depth : null });
+  if (type === 'raise') sizing = E.gradeSizing({ street: d.street, raises: g.raises, to, currentBet: g.currentBet, minTo: L.minTo, pot: g.pot(), toCall: L.toCall, isBet: L.isBet, bb: g.bb, limpers: limpersFor(0), maxTo: L.maxTo, st: d.info ? d.info.st : 0, draws: d.info ? d.info.draws : [], board: g.board, nAct: g.activeCount(), stackBB: d.adv && d.adv.push ? d.adv.depth : null, nuts: d.info ? d.info.nuts : false });
+  if (d.street !== 'preflop') fb = Object.assign({}, fb, { why: E.postflopReason(g, 0, d.info, type) });
   const actPt = type === 'fold' ? tx`desistiu` : type === 'check' ? tx`passou` : type === 'call' ? tx`pagou ${L.toCall}` : (to >= L.maxTo ? `all-in ${L.maxTo}` : (L.isBet ? tx`apostou ${to}` : tx`aumentou p/ ${to}`));
   const item = Object.assign({ street: E.STREET_LABEL[d.street], act: actPt, sizing }, fb);
   handFb.push(item);

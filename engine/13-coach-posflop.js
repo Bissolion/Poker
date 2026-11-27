@@ -101,3 +101,49 @@ function heroDrawSuit(hole, board) {
   const s = sc.findIndex((n, k) => n === 4 && hole.some(c => suitOf(c) === k));
   return hole.find(c => suitOf(c) === s) ?? hole[0];
 }
+
+// ---------- O porquê depois do flop: quem paga, quem larga, o que o rival já mostrou ----------
+function postflopCtx(g, seat) {
+  const rivals = g.players.filter((q, i) => i !== seat && !q.folded);
+  const n = g.board.length;
+  // rivais que pagaram uma aposta numa rua anterior (ou já nesta rua)
+  const called = rivals.map(q => { const r = (q.reads || []).filter(x => x.lv === 1).pop(); return r ? { name: q.name, st: r.st, now: r.n === n } : null; }).filter(Boolean);
+  const raised = rivals.filter(q => (q.reads || []).some(x => x.lv > 1)).length;
+  return { nOpp: rivals.length, called, raised, street: g.street };
+}
+function postflopReason(g, seat, info, type, opts = {}) {
+  const p = g.players[seat], L = g.legal(seat), ctx = postflopCtx(g, seat);
+  const P = x => Math.round(x * 100) + '%', st = info.st, pot = g.pot();
+  const hd = heroDraws(p.hole, g.board), outs = hd ? hd.outs : 0, left = 52 - 2 - g.board.length;
+  const prev = ctx.called.filter(c => !c.now);
+  const calledTxt = prev.length ? (ctx.nOpp === 1 ? tx`O rival já pagou no ${STREET_LABEL[prev[0].st].toLowerCase()}: quem paga uma aposta tem par ou projeto, e larga pouco agora.` : tx`${prev.length} rivais já pagaram antes: alguém tem algo.`) : '';
+  const out = [];
+  if (L.toCall === 0) {
+    if (type === 'raise') {
+      if (st >= 0.6) out.push(tx`Quem paga: mãos piores que ainda gostam da delas (pares menores, projetos). É de quem você quer cobrar.`);
+      else if (hd && outs >= 8) out.push(tx`Semi-blefe: se o rival largar, você leva o pote agora; se pagar, ainda tem ${outs} outs (${P(outs / left)} na próxima carta).`);
+      else if (st >= 0.35) out.push(tx`Pense em quem paga: mãos melhores pagam ou aumentam, e as piores largam. Nenhuma mão pior paga, então a aposta só ganha fichas quando você já estava na frente.`);
+      else {
+        out.push(tx`Blefe só dá lucro se o rival largar mãos melhores que a sua.`);
+        if (calledTxt) out.push(calledTxt);
+        if (ctx.nOpp >= 2) out.push(tx`Contra ${ctx.nOpp} rivais, quase sempre alguém tem algo.`);
+        if (g.street === 'river') out.push(tx`No river não há mais carta para salvar: se ele pagar, você perde a aposta inteira.`);
+      }
+    } else {
+      if (st >= 0.75) out.push(tx`Passando, você deixa de cobrar das mãos piores que pagariam uma aposta.`);
+      else if (st >= 0.35) out.push(tx`Com mão média, passar leva ao showdown barato: você não paga caro para descobrir que estava atrás.`);
+      else if (hd && outs >= 8) out.push(tx`Passar vê a próxima carta de graça com ${outs} outs. Apostar como semi-blefe também valeria.`);
+      else out.push(tx`Mão fraca: passar não custa nada${calledTxt ? tx`, e blefar contra quem já pagou raramente funciona` : ''}.`);
+    }
+  } else {
+    const need = L.toCall / (pot + L.toCall);
+    out.push(tx`Pote de ${pot} e custa ${L.toCall}: pagar precisa ganhar ${P(need)} das vezes.`);
+    if (hd && outs) out.push(g.board.length === 3 ? tx`Seus ${outs} outs: ${P(outs / left)} na próxima carta, cerca de ${P(1 - (1 - outs / left) * (1 - outs / (left - 1)))} até o river (se não houver mais aposta).` : tx`Seus ${outs} outs: ${P(outs / left)} no river.`);
+    out.push(tx`Contra as mãos que apostam assim, você tem ${P(info.eq)}.`);
+    if (type === 'raise' && st < 0.6 && hd && outs >= 8) out.push(tx`Aumento como semi-blefe: as mãos piores largam, e se pagarem você ainda tem ${outs} outs. Funciona melhor com aposta grande.`);
+    else if (type === 'raise' && st < 0.6) out.push(tx`Aumentando, as mãos piores largam e as melhores continuam: você fica jogando só contra quem te vence.`);
+    else if (type === 'call' && info.eq < need - 0.03) out.push(tx`Pagar abaixo das odds, repetido, é o vazamento que mais custa.`);
+    else if (type === 'fold' && info.eq >= need + 0.03) out.push(tx`Pelas odds, pagar dava lucro no longo prazo.`);
+  }
+  return out.join(' ');
+}
