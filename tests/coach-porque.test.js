@@ -62,3 +62,19 @@ console.log('coach de tamanho e porquê pós-flop ok');
   assert(pr.post.cbet > P.PROFILES.tag.post.cbet && P.PROFILES.tag.post.cbet === 0, 'perfil original intacto');
   console.log('bots adaptativos ok:', r.notes.map(n => n.k).join(', '));
 }
+// Etapa 6: cenários extras do solver
+{
+  assert(P.solverSpot, 'solverSpot');
+  const segs = [...Array(30)].map(() => P.makeDrill('segunda'));
+  const withBarrel = segs.filter(d => { const sp = P.solverSpot(d.g, 0); return sp && sp.node === 'barrel' && sp.freq; });
+  assert(withBarrel.length >= 25, 'segunda bala usa a tabela do turn: ' + withBarrel.length);
+  // ar no turn baixo: o solver quase não aposta
+  const tips = withBarrel.map(d => P.gradeDrill(d, 'check').tips.find(t => t.k === 'barrel')).filter(Boolean);
+  assert(tips.length >= 25 && tips.every(t => /segunda bala/.test(t.text)));
+  // pote de 3-bet e stack curto escolhem as próprias tabelas
+  const hh = P.parseHandHistory(require('fs').readdirSync(require('path').join(__dirname, 'historicos')).filter(f => !f.startsWith('resumo')).map(f => require('fs').readFileSync(require('path').join(__dirname, 'historicos', f), 'utf8')).join('\n'));
+  const names = new Set();
+  for (const h of hh.slice(0, 291)) { const r = P.replayHand(h, { judge: false }); if (r.g && r.g.board.length >= 3 && r.g.pfAgg >= 0) { const t = P.spotTable(r.g); if (t) names.add(t.name); } }
+  assert(names.has('curto'), 'torneios com stack curto usam a tabela curta: ' + [...names]);
+  console.log('cenários do solver ok:', [...names].join(', '));
+}
