@@ -389,7 +389,8 @@ details[open] summary { margin-bottom: 8px; }
 .imp-drop { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 18px; border: 2px dashed var(--line); border-radius: 12px; cursor: pointer; text-align: center; }
 .imp-drop b { color: var(--brass); font-size: 15px; } .imp-drop span { font-size: 13px; color: var(--muted); }
 .imp-drop.over, .imp-drop:hover { border-color: var(--brass); } .imp-drop:focus-within { outline: 3px solid var(--brass); }
-.rsum { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 8px 0 14px; }
+.rsum { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 8px 0 14px; }
+@media (min-width: 560px) { .rsum { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .rsum div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
 .rsum b { display: block; font-size: 20px; } .rsum span { font-size: 12.5px; color: var(--muted); }
 .leaks { display: grid; gap: 8px; } .leak { display: grid; gap: 3px; padding: 10px 12px; border-left: 4px solid var(--bad); background: var(--surface); border-radius: 8px; font-size: 14px; }
@@ -405,3 +406,19 @@ details[open] summary { margin-bottom: 8px; }
 .rdec { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; text-align: left; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--good); border-radius: 10px; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
 .rdec.ok { border-left-color: var(--ok); } .rdec.bad { border-left-color: var(--bad); }
 .rd-cards { display: flex; gap: 2px; } .rd-body { display: grid; gap: 2px; } .rd-meta { font-size: 12.5px; color: var(--muted); }
+
+/* banca */
+.bwarn { padding: 10px 12px; border-radius: 10px; margin-bottom: 8px; font-size: 14px; background: var(--surface); border-left: 4px solid var(--ok); }
+.bwarn.bad { border-left-color: var(--bad); }
+.leak.good { border-left-color: var(--good); }
+.curve .zero { stroke: var(--line); stroke-dasharray: 4 4; }
+.bname { display: grid; gap: 8px; margin-bottom: 8px; }
+.bname label, .bgrid label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); min-width: 0; }
+.bgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 10px 0; }
+.bgrid .wide { grid-column: 1 / -1; }
+.bgrid input, .bgrid select, .bname input, .bcfg textarea { min-height: 40px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 6px 10px; font: inherit; font-size: 15px; width: 100%; box-sizing: border-box; }
+.bcfg { margin-top: 14px; background: var(--surface); border-radius: 12px; padding: 10px 12px; }
+.bcfg summary { cursor: pointer; font-weight: 700; }
+.bcfg textarea { margin-top: 8px; resize: vertical; font-family: ui-monospace, monospace; font-size: 12px; }
+.bform .primary { padding: 0 22px; }
+label.chip { cursor: pointer; display: inline-flex; align-items: center; }

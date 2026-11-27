@@ -8,6 +8,7 @@ function renderStudy() {
   else if (studyTab === 'quiz') renderQuiz();
   else if (studyTab === 'drills') renderDrills();
   else if (studyTab === 'real') renderReal();
+  else if (studyTab === 'bank') renderBank();
   else renderSession();
 }
 
